@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Amaj\Crud\Services;
+namespace Tir\Crud\Services;
 use Illuminate\Routing\ResourceRegistrar as OriginalRegistrar;
 
 

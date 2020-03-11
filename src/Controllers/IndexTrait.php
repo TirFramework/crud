@@ -1,8 +1,8 @@
 <?php 
 
-namespace Amaj\Crud\Http\Controllers;
+namespace Tir\Crud\Controllers;
 
-use Amaj\Crud\Events\CrudIndex;
+use Tir\Crud\Events\CrudIndex;
 
 trait IndexTrait
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Amaj\Crud\Models;
+namespace Tir\Crud\Models;
 
 use Illuminate\Database\Eloquent\Model;
 

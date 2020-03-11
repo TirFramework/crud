@@ -1,18 +1,14 @@
 <?php
 
-namespace Amaj\Crud;
+namespace Tir\Crud;
 
 
 use Illuminate\Support\ServiceProvider;
-use Amaj\Crud\Services\ResourceRegistrar;
+use Tir\Crud\Services\ResourceRegistrar;
 
 class CrudServiceProvider extends ServiceProvider
 {
 
-
-    protected $packagesTrait = [
-         'Amaj\Crud\Trait\CrudTrait' => 'Amaj\Crud\PackageTrait\User',
-    ];
 
 
     /**

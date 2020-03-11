@@ -1,16 +1,14 @@
 <?php
 
-namespace Amaj\Crud\Http\Controllers;
+namespace Tir\Crud\Controllers;
 
-use Amaj\Crud\Events\CrudIndex;
-use Amaj\Crud\Repositories\IndexRepository;
 use Route;
 use Str;
 use Illuminate\Routing\Controller as BaseController;
 
 class CrudController extends BaseController
 {
-    use IndexTrait;
+   // use IndexTrait;
     //The $name used for find Model, View, Controller and all crud system.
     protected $name;
 

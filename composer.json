@@ -1,5 +1,5 @@
 {
-    "name": "amaj/crud",
+    "name": "tir/crud",
     "description": "Laravel CRUD scaffolding system",
     "license": "MIT",
     "authors": [
@@ -14,14 +14,14 @@
 
     "autoload": {
         "psr-4": {
-            "Amaj\\Crud\\": "src/"
+            "Tir\\Crud\\": "src/"
         }
     },
 
     "extra": {
         "laravel": {
             "providers": [
-                "Amaj\\Crud\\CrudServiceProvider"
+                "Tir\\Crud\\CrudServiceProvider"
             ]
         }
     }
