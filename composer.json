@@ -1,0 +1,28 @@
+{
+    "name": "amaj/crud",
+    "description": "Laravel CRUD scaffolding system",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tirdad Abbasi",
+            "email": "abbasi.tirdad@gmail.com"
+        }
+    ],
+    "require": {
+
+    },
+
+    "autoload": {
+        "psr-4": {
+            "Amaj\\Crud\\": "src/"
+        }
+    },
+
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Amaj\\Crud\\CrudServiceProvider"
+            ]
+        }
+    }
+}
