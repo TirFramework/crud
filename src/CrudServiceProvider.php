@@ -10,8 +10,6 @@ use Tir\Crud\Services\ResourceRegistrar;
 class CrudServiceProvider extends ServiceProvider
 {
 
-
-
     /**
      * Register any application services.
      *
@@ -30,11 +28,6 @@ class CrudServiceProvider extends ServiceProvider
         $this->app->bind('Illuminate\Routing\ResourceRegistrar', function () use ($registrar) {
             return $registrar;
         });
-
-        //Register event service provider 
-        //$this->app->register(EventServiceProvider::class);
-
-
 
     }
 
