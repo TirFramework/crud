@@ -3,6 +3,7 @@
 namespace Tir\Crud;
 
 
+use Tir\Crud\EventServiceProvider;
 use Illuminate\Support\ServiceProvider;
 use Tir\Crud\Services\ResourceRegistrar;
 
@@ -18,7 +19,10 @@ class CrudServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        
+        //Merge config file in package and published config file.
+        $this->mergeConfigFrom(
+            __DIR__.'/config/crud.php', 'crud'
+        );
 
         //Add CustomEnhancement resource routing
         //this route register several route resource those use in CRUD Module
@@ -27,15 +31,8 @@ class CrudServiceProvider extends ServiceProvider
             return $registrar;
         });
 
-
-        $this->loadViewsFrom(__DIR__.'/Resources/Views/', 'crud');
-
-
-
-        // $this->app->singleton('FooBar', function($app) { 
-        //     return new FooBar($app['SomethingElse']);
-        //  });
-
+        //Register event service provider 
+        //$this->app->register(EventServiceProvider::class);
 
 
 
@@ -49,6 +46,14 @@ class CrudServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->loadRoutesFrom(__DIR__.'/Routes/web.php');
+
+        $this->loadViewsFrom(__DIR__.'/Resources/Views', 'crud');
+
+        $this->loadTranslationsFrom(__DIR__.'/Resources/Lang/', 'crud');
+
+        $this->publishes([
+            __DIR__.'/config/crud.php' => config_path('crud.php'),
+        ]);
     }
 }
 

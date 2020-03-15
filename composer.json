@@ -9,7 +9,9 @@
         }
     ],
     "require": {
-
+        "tir/first-panel": "dev-master",
+        "laravelcollective/html": "^5.2.0",
+        "yajra/laravel-datatables-oracle": "^9.0"
     },
 
     "autoload": {

@@ -2,13 +2,14 @@
 
 namespace Tir\Crud\Controllers;
 
-use Route;
-use Str;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Routing\Controller as BaseController;
 
 class CrudController extends BaseController
 {
-   // use IndexTrait;
+   use IndexTrait, CreateTrait, EditTrait;
+
     //The $name used for find Model, View, Controller and all crud system.
     protected $name;
 
@@ -21,6 +22,8 @@ class CrudController extends BaseController
     protected $actions = [];
     
     protected $crud = [];
+
+    protected $relations = [];
 
     public function __construct()
     {
