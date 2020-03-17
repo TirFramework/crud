@@ -5,6 +5,7 @@ namespace Tir\Crud\Controllers;
 use Illuminate\Http\Request;
 use Tir\Crud\Events\UpdateEvent;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 
 trait UpdateTrait
@@ -96,7 +97,7 @@ trait UpdateTrait
         $url = ($request->input('save_close') ? route("$this->name.index") : route("$this->name.edit", [$this->name => $item->getKey()]));
         $message = trans('crud::message.item-updated', ['item' => trans("message.item.$this->name")]); //translate message
         Session::flash('message', $message);
-        return redirect($url);
+        return Redirect::to($url);
     }
 
 }

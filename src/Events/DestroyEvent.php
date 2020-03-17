@@ -2,7 +2,7 @@
 
 namespace Tir\Crud\Events;
 
-class DeleteEvent
+class DestroyEvent
 {
     //Get crud name from Crud. it's well be similar to "Post" or "User" or any name of modules or packages
     public $CrudName;

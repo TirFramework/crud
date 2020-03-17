@@ -54,7 +54,7 @@ trait DataTrait
                 if($this->checkPermission('edit')){
                     $editBtn = '<a href="'.route( $this->name.'.edit',$item->getKey()).'" class="btn btn-sm btn-info"><i class="glyphicon glyphicon-edit"></i> <span class="hidden">'.trans('panel.edit').'</span></a>';
                 }
-                if($this->checkPermission('delete')){
+                if($this->checkPermission('destroy')){
                     $DeleteBtn = '<button onclick=' . '"deleteRow(' . "'" . route($this->name . '.destroy', $item->getKey()) . "'" . ')" class="btn btn-sm btn-danger"> <i class="glyphicon glyphicon-trash"></i> <span class="hidden">' . trans('panel.delete') . '</span></button>';
                 }
                 return $viewBtn.' '.$editBtn.' '.$DeleteBtn;
@@ -82,4 +82,40 @@ trait DataTrait
         return $this->dataTable($items);
     }
 
+
+
+        /**
+     * return datatable object
+     * @return object
+     */
+    public function trashData()
+    {
+        $this->dataInitialFields();
+        $items = $this->dataQuery()->onlyTrashed();
+        return $this->trashDataTable($items);
+    }
+
+    /**
+     * This function return Datatables with add columsn
+     * @param object $items
+     * @return  \Yajra\DataTables\Facades\DataTables
+     */
+    public function trashDataTable($items)
+    {
+        return Datatables::eloquent($items)
+            ->addColumn('action', function ($item) {
+                $DeleteBtn = $restoreBtn=null;
+
+                if($this->checkPermission('destroy')){
+                    $restoreBtn = '<a href="'.route( $this->name.'.restore',$item->getKey()).'" class="btn btn-sm btn-success"><i class="glyphicon glyphicon-repeat"></i> <span class="hidden">'.trans('panel.restore').'</span></a>';
+                }
+                if($this->checkPermission('forceDestroy')){
+                    $DeleteBtn = '<button onclick=' . '"deleteRow(' . "'" . route($this->name . '.forceDestroy', $item->getKey()) . "'" . ')" class="btn btn-sm btn-danger"> <i class="glyphicon glyphicon-trash"></i> <span class="hidden">' . trans('panel.delete') . '</span></button>';
+                }
+                return $restoreBtn.' '.$DeleteBtn;
+            })->addColumns($this->addColumns())
+            ->make(true);
+    }
+
 }
+

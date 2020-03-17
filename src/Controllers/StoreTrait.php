@@ -2,10 +2,11 @@
 
 namespace Tir\Crud\Controllers;
 
-use Tir\Crud\Events\StoreEvent;
 use Illuminate\Http\Request;
+use Tir\Crud\Events\StoreEvent;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 
 
@@ -90,7 +91,7 @@ trait StoreTrait
 
         $message = trans('crud::message.item-created', ['item' => trans("message.item.$this->name")]); //translate message
         Session::flash('message', $message);
-        return redirect($url);
+        return Redirect::to($url);
     }
 
 

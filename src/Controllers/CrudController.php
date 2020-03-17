@@ -2,14 +2,15 @@
 
 namespace Tir\Crud\Controllers;
 
-use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Str;
 use Tir\Acl\Acl;
+use Illuminate\Support\Str;
+use Tir\Crud\Controllers\TrashTrait;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Routing\Controller as BaseController;
 
 class CrudController extends BaseController
 {
-    use IndexTrait, DataTrait, CreateTrait, StoreTrait, EditTrait, UpdateTrait;
+    use IndexTrait, DataTrait, CreateTrait, StoreTrait, EditTrait, UpdateTrait, TrashTrait, DestroyTrait, ForceDestroyTrait;
 
     //The $name used for find Model, View, Controller and all crud system.
     protected $name;
@@ -37,15 +38,17 @@ class CrudController extends BaseController
         //set Crud name
         if (!$this->name) {
             //split route name and get keyName for route view
-            $this->name = explode('.', Route::CurrentRouteName());
-            $this->name = $this->name[0];
-            $this->method = $this->name[1];
+            $routeName = explode('.', Route::CurrentRouteName());
+            $this->name = $routeName[0];
+            $this->method = $routeName[1];
         }
 
         //Get Permission
         $this->permission = $this->getPermission($this->name, $this->method);
         //Check permission
-        $this->checkPermission($this->name, $this->method);
+        if(!$this->checkPermission($this->method)){
+            abort('403');
+        }
 
         //check model is exist in App\Modules\{model name}
         if (!$this->model) {
@@ -77,10 +80,14 @@ class CrudController extends BaseController
             ];
         }
 
+        //actions
+        $this->actions = $this->model->getActions();
+
+
         /** All information about CRUD such as name, model, table, fields, etc,
          *  that used in Index, Data, Create, Store, and etc methods
          */
-        $this->crud = (object) ['name' => $this->name, 'model' => $this->model, 'table' => $this->table, 'fields' => $this->fields, 'options' => $this->options, 'actions' => $this->actions];
+        $this->crud = (object) ['name' => $this->name, 'model' => $this->model, 'table' => $this->table, 'fields' => $this->fields, 'options' => $this->options, 'actions' => $this->actions, 'permission'=>$this->permission];
 
     }
 
@@ -90,7 +97,7 @@ class CrudController extends BaseController
         if (class_exists(\Tir\Acl\Permission::class)) {
             $permission = \Tir\Acl\Permission::list($name, $action);
         } else {
-            $permission = 'all';
+            $permission = ['index'=>'all','show'=>'all','create'=>'all','edit'=>'all','delete'=>'all','fulldelete'=>'all'];
         }
 
         return $permission;
@@ -98,12 +105,17 @@ class CrudController extends BaseController
 
     private function checkPermission($action)
     {
+        $action = ($action == 'data') ? 'index' : $action;
+        $action = ($action == 'restore') ? 'destroy' : $action;
+        $action = ($action == 'trashData') ? 'trash' : $action;
+        
         if (isset($this->permission[$action])) {
-            if ($this->permission[$action] == 'deny') {
-                return false;
+            if ($this->permission[$action] != 'deny') {
+                return true;
             }
-            return true;
+            return false;
         }
+        return false;
     }
 
 }
