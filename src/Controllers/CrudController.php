@@ -9,7 +9,7 @@ use Tir\Acl\Acl;
 
 class CrudController extends BaseController
 {
-    use IndexTrait, DataTrait, CreateTrait, EditTrait;
+    use IndexTrait, DataTrait, CreateTrait, StoreTrait, EditTrait, UpdateTrait;
 
     //The $name used for find Model, View, Controller and all crud system.
     protected $name;
@@ -31,6 +31,7 @@ class CrudController extends BaseController
 
     protected $permission;
 
+    
     public function __construct()
     {
         //set Crud name
@@ -67,6 +68,7 @@ class CrudController extends BaseController
 
         // Get fields from model and convert to objective array
         $this->fields = $this->model->getFields();
+
 
         //options
         if ($this->options == null) {

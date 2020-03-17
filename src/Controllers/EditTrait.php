@@ -2,131 +2,51 @@
 
 namespace Tir\Crud\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Validator;
+use Tir\Crud\Events\EditEvent;
+use Illuminate\Support\Facades\View;
 
 trait EditTrait
 {
-
-    //   Edit  /////////////////////////////////////////////////////////////////
-
-    public function editAcl($id)
+    /**
+     * This function find an object model and if permission == owner return only owner item
+     * @return eloquent
+     */
+    public function findForEdit($id)
     {
-        $item = null;
-        $permission  = 'all';
-        if ($permission == 'all') {
-            $item = $this->model::findOrFail($id);
-        } elseif ($permission == 'owner') {
-            $item = $this->model::OnlyOwner()->findOrFail($id);
+        $items = $this->model::findOrFail($id);
+        if($this->permission == 'owner'){
+            $items = $items->OnlyOwner();
         }
-        return $item;
+        return $items;
     }
 
+    /**
+     * This function return a view and pass $crud
+     * @return \Illuminate\Support\Facades\View;
+     */
     public function editCrud($item)
     {
-        $crud = (object) ['name' => $this->name, 'model' => $this->model, 'fields' => $this->fields];
-
-        if (view()->exists("$this->name::admin.edit")) {
-            return view("$this->name::admin.edit", compact('crud', 'item'));
-        }
-
-
-        return view("crud::scaffold.edit", compact('crud', 'item'));
+        
+        /*
+         * First try to load a view from application or other package, that called
+         * this function with CRUD name. if this view wasn't exist then try
+         * load create view from CRUD(this) package.
+         */
+        return View::first(["$this->name::admin.edit", "crud::scaffold.edit"])->with(['crud'=>$this->crud, 'item'=>$item]);
     }
 
+    /**
+     * This function called from route. run an event and run edit functions
+     *
+     * @param int $id
+     * @return void
+     */
     public function edit($id)
     {
-        $item = $this->model::findOrFail($id);
-        //$item = $this->editAcl($id);
+        event(new EditEvent($this->name));
+        $item = $this->findForEdit($id);
         return $this->editCrud($item);
     }
-
-    // End Edit /////////
-
-
-    //   Update  /////////////////////////////////////////////////////////////////
-
-    public function update(Request $request, $id)
-    {
-        //$item = $this->updateAcl($id);
-
-        //$this->updateValidation($request, $item);
-        $data = $this->updateRequestManipulation($request);
-        $item = $this->model->findOrFail($id);
-        $error = $this->updateCrud($request, $data, $item);
-        return $this->updateReturn($error, $item, $request);
-    }
-
-
-    // public function updateAcl($id)
-    // {
-    //     $permission =  Acl::executeAccess($this->name, 'edit');
-    //     $item = null;
-    //     //acl access check for owner or all data
-    //     if ($permission == 'all') {
-    //         $item = $this->model::findOrFail($id);
-    //     } elseif ($permission == 'owner') {
-    //         $item = $this->model::OnlyOwner()->findOrFail($id);
-    //     }
-
-    //     if ($item == null) {
-    //         return abort('403');
-    //     }
-    //     return $item;
-    // }
-
-    public function updateValidation($request, $id)
-    {
-        //return Validator::make($request->all(), $this->validator($id))->validate();
-    }
-
-    public function updateRequestManipulation($request)
-    {
-        return $request->all();
-    }
-
-    public function updateCrud($request, $data, $item)
-    {
-        $error = 0;
-
-
-        //update item
-        if (!$item->update($data)) {
-            $error++;
-        }
-
-        //update relation
-        foreach ($this->fields as $field) {
-            if ((strpos($field->visible, 'e') !== false)) {
-                if (isset($field->multiple)) {
-                    if (isset($field->relation)) {
-                        $relationData = $request->input($field->name);
-                        if (!$item->{$field->relation}()->sync($relationData)) {
-                            $error++;
-                        }
-                    }
-                }
-            }
-        }
-
-        //return result
-        return $error;
-    }
-
-    public function updateReturn($error, $item, $request)
-    {
-        if ($error == 0) {
-            $url = ($request->input('save_close') ? route("$this->name.index") : route("$this->name.edit", [$this->name => $item->getKey()]));
-            $message = trans('crud::message.item-updated', ['item' => trans("message.item.$this->name")]); //translate message
-            Session::flash('message', $message);
-            return redirect($url);
-        } else {
-            $message = trans('crud::message.problem'); //translate message
-            return  abort('500', $message);
-        }
-    }
-    //   End Update  /////////
 
 
 }

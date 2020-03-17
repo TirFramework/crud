@@ -2,9 +2,8 @@
 
 namespace Tir\Crud\Controllers;
 
+use Tir\Crud\Events\IndexEvent;
 use Illuminate\Support\Facades\View;
-use Tir\Crud\Events\CrudIndex;
-use Yajra\DataTables\Facades\DataTables;
 
 trait IndexTrait
 {
@@ -15,7 +14,7 @@ trait IndexTrait
     public function index()
     {
         //here we can add some functionality with other packages or in application
-        event(new CrudIndex($this->name));
+        event(new IndexEvent($this->name));
         return View::first(["$this->name::admin.index", "crud::scaffold.index"])->with('crud', $this->crud);
     }
 

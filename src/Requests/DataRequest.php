@@ -1,18 +1,21 @@
-<?php 
+<?php
+namespace Tir\Crud\Requests;
 
-namespace Tir\Crud\Controllers;
+use Tir\Crud\Controllers\CrudController;
+use Tir\Crud\Requests\BaseRequest;
 use Yajra\DataTables\Facades\DataTables;
 
 
-trait DataTrait
+class DataRequest extends BaseRequest
 {
+
     /**
      * This function initial and search in fields they mush show in index page,
      *  if filed->visible contain "i" character and field->relation had been true,
      * push field name into $field->relations array for update crud relations.
      * @return void
      */
-    public function dataInitialFields()
+    public function initialFields()
     {
         foreach ($this->fields as $field){
             if((strpos($field->visible, 'i') == false)){
@@ -28,7 +31,7 @@ trait DataTrait
      * This function return a eloquent select with relation ship
      * @return eloquent
      */
-    public function dataQuery()
+    public function query()
     {
         $items = $this->model::select($this->table.'.*')->with($this->relations);
         if($this->permission == 'owner'){
@@ -43,7 +46,7 @@ trait DataTrait
      * @param object $items
      * @return  \Yajra\DataTables\Facades\DataTables
      */
-    public function dataTable($items)
+    public function datatable($items)
     {
         return Datatables::eloquent($items)
             ->addColumn('action', function ($item) {
@@ -77,9 +80,9 @@ trait DataTrait
      */
     public function data()
     {
-        $this->dataInitialFields();
-        $items = $this->dataQuery();
-        return $this->dataTable($items);
+        $this->initialFields();
+        $items = $this->query();
+        return $this->datatable($items);
     }
 
 }
