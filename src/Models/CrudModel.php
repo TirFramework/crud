@@ -14,7 +14,7 @@ class CrudModel extends Model
     protected $dates = ['deleted_at'];
 
     //this function generate option for action select in header panel
-    public function getActions($page = null)
+    public function getActions()
     {
         $actions = [
             'index' =>

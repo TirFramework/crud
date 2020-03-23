@@ -67,13 +67,13 @@ use App\Modules\Authorization\acl;
                     $name = $field->name;
                     $key = $crud->table.'.'.$field->name;
                     $render = null;
-                    if(isset($field->datatable)):                  //relationship must have datatable field for show in datatable
-                        $name = $key = $field->datatable;
-                        //for many to many datatable $field->datatable must be array and have two index ,first is name and second is data
-                        if(is_array($field->datatable)):
-                          $name = $field->datatable[0];
-                          $key =  $field->datatable[1];
-                        endif;
+                    if($field->type =='relation'):     //relationship must have datatable field for show in datatable
+                        $name = $key = $field->relation. '.'. $field->data[1];
+                    endif;
+                    //for many to many datatable $field->datatable must be array and have two index ,first is name and second is data
+                    if($field->type  == 'relationM'):
+                        $name = $field->relation. '[].'. $field->data[1];
+                        $key =  $field->relation. '.'. $field->data[1];
                     endif;
                     if($field->type == 'order'):
                         $className = ",className:'ordered'";

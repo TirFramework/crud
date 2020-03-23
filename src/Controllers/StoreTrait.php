@@ -35,7 +35,7 @@ trait StoreTrait
      */
     public function storeValidation(Request $request, $validation)
     {
-       $validation =  $this->model->validation();
+       $validation =  $this->validation;
         return Validator::make($request->all(), $validation)->validate();
     }
 

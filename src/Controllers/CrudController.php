@@ -10,6 +10,7 @@ use Illuminate\Routing\Controller as BaseController;
 
 class CrudController extends BaseController
 {
+    //TODO: add show trait and method
     use IndexTrait, DataTrait, CreateTrait, StoreTrait, EditTrait, UpdateTrait, TrashTrait, DestroyTrait, ForceDestroyTrait;
 
     //The $name used for find Model, View, Controller and all crud system.
@@ -28,6 +29,8 @@ class CrudController extends BaseController
 
     protected $relations = [];
 
+    protected $validation = [];
+
     protected $options = [];
 
     protected $permission;
@@ -37,10 +40,11 @@ class CrudController extends BaseController
     {
         //set Crud name
         if (!$this->name) {
+            //TODO: problem in console
             //split route name and get keyName for route view
             $routeName = explode('.', Route::CurrentRouteName());
             $this->name = $routeName[0];
-            $this->method = $routeName[1];
+           $this->method = $routeName[1];
         }
 
         //Get Permission
@@ -80,6 +84,11 @@ class CrudController extends BaseController
             ];
         }
 
+        
+        //validation
+        $this->validation = $this->model->getValidation();
+
+
         //actions
         $this->actions = $this->model->getActions();
 
@@ -106,6 +115,8 @@ class CrudController extends BaseController
     private function checkPermission($action)
     {
         $action = ($action == 'data') ? 'index' : $action;
+        $action = ($action == 'store') ? 'create' : $action;
+        $action = ($action == 'update') ? 'edit' : $action;
         $action = ($action == 'restore') ? 'destroy' : $action;
         $action = ($action == 'trashData') ? 'trash' : $action;
         

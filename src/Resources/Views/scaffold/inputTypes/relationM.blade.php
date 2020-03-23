@@ -1,27 +1,19 @@
 @php
     //set #id for jquery confilict
     $id = preg_replace("/[^a-zA-Z_]/", "", $field->name);
-    $fieldName = $field->name;
-    $options = ['id'=> "select-$id", 'class'=>'dropdown-toggle form-control'];
-    if(isset($field->multiple)):
-        if( $field->multiple == true):
-            $options['multiple'] = 'multiple';
-            $fieldName = $field->name.'[]';
-        endif;
-    else:
-        $options ['placeholder'] = trans('$crud->name::panel.select').' '.trans("$crud->name::panel.$field->display");
-    endif;
+    $fieldName = $field->name.'[]';
+    $options = ['id'=> "select-$id", 'class'=>'dropdown-toggle form-control','multiple'];
 
 
-    $class = $field->data[0];
-    $key = 'title';
 
-    if(isset($field->data->field)){
-        $key = $field->data->field;
-    }
-    }
-    $loadModel = 'App\Modules\\'.$module.'\\'.$model;
-    $values = $loadModel::pluck($key,'id');
+
+    $model = $field->data[0];
+    $key = $field->data[1];
+
+        if(isset($field->data->field)){
+            $key = $field->data->field;
+        }
+    $values = $model::pluck($key,'id');
 @endphp
 
 <div class="form-group">
