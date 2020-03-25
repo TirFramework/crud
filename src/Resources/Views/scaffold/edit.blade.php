@@ -36,6 +36,22 @@
             {!! Form::close() !!}
         </div>
     </div>
+
+    @foreach ($crud->additionalFields as $aField)
+        @if(strpos($aField->visible, 'e') !== false)
+            @if(!isset($aField->display))
+                @php $aField->display = $aField->name; @endphp
+            @endif
+            {{--check local folder have input or no--}}
+            @if(view()->exists("$crud->name::admin.inputTypes.$aField->type"))
+                    @include("$crud->name::admin.inputTypes.$aField->type",['field'=>$field,'crud'=>$crud, 'item'=>$item])
+                @else
+                    @include("crud::scaffold.inputTypes.$aField->type",['field'=>$aField,'crud'=>$crud, 'item'=>$item])
+            @endif
+        @endif
+    @endforeach
+
+    
 @endsection
 
 
