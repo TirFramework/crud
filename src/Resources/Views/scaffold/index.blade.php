@@ -14,9 +14,9 @@ use App\Modules\Authorization\acl;
 @endsection
 @section('content')
     <div id="result"></div>
-    <div class="panel panel-default">
+    <div class="card card-default">
         @include(config('crud.admin-panel').'::layouts.panel-heading',['name'=>$crud->name, 'actions'=>$crud->actions])
-        <div class="panel-body">
+        <div class="card-body">
             <div class="">
                 <table class="table table-striped table-hover responsive nowrap" id="table" width="100%">
                     <thead>
@@ -30,7 +30,9 @@ use App\Modules\Authorization\acl;
                                 @endif
                             @endif
                     @endforeach
-                        <th >{{trans('crud::panel.action')}}</th>
+                        <th >
+                            {{-- {{trans('crud::panel.action')}} --}}&ensp;
+                        </th>
 
                     </tr>
                     </thead>

@@ -52,13 +52,13 @@ class DataRequest extends BaseRequest
             ->addColumn('action', function ($item) {
                 $viewBtn = $DeleteBtn = $editBtn=null;
                 if($this->checkPermission('show')){
-                    $viewBtn = '<a href="'.route( $this->name.'.show',$item->getKey()).'" class="btn btn-sm btn-info"><i class="glyphicon glyphicon-eye-open"></i> <span class="hidden">'.trans('panel.view').'</span></a>';
+                    $viewBtn = '<a href="'.route( $this->name.'.show',$item->getKey()).'" class="btn btn-sm btn-info"><i class="fas fa-eye-open"></i> <span class="hidden">'.trans('panel.view').'</span></a>';
                 }
                 if($this->checkPermission('edit')){
-                    $editBtn = '<a href="'.route( $this->name.'.edit',$item->getKey()).'" class="btn btn-sm btn-info"><i class="glyphicon glyphicon-edit"></i> <span class="hidden">'.trans('panel.edit').'</span></a>';
+                    $editBtn = '<a href="'.route( $this->name.'.edit',$item->getKey()).'" class="btn btn-sm btn-info"><i class="fas fa-edit"></i> <span class="hidden">'.trans('panel.edit').'</span></a>';
                 }
                 if($this->checkPermission('delete')){
-                    $DeleteBtn = '<button onclick=' . '"deleteRow(' . "'" . route($this->name . '.destroy', $item->getKey()) . "'" . ')" class="btn btn-sm btn-danger"> <i class="glyphicon glyphicon-trash"></i> <span class="hidden">' . trans('panel.delete') . '</span></button>';
+                    $DeleteBtn = '<button onclick=' . '"deleteRow(' . "'" . route($this->name . '.destroy', $item->getKey()) . "'" . ')" class="btn btn-sm btn-danger"> <i class="fas fa-trash"></i> <span class="hidden">' . trans('panel.delete') . '</span></button>';
                 }
                 return $viewBtn.' '.$editBtn.' '.$DeleteBtn;
             })->addColumns($this->addColumns())
