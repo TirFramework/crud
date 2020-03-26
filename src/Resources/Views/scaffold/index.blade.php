@@ -84,21 +84,10 @@ use App\Modules\Authorization\acl;
 
                     //if enable drag reorder and add column must $loop = 1
                     if(strpos($field->visible, 'f') !== false){
-                        if($field->type != 'relationSelect'){
-                                $filters .= $loop.':'.json_encode($crud->model::select($field->name)->distinct($field->name)->pluck($field->name)).', ';
-                        }
-                        if($field->type == 'relationSelect'){
-                            $dataModel = $field->data;
-                            $dataField = 'title';
-                            if(is_object($field->data)):
-                                $dataModule = $dataModel = $field->data->module;
-                                if(isset($field->data->model)):
-                                    $dataModel = $field->data->model;
-                                endif;
-                                $dataField =  $field->data->field;
-                            endif;
-                           $class = 'App\\Modules\\'.$dataModule.'\\'.$dataModel;
-                           $filters .= $loop.':'.json_encode($class::select($dataField)->distinct($dataField)->pluck($dataField)).', ';
+                        if($field->type == 'relation' || $field->type == 'relationM'){
+                            $dataModel = $field->data[0];
+                           $dataField = $field->data[1];
+                           $filters .= $loop.':'.json_encode($dataModel::has(Str::plural($crud->name))->select($dataField)->distinct($dataField)->pluck($dataField)).', ';
                         }
                     }
                     $loop++;
