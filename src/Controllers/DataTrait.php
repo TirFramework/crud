@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Tir\Crud\Controllers;
 use Yajra\DataTables\Facades\DataTables;
@@ -49,13 +49,13 @@ trait DataTrait
             ->addColumn('action', function ($item) {
                 $viewBtn = $DeleteBtn = $editBtn=null;
                 if($this->checkPermission('show')){
-                    $viewBtn = '<a href="'.route( $this->name.'.show',$item->getKey()).'" class="btn btn-sm btn-info"><i class="glyphicon glyphicon-eye-open"></i> <span class="hidden">'.trans('panel.view').'</span></a>';
+                    $viewBtn = '<a href="'.route( $this->name.'.show',$item->getKey()). '" class="text-success"><i title="' . trans('panel.view') . '" class="fas fa-eye"></i></a>';
                 }
                 if($this->checkPermission('edit')){
-                    $editBtn = '<a href="'.route( $this->name.'.edit',$item->getKey()).'" class="btn btn-sm btn-info"><i class="glyphicon glyphicon-edit"></i> <span class="hidden">'.trans('panel.edit').'</span></a>';
+                    $editBtn = '<a href="'.route( $this->name.'.edit',$item->getKey()). '" class="text-info"><i title="' . trans('panel.edit') . '" class="fas fa-edit"></i></a>';
                 }
                 if($this->checkPermission('destroy')){
-                    $DeleteBtn = '<button onclick=' . '"deleteRow(' . "'" . route($this->name . '.destroy', $item->getKey()) . "'" . ')" class="btn btn-sm btn-danger"> <i class="glyphicon glyphicon-trash"></i> <span class="hidden">' . trans('panel.delete') . '</span></button>';
+                    $DeleteBtn = '<button onclick=' . '"deleteRow(' . "'" . route($this->name . '.destroy', $item->getKey()) . "'" . ')" class="text-danger"> <i title="' . trans('panel.delete') . '" class="fas fa-trash"></i></button>';
                 }
                 return $viewBtn.' '.$editBtn.' '.$DeleteBtn;
             })->addColumns($this->addColumns())
@@ -63,7 +63,7 @@ trait DataTrait
     }
 
     /**
-     * Add extra column to datatable 
+     * Add extra column to datatable
      * @return array
      */
     public function addColumns()
@@ -107,10 +107,10 @@ trait DataTrait
                 $DeleteBtn = $restoreBtn=null;
 
                 if($this->checkPermission('destroy')){
-                    $restoreBtn = '<a href="'.route( $this->name.'.restore',$item->getKey()).'" class="btn btn-sm btn-success"><i class="glyphicon glyphicon-repeat"></i> <span class="hidden">'.trans('panel.restore').'</span></a>';
+                    $restoreBtn = '<a href="'.route( $this->name.'.restore',$item->getKey()).'" class="btn btn-sm btn-success"><i class="fas fa-repeat"></i> <span class="hidden">'.trans('panel.restore').'</span></a>';
                 }
                 if($this->checkPermission('forceDestroy')){
-                    $DeleteBtn = '<button onclick=' . '"deleteRow(' . "'" . route($this->name . '.forceDestroy', $item->getKey()) . "'" . ')" class="btn btn-sm btn-danger"> <i class="glyphicon glyphicon-trash"></i> <span class="hidden">' . trans('panel.delete') . '</span></button>';
+                    $DeleteBtn = '<button onclick=' . '"deleteRow(' . "'" . route($this->name . '.forceDestroy', $item->getKey()) . "'" . ')" class="btn btn-sm btn-danger"> <i class="fas fa-trash"></i> <span class="hidden">' . trans('panel.delete') . '</span></button>';
                 }
                 return $restoreBtn.' '.$DeleteBtn;
             })->addColumns($this->addColumns())
