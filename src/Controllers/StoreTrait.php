@@ -64,9 +64,7 @@ trait StoreTrait
 
         //Store relations
         foreach ($this->fields as $field) {
-            if ((strpos($field->visible, 'c') !== false)
-                && isset($field->multiple)
-                && isset($field->relation)) {
+            if ((strpos($field->visible, 'c') !== false) && $field->type == 'relationM') {
                 $data = $request->input($field->name);
                 $item->{$field->relation}()->sync($data);
             }

@@ -74,9 +74,7 @@ trait UpdateTrait
 
         //update relation
         foreach ($this->fields as $field) {
-            if ((strpos($field->visible, 'e') !== false)
-                && isset($field->multiple)
-                && isset($field->relation)) {
+            if ((strpos($field->visible, 'e') !== false)&& $field->type == 'relationM') {
                 $data = $request->input($field->name);
                 $item->{$field->relation}()->sync($data);
             }

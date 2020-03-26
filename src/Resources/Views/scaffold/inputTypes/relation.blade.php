@@ -39,16 +39,6 @@
                 }
                 return query;
             }
-            // processResults: function (data, params) {
-            //     params.page = params.page || 1;
-
-            //     return {
-            //         results: data.results,
-            //         pagination: {
-            //             more: (params.page * 1) < data.count_filtered
-            //         }
-            //     };
-            // }
         }
     });
 </script>

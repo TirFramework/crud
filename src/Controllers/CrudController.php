@@ -11,7 +11,7 @@ use Illuminate\Routing\Controller as BaseController;
 class CrudController extends BaseController
 {
     //TODO: add show trait and method
-    use IndexTrait, DataTrait, SelectTrait, CreateTrait, StoreTrait, EditTrait, UpdateTrait, TrashTrait, DestroyTrait, ForceDestroyTrait;
+    use IndexTrait, DataTrait, SelectTrait, CreateTrait, StoreTrait, EditTrait, UpdateTrait, TrashTrait, DestroyTrait, ForceDestroyTrait, ActionTrait;
 
     //The $name used for find Model, View, Controller and all crud system.
     protected $name;
@@ -126,6 +126,7 @@ class CrudController extends BaseController
     private function checkPermission($action)
     {
         $action = ($action == 'data') ? 'index' : $action;
+        $action = ($action == 'reorder') ? 'index' : $action;
         $action = ($action == 'select') ? 'index' : $action;
         $action = ($action == 'store') ? 'create' : $action;
         $action = ($action == 'update') ? 'edit' : $action;

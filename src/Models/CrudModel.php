@@ -13,6 +13,12 @@ class CrudModel extends Model
 
     protected $dates = ['deleted_at'];
 
+    
+    public function getStatusAttribute($value)
+    {
+        return trans('crud::panel.status_val.'.$value);
+    }
+
     //this function generate option for action select in header panel
     public function getActions()
     {

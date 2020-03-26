@@ -77,17 +77,31 @@ use App\Modules\Authorization\acl;
                         $name = $field->relation. '[].'. $field->data[1];
                         $key =  $field->relation. '.'. $field->data[1];
                     endif;
-                    if($field->type == 'sort_order'):
-                        $className = ",className:'ordered'";
+                    if($field->type == 'order'):
+                        $className = ",className:'sort_order'";
                     endif;
                     $col .= "{ data:`$name`, name: `$key` $className, defaultContent: '' $render},";
 
                     //if enable drag reorder and add column must $loop = 1
                     if(strpos($field->visible, 'f') !== false){
+
                         if($field->type == 'relation' || $field->type == 'relationM'){
                             $dataModel = $field->data[0];
                            $dataField = $field->data[1];
                            $filters .= $loop.':'.json_encode($dataModel::has(Str::plural($crud->name))->select($dataField)->distinct($dataField)->pluck($dataField)).', ';
+                        }else{
+                            $select = $crud->model::select($field->name)->distinct($field->name);
+                            if(
+                                $select->first()->getOriginal($field->name) != 
+                                $select->first()->{$field->name}
+                            ){
+                                $select = $select->get()->map(function($items) use ($field){
+                                            return [$items->getOriginal($field->name)=>$items->{$field->name}];
+                                     });
+                             }else{
+                                 $select = $select->pluck($field->name);
+                             }
+                            $filters .= $loop.':'.json_encode($select).', ';
                         }
                     }
                     $loop++;
