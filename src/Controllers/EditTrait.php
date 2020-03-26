@@ -43,6 +43,7 @@ trait EditTrait
      */
     public function edit($id)
     {
+        //return 'edit';
         event(new EditEvent($this->name));
         $item = $this->findForEdit($id);
         return $this->editCrud($item);

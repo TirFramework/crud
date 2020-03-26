@@ -33,6 +33,10 @@ class CrudController extends BaseController
 
     protected $options = [];
 
+    protected $fields = [];
+
+    protected $additionalFields = [];
+
     protected $permission;
 
     
@@ -75,7 +79,14 @@ class CrudController extends BaseController
 
         // Get fields from model and convert to objective array
         $this->fields = $this->model->getFields();
+        
+        
+        // check additional method exist
+        if(method_exists($this->model,'getAdditionalFields')){
+            $this->additionalFields = $this->model->getAdditionalFields();
+        }
 
+        
 
         //options
         if ($this->options == null) {
@@ -96,7 +107,7 @@ class CrudController extends BaseController
         /** All information about CRUD such as name, model, table, fields, etc,
          *  that used in Index, Data, Create, Store, and etc methods
          */
-        $this->crud = (object) ['name' => $this->name, 'model' => $this->model, 'table' => $this->table, 'fields' => $this->fields, 'options' => $this->options, 'actions' => $this->actions, 'permission'=>$this->permission];
+        $this->crud = (object) ['name' => $this->name, 'model' => $this->model, 'table' => $this->table, 'fields' => $this->fields, 'additionalFields' => $this->additionalFields, 'options' => $this->options, 'actions' => $this->actions, 'permission'=>$this->permission];
 
     }
 

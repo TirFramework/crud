@@ -37,6 +37,7 @@
         </div>
     </div>
 
+    {{-- Load additional fields --}}
     @foreach ($crud->additionalFields as $aField)
         @if(strpos($aField->visible, 'e') !== false)
             @if(!isset($aField->display))

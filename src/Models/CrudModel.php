@@ -46,4 +46,10 @@ class CrudModel extends Model
         return json_decode(json_encode($fields));
     }
 
+    public function getAdditionalFields()
+    {
+        $fields = [];
+        return json_decode(json_encode($fields));
+    }
+
 }
