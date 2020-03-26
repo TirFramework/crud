@@ -90,18 +90,7 @@ use App\Modules\Authorization\acl;
                            $dataField = $field->data[1];
                            $filters .= $loop.':'.json_encode($dataModel::has(Str::plural($crud->name))->select($dataField)->distinct($dataField)->pluck($dataField)).', ';
                         }else{
-                            $select = $crud->model::select($field->name)->distinct($field->name);
-                            if(
-                                $select->first()->getOriginal($field->name) != 
-                                $select->first()->{$field->name}
-                            ){
-                                $select = $select->get()->map(function($items) use ($field){
-                                            return [$items->getOriginal($field->name)=>$items->{$field->name}];
-                                     });
-                             }else{
-                                 $select = $select->pluck($field->name);
-                             }
-                            $filters .= $loop.':'.json_encode($select).', ';
+                            $filters .= $loop.':'.json_encode($crud->model::select($field->name)->distinct($field->name)->pluck($field->name)).', ';
                         }
                     }
                     $loop++;
