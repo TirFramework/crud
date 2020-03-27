@@ -6,7 +6,7 @@ $name = $field->name;
 $index = preg_replace('/[\[\]]/i', '_' , $field->name);
 @endphp
 
-
+<div class="{{$field->col ?? 'col-12 col-md-6'}}">
     <div class="form-group">
         {!! Form::label("$field->name", trans("$crud->name::panel.$field->display"), ['class' => 'col-md-2 control-label']) !!}
         <div class="col-md-10">
@@ -20,3 +20,4 @@ $index = preg_replace('/[\[\]]/i', '_' , $field->name);
 
         </div>
     </div>
+</div>
