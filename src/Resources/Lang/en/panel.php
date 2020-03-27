@@ -45,4 +45,8 @@ return [
     'published'                 => 'Published',
     'unpublished'               => 'Unpublished',
     'draft'                     => 'Draft',
+
+    'status_val'                => [
+                                     '1' => 'published'
+    ]
 ];

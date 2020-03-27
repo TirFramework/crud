@@ -13,6 +13,8 @@ class CrudModel extends Model
 
     protected $dates = ['deleted_at'];
 
+    
+
     //this function generate option for action select in header panel
     public function getActions()
     {
@@ -43,6 +45,12 @@ class CrudModel extends Model
     {
         $fields = [];
 
+        return json_decode(json_encode($fields));
+    }
+
+    public function getAdditionalFields()
+    {
+        $fields = [];
         return json_decode(json_encode($fields));
     }
 

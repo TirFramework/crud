@@ -47,7 +47,7 @@ trait UpdateTrait
     public function updateValidation(request $request, $item)
     {
         $validation = $item->getValidation();
-         return Validator::make($request->all(), $validation)->validate();
+         Validator::make($request->all(), $validation)->validate();
 
     }
 
@@ -74,9 +74,7 @@ trait UpdateTrait
 
         //update relation
         foreach ($this->fields as $field) {
-            if ((strpos($field->visible, 'e') !== false)
-                && isset($field->multiple)
-                && isset($field->relation)) {
+            if ((strpos($field->visible, 'e') !== false)&& $field->type == 'relationM') {
                 $data = $request->input($field->name);
                 $item->{$field->relation}()->sync($data);
             }
@@ -97,7 +95,11 @@ trait UpdateTrait
         $url = ($request->input('save_close') ? route("$this->name.index") : route("$this->name.edit", [$this->name => $item->getKey()]));
         $message = trans('crud::message.item-updated', ['item' => trans("message.item.$this->name")]); //translate message
         Session::flash('message', $message);
-        return Redirect::to($url);
+        if($request->input('save_close')){
+            return Redirect::to(route("$this->name.index"));
+        }else{
+            return Redirect::back();
+        }
     }
 
 }

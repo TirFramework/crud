@@ -4,6 +4,7 @@ $model = null;
 if( isset($item->{$field->name}) ){
     $model = $item->{$field->name};
 }
+//TODO:remove laravel form generator package
 @endphp
 <div class="{{$field->col ?? 'col-12 col-md-6'}}">
 

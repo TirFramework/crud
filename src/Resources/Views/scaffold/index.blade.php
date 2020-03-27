@@ -70,7 +70,7 @@ use App\Modules\Authorization\acl;
                     $key = $crud->table.'.'.$field->name;
                     $render = null;
                     if($field->type =='relation'):     //relationship must have datatable field for show in datatable
-                        $name = $key = $field->relation. '.'. $field->data[1];
+                        $name = $key = $field->relation.'.'.$field->data[1];
                     endif;
                     //for many to many datatable $field->datatable must be array and have two index ,first is name and second is data
                     if($field->type  == 'relationM'):
@@ -78,27 +78,19 @@ use App\Modules\Authorization\acl;
                         $key =  $field->relation. '.'. $field->data[1];
                     endif;
                     if($field->type == 'order'):
-                        $className = ",className:'ordered'";
+                        $className = ",className:'sort_order'";
                     endif;
                     $col .= "{ data:`$name`, name: `$key` $className, defaultContent: '' $render},";
 
                     //if enable drag reorder and add column must $loop = 1
                     if(strpos($field->visible, 'f') !== false){
-                        if($field->type != 'relationSelect'){
-                                $filters .= $loop.':'.json_encode($crud->model::select($field->name)->distinct($field->name)->pluck($field->name)).', ';
-                        }
-                        if($field->type == 'relationSelect'){
-                            $dataModel = $field->data;
-                            $dataField = 'title';
-                            if(is_object($field->data)):
-                                $dataModule = $dataModel = $field->data->module;
-                                if(isset($field->data->model)):
-                                    $dataModel = $field->data->model;
-                                endif;
-                                $dataField =  $field->data->field;
-                            endif;
-                           $class = 'App\\Modules\\'.$dataModule.'\\'.$dataModel;
-                           $filters .= $loop.':'.json_encode($class::select($dataField)->distinct($dataField)->pluck($dataField)).', ';
+
+                        if($field->type == 'relation' || $field->type == 'relationM'){
+                            $dataModel = $field->data[0];
+                           $dataField = $field->data[1];
+                           $filters .= $loop.':'.json_encode($dataModel::has(Str::plural($crud->name))->select($dataField)->distinct($dataField)->pluck($dataField)).', ';
+                        }else{
+                            $filters .= $loop.':'.json_encode($crud->model::select($field->name)->distinct($field->name)->pluck($field->name)).', ';
                         }
                     }
                     $loop++;

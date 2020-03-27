@@ -59,15 +59,12 @@ trait StoreTrait
 
         // Add user_id to data for detect which user create item. this column use for ACL package and detect owner of item
         $request->merge(['user_id' => Auth::id()]);
-
         // Store model
         $item = $this->model::create($request->all());
 
         //Store relations
         foreach ($this->fields as $field) {
-            if ((strpos($field->visible, 'c') !== false)
-                && isset($field->multiple)
-                && isset($field->relation)) {
+            if ((strpos($field->visible, 'c') !== false) && $field->type == 'relationM') {
                 $data = $request->input($field->name);
                 $item->{$field->relation}()->sync($data);
             }
@@ -87,11 +84,15 @@ trait StoreTrait
     public function storeReturn(Request $request, $item)
     {
         //if user select SAVE button url will like this /admin/xxx/1/edit
-        $url = ($request->input('save_close') ? route("$this->name.index") : route("$this->name.edit", [$this->name => $item->getKey()]));
+        //$url = ($request->input('save_close') ? route("$this->name.index") : route("$this->name.edit", [$this->name => $item->getKey()]));
 
         $message = trans('crud::message.item-created', ['item' => trans("message.item.$this->name")]); //translate message
         Session::flash('message', $message);
-        return Redirect::to($url);
+        if($request->input('save_close')){
+            return Redirect::to(route("$this->name.index"));
+        }else{
+            return Redirect::back();
+        }
     }
 
 

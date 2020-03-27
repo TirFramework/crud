@@ -10,9 +10,6 @@
     $model = $field->data[0];
     $key = $field->data[1];
 
-        if(isset($field->data->field)){
-            $key = $field->data->field;
-        }
     $values = $model::pluck($key,'id');
 @endphp
 
@@ -27,16 +24,17 @@
     <script>
     $("#select-{{$id}}").select2({
         placeholder: "{{trans('crud::panel.select').' '.trans("$crud->name::panel.$field->display")}}",
-        // ajax: {
-        //     url: '/admin/{{strtolower($module)}}/select/?key={{$key}}',
-        //     dataType: 'json',
-        //     data: function (params) {
-        //         var query = {
-        //             search: params.term
-        //         }
-        //         return query;
-        //     }
-        // }
+        ajax: {
+            url: '/admin/{{strtolower($field->routeName)}}/select/?key={{$key}}',
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term,
+                    page: params.page || 0
+                }
+                return query;
+            }
+        }
     });
 </script>
 @endpush

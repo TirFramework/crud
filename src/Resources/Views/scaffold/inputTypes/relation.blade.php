@@ -13,15 +13,9 @@
     endif;
 
 
-    $class = $field->data[0];
-    $key = 'title';
-
-    if(isset($field->data->field)){
-        $key = $field->data->field;
-    }
-    }
-    $loadModel = 'App\Modules\\'.$module.'\\'.$model;
-    $values = $loadModel::pluck($key,'id');
+    $model = $field->data[0];
+    $key = $field->data[1];
+    $values = $model::pluck($key,'id');
 @endphp
 
 <div class="form-group">
@@ -35,16 +29,17 @@
     <script>
     $("#select-{{$id}}").select2({
         placeholder: "{{trans('crud::panel.select').' '.trans("$crud->name::panel.$field->display")}}",
-        // ajax: {
-        //     url: '/admin/{{strtolower($module)}}/select/?key={{$key}}',
-        //     dataType: 'json',
-        //     data: function (params) {
-        //         var query = {
-        //             search: params.term
-        //         }
-        //         return query;
-        //     }
-        // }
+        ajax: {
+            url: '/admin/{{strtolower($field->routeName)}}/select/?key={{$key}}',
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term,
+                    page: params.page || 0
+                }
+                return query;
+            }
+        }
     });
 </script>
 @endpush

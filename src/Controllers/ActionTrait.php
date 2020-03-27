@@ -2,9 +2,8 @@
 
 namespace Tir\Crud\Controllers;
 
-use Tir\Crud\Events\ForceDestroyEvent;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Redirect;
 
 trait ActionTrait
 {
@@ -146,37 +145,37 @@ trait ActionTrait
 
     public function reorder(request $request)
     {
-        if($this->checkPermission('index')){
 
-            if ($request->input('id') !== null) {
-                $id = $request->input('id');
-                $position = $request->input('ordered');
-                $item = $this->model::withTrashed()->findOrFail($id);
-                $item->ordered = $position;
-                if ($item->save()) {
-                    $response = 'send response records updated goes here';
-                    return response()->json($response);
-                }
-            } else {  //drag
-                $count = 0;
-                $ids = $request->input('data');
-                if (count($ids)) {
-                    foreach ($ids as $i => $key) {
-                        $id = $key['id'];
-                        $position = $key['position'];
-                        $item = $this->model::withTrashed()->findOrFail($id);
-                        $item->ordered = $position;
-                        if ($item->save()) {
-                            $count++;
-                        }
-                    }
-                    $response = 'send response records updated goes here';
-                    return response()->json($response);
-                } else {
-                    $response = 'send nothing to sort response goes here';
-                    return response()->json($response);
-                }
+        if ($request->input('id') !== null) {
+            $id = $request->input('id');
+            $position = $request->input('sort_order');
+            $item = $this->model::withTrashed()->findOrFail($id);
+            $item->sort_order = $position;
+            if ($item->save()) {
+                $response = 'send response records updated goes here';
+                return response()->json($response);
             }
-        }
+         } 
+        //else {  //drag
+        //     $count = 0;
+        //     $ids = $request->input('data');
+        //     if (count($ids)) {
+        //         foreach ($ids as $i => $key) {
+        //             $id = $key['id'];
+        //             $position = $key['position'];
+        //             $item = $this->model::withTrashed()->findOrFail($id);
+        //             $item->ordered = $position;
+        //             if ($item->save()) {
+        //                 $count++;
+        //             }
+        //         }
+        //         $response = 'send response records updated goes here';
+        //         return response()->json($response);
+        //     } else {
+        //         $response = 'send nothing to sort response goes here';
+        //         return response()->json($response);
+        //     }
+        // }
     }
+
 }
