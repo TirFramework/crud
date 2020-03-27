@@ -1,16 +1,28 @@
+
 @php
-$placeholder = null;
-if(isset($field->placeholder)){
-    $placeholder = $field->placeholder;
-}
-$option = null;
-if(isset($field->option)){
-    $option = $field->option;
+$model = null;
+if( isset($item->{$field->name}) ){
+    $model = $item->{$field->name};
 }
 @endphp
-<div class="form-group">
-    {!! Form::label($field->name, trans("$crud->name::panel.$field->display"), ['class' => 'col-md-2 control-label']) !!}
-    <div class="col-md-10">
-        {!! Form::text($field->name,null,['class' => 'form-control ','placeholder'=> $placeholder , $option=> $option ])!!}
+<div class="{{$field->col ?? 'col-12 col-md-6'}}">
+
+    <div class="form-group">
+            <input type="text"
+            id="{{$field->name}}"
+            name="{{$field->name}}"
+            placeholder="{{$field->placeholder ?? null}}"
+            {{$field->option ?? null}}
+            value="{{ old( $field->name, $model ) }}"
+            class="form-control @error($field->name) is-invalid @enderror"
+            {!!$field->validation ?? null!!}
+            >
+            <span class="invalid-feedback" role="alert">
+                @error($field->name)
+                <strong>{{ $message }}</strong>
+                @enderror
+            </span>
+            <label for="{{$field->name}}" class="control-label text-right">@lang("$crud->name::panel.$field->display")</label>
     </div>
+
 </div>

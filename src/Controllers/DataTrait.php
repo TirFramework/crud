@@ -49,13 +49,13 @@ trait DataTrait
             ->addColumn('action', function ($item) {
                 $viewBtn = $DeleteBtn = $editBtn=null;
                 if($this->checkPermission('show')){
-                    $viewBtn = '<a href="'.route( $this->name.'.show',$item->getKey()). '" class="text-success"><i title="' . trans('panel.view') . '" class="fas fa-eye"></i></a>';
+                    $viewBtn = '<a href="'.route( $this->name.'.show',$item->getKey()). '" class="fa-lg text-success"><i title="' . trans('panel.view') . '" class="fas fa-external-link-alt"></i></a>';
                 }
                 if($this->checkPermission('edit')){
-                    $editBtn = '<a href="'.route( $this->name.'.edit',$item->getKey()). '" class="text-info"><i title="' . trans('panel.edit') . '" class="fas fa-edit"></i></a>';
+                    $editBtn = '<a href="'.route( $this->name.'.edit',$item->getKey()). '" class="fa-lg text-info"><i title="' . trans('panel.edit') . '" class="fas fa-pencil-alt"></i></a>';
                 }
                 if($this->checkPermission('destroy')){
-                    $DeleteBtn = '<button onclick=' . '"deleteRow(' . "'" . route($this->name . '.destroy', $item->getKey()) . "'" . ')" class="text-danger"> <i title="' . trans('panel.delete') . '" class="fas fa-trash"></i></button>';
+                    $DeleteBtn = '<button onclick=' . '"deleteRow(' . "'" . route($this->name . '.destroy', $item->getKey()) . "'" . ')" class="fa-lg text-danger"> <i title="' . trans('panel.delete') . '" class="fas fa-trash"></i></button>';
                 }
                 return $viewBtn.' '.$editBtn.' '.$DeleteBtn;
             })->addColumns($this->addColumns())

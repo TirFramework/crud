@@ -35,7 +35,7 @@ class CrudController extends BaseController
 
     protected $permission;
 
-    
+
     public function __construct()
     {
         //set Crud name
@@ -44,13 +44,13 @@ class CrudController extends BaseController
             //split route name and get keyName for route view
             $routeName = explode('.', Route::CurrentRouteName());
             $this->name = $routeName[0];
-           $this->method = $routeName[1];
+            $this->method = $routeName[1];
         }
 
         //Get Permission
         $this->permission = $this->getPermission($this->name, $this->method);
         //Check permission
-        if(!$this->checkPermission($this->method)){
+        if (!$this->checkPermission($this->method)) {
             abort('403');
         }
 
@@ -84,7 +84,7 @@ class CrudController extends BaseController
             ];
         }
 
-        
+
         //validation
         $this->validation = $this->model->getValidation();
 
@@ -96,8 +96,16 @@ class CrudController extends BaseController
         /** All information about CRUD such as name, model, table, fields, etc,
          *  that used in Index, Data, Create, Store, and etc methods
          */
-        $this->crud = (object) ['name' => $this->name, 'model' => $this->model, 'table' => $this->table, 'fields' => $this->fields, 'options' => $this->options, 'actions' => $this->actions, 'permission'=>$this->permission];
-
+        $this->crud = (object) [
+            'name' => $this->name,
+            'model' => $this->model,
+            'table' => $this->table,
+            'fields' => $this->fields,
+            'options' => $this->options,
+            'actions' => $this->actions,
+            'permission' => $this->permission,
+            'validation' => $this->validation
+        ];
     }
 
     private function getPermission($name, $action)
@@ -106,7 +114,7 @@ class CrudController extends BaseController
         if (class_exists(\Tir\Acl\Permission::class)) {
             $permission = \Tir\Acl\Permission::list($name, $action);
         } else {
-            $permission = ['index'=>'all','show'=>'all','create'=>'all','edit'=>'all','delete'=>'all','fulldelete'=>'all'];
+            $permission = ['index' => 'all', 'show' => 'all', 'create' => 'all', 'edit' => 'all', 'delete' => 'all', 'fulldelete' => 'all'];
         }
 
         return $permission;
@@ -119,7 +127,7 @@ class CrudController extends BaseController
         $action = ($action == 'update') ? 'edit' : $action;
         $action = ($action == 'restore') ? 'destroy' : $action;
         $action = ($action == 'trashData') ? 'trash' : $action;
-        
+
         if (isset($this->permission[$action])) {
             if ($this->permission[$action] != 'deny') {
                 return true;
@@ -128,5 +136,4 @@ class CrudController extends BaseController
         }
         return false;
     }
-
 }

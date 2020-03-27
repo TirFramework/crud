@@ -1,39 +1,38 @@
 @php
 
 
-    $time = 'false';
-    if(isset($field->time)){
-        if($field->time == true)
-            $time = 'true';
+$time = 'false';
+if(isset($field->time)){
+if($field->time == true)
+$time = 'true';
 
-    }
+}
 
-    $lang = 'en';
-    if(isset($field->lang)){
-        $lang = $field->lang;
-    }
+$lang = 'en';
+if(isset($field->lang)){
+$lang = $field->lang;
+}
 
-    $startDay = '0';
-    if(isset($field->startDay)){
-        $startDay = $field->startDay;
-    }
+$startDay = '0';
+if(isset($field->startDay)){
+$startDay = $field->startDay;
+}
 
-    // if( isset( $item->{$field->name} ) ){
-    //     $value = jDate($item->{$field->name});
-    // } else {
-    //     $value = '';
-    // }
+if( isset( $item->{$field->name} ) ){
+$value = jDate($item->{$field->name});
+} else {
+$value = '';
+}
 
 
 
 @endphp
 
 
-
-<div class="form-group @if($lang == 'fa' ) rtl @endif" id="date-{{$field->name}}">
-    {!! Form::label($field->name,trans("$crud->name::panel.$field->display"), ['class' => 'col-md-2 control-label']) !!}
-    <div class="col-md-10">
+<div class="{{$field->col ?? 'col-12 col-md-6'}}">
+    <div class="form-group @if($lang == 'fa' ) rtl @endif" id="date-{{$field->name}}">
         {!! Form::text($field->name,null,['class' => 'form-control date'])!!}
+        {!! Form::label($field->name,trans("panel.$field->display"), ['class' => 'control-label']) !!}
     </div>
 </div>
 
@@ -50,32 +49,27 @@
 
 
 <script>
-
     window.Date = window._Date;
 
     @if($lang == 'fa')
         window.Date = window.JDate;
-        {{--$('#date-{{$field->name}}  .form-control').hide();--}}
-        $("#date-{{$field->name}} .col-md-10").prepend('<input class="form-control input-date" id="{{$field->name}}">');
+        $('#date-{{$field->name}} .form-control').hide();
+        $("#date-{{$field->name}}").prepend('<input class="form-control input-date" id="{{$field->name}}">');
     @endif
 
 
 
 
-    flatpickr.localize(flatpickr.l10ns.{{$lang}});
-
+    flatpickr.l10ns.default.firstDayOfWeek = {{$startDay}};
 
 
     flatpickr("#date-{{$field->name}} input:first-child", {
         // dateFormat: "m/d/y H:i",
         enableTime: {{$time}},
+        locale:"{{$lang}}",
         @if($lang == 'fa')
         defaultDate: '{{ $value }}' ,
         @endif
-
-        locale: {
-            firstDayOfWeek: {{$startDay}}
-        },
 
 
         @if($lang == 'fa')
