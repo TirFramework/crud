@@ -16,11 +16,13 @@
     $model = $field->data[0];
     $key = $field->data[1];
     $values = $model::pluck($key,'id');
+
+    $model::$routeName;
 @endphp
 
-<div class="form-group">
-    {!! Form::label($fieldName,trans("$crud->name::panel.$field->display"), ['class' => 'col-md-2 control-label']) !!}
-    <div class="col-md-10">
+<div class="{{$field->col ?? 'col-12 col-md-6'}}">
+    <div class="form-group">
+        {!! Form::label($fieldName,trans("$crud->name::panel.$field->display"), ['class' => 'control-label']) !!}
         {!! Form::select($fieldName, $values, null,$options)!!}
     </div>
 </div>
@@ -30,7 +32,7 @@
     $("#select-{{$id}}").select2({
         placeholder: "{{trans('crud::panel.select').' '.trans("$crud->name::panel.$field->display")}}",
         ajax: {
-            url: '/admin/{{strtolower($field->routeName)}}/select/?key={{$key}}',
+            url: "/admin/{{$model::$routeName}}/select/?key={{$key}}",
             dataType: 'json',
             data: function (params) {
                 var query = {
