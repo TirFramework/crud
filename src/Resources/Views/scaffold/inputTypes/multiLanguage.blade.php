@@ -92,3 +92,24 @@ $langs=     json_decode(json_encode($langs));
     </div>
 </div>
 
+
+@push('scripts')
+    <script>
+        $(`[data-toggle="tab"]`).click(function() {
+            window.location.hash = $(this).attr('href');
+        });
+
+        function onHashChange() {
+            var hash = window.location.hash;
+            if (hash) {
+                // using ES6 template string syntax
+                $(`[data-toggle="tab"]`).removeClass('active');
+                $(`[data-toggle="tab"][href="${hash}"]`).addClass('active');
+
+                $('.tab-pane').removeClass('active').removeClass('show');
+                    $(hash).addClass('active').addClass('show');
+                }
+            }
+        onHashChange()
+    </script>
+@endpush
