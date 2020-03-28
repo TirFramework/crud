@@ -8,19 +8,30 @@
 @section('page-heading'){{trans('crud::panel.edit').' '.trans("$crud->name::panel.$crud->name")}} @endsection
 
 @section('content')
-<div class="card card-default">
-    <div class="card-header clearfix">{{trans('crud::panel.inputs')}}</div>
-    <div class="card-body">
-        {!! Form::model($item, ['route'=>["$crud->name.update",$item->getKey()],'method' => 'put',
-        'class'=>'form-horizontal row', 'enctype'=>'multipart/form-data']) !!}
 
-        {{--Submit & Cancel--}}
+
+{!! Form::model($item, ['route'=>["$crud->name.update",$item->getKey()],'method' => 'put',
+        'class'=>'form-horizontal ', 'enctype'=>'multipart/form-data']) !!}
+
+
+
+
+<div class="card card-default">
+    <div class="card-header d-flex align-items-center">
+        {{trans('crud::panel.inputs')}}
+
+       {{--Submit & Cancel--}}
         @if(view()->exists("$crud->name::admin.inputTypes.update"))
         @include("$crud->name::admin.inputTypes.update",['crud'=>$crud])
         @else
         @include("crud::scaffold.inputTypes.update",['crud'=>$crud])
         @endif
+    </div>
+    <div class="card-body ">
 
+
+
+<div class="row">
 
         @foreach($crud->fields as $field)
         @if(strpos($field->visible, 'e') !== false)
@@ -36,16 +47,20 @@
         @endif
         @endforeach
 
+</div>
+
         {{--Submit & Cancel--}}
         @if(view()->exists("$crud->name::admin.inputTypes.update"))
         @include("$crud->name::admin.inputTypes.update",['crud'=>$crud])
         @else
         @include("crud::scaffold.inputTypes.update",['crud'=>$crud])
         @endif
-
-        {!! Form::close() !!}
     </div>
 </div>
+{!! Form::close() !!}
+
+
+
 
     {{-- Load additional fields --}}
     @foreach ($crud->additionalFields as $aField)

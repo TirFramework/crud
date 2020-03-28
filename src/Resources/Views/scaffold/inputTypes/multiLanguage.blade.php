@@ -24,7 +24,6 @@ $langs=     json_decode(json_encode($langs));
             @foreach ($langs as $lang)
                 {{-- This query find a relation where language id = $lang->id --}}
                 @php $multiLanguageItem = $item->{$field->relation}->where('language_id',$lang->id)->first() @endphp
-                {{-- @dd($multiLanguageItem); --}}
                 {{-- if multiLanguage Item is exist system open create form, else create form will be opened --}}
                 @if(isset($multiLanguageItem))
                     <div class="tab-pane fade @if($loop->first) active show @endif" id="language-{{$lang->id}}">
