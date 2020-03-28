@@ -7,13 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 class CrudModel extends Model
 {
 
-    protected $guarded = ['id', 'save_close'];
+    protected $guarded = ['id', 'save_close', 'save_edit'];
+
+    public static $routeName = '';
 
     public $timestamps = false;
 
     protected $dates = ['deleted_at'];
 
-    
 
     //this function generate option for action select in header panel
     public function getActions()

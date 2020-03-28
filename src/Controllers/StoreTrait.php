@@ -90,6 +90,8 @@ trait StoreTrait
         Session::flash('message', $message);
         if($request->input('save_close')){
             return Redirect::to(route("$this->name.index"));
+        }elseif($request->input('save_edit')){
+            return Redirect::to(route("$this->name.edit",$item->getKey()));
         }else{
             return Redirect::back();
         }

@@ -15,7 +15,7 @@ trait DataTrait
     public function dataInitialFields()
     {
         foreach ($this->fields as $field){
-            if((strpos($field->visible, 'i') == false)){
+            if((strpos($field->visible, 'i') !== false)){
                 if(isset($field->relation)){
                     array_push($this->relations,$field->relation);
                 }

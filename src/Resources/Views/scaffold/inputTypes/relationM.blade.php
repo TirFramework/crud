@@ -11,6 +11,7 @@
     $key = $field->data[1];
 
     $values = $model::pluck($key,'id');
+
 @endphp
 
 <div class="{{$field->col ?? 'col-12 col-md-6'}}">
@@ -25,7 +26,7 @@
     $("#select-{{$id}}").select2({
         placeholder: "{{trans('crud::panel.select').' '.trans("$crud->name::panel.$field->display")}}",
         ajax: {
-            url: '/admin/{{strtolower($field->routeName)}}/select/?key={{$key}}',
+            url: "/admin/{{$model::$routeName}}/select/?key={{$key}}",
             dataType: 'json',
             data: function (params) {
                 var query = {

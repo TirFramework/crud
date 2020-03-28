@@ -24,7 +24,6 @@ $langs=     json_decode(json_encode($langs));
             @foreach ($langs as $lang)
                 {{-- This query find a relation where language id = $lang->id --}}
                 @php $multiLanguageItem = $item->{$field->relation}->where('language_id',$lang->id)->first() @endphp
-
                 {{-- if multiLanguage Item is exist system open create form, else create form will be opened --}}
                 @if(isset($multiLanguageItem))
                     <div class="tab-pane fade @if($loop->first) active show @endif" id="language-{{$lang->id}}">
@@ -41,9 +40,9 @@ $langs=     json_decode(json_encode($langs));
                                         @php $subField->display = $subField->name; @endphp
                                     @endif
                                         @if(view()->exists("$crud->name::inputTypes.$subField->type"))
-                                            @include("$crud->name::inputTypes.$subField->type",['field'=>$subField,'crud'=>$crud])
+                                            @include("$crud->name::inputTypes.$subField->type",['field'=>$subField,'crud'=>$crud, 'item'=>$multiLanguageItem])
                                         @else
-                                            @include("crud::scaffold.inputTypes.$subField->type",['field'=>$subField,'crud'=>$crud])
+                                            @include("crud::scaffold.inputTypes.$subField->type",['field'=>$subField,'crud'=>$crud,'item'=>$multiLanguageItem])
                                         @endif
                                 @endif
                             @endforeach
