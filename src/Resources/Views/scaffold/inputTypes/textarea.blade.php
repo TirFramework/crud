@@ -9,9 +9,9 @@
     }
 @endphp
 
-<div class="form-group">
-    {!! Form::label($field->name, trans("$crud->name::panel.$field->display"), ['class' => 'col-md-2 control-label']) !!}
-    <div class="col-md-10">
-        {!! Form::textarea($field->name,null,['class' => 'form-control','placeholder'=> $placeholder , $option=> $option, 'id'=>'editor'])!!}
+<div class="{{$field->col ?? 'col-12'}}">
+    <div class="form-group">
+        {!! Form::textarea($field->name,null,['class' => 'form-control','placeholder'=> $placeholder , $option=> $option, 'rows'=>'2'])!!}
+        {!! Form::label($field->name, trans("$crud->name::panel.$field->display"), ['class' => 'control-label']) !!}
     </div>
 </div>

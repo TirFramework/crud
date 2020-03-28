@@ -13,10 +13,10 @@
     $values = $model::pluck($key,'id');
 @endphp
 
-<div class="form-group">
-    {!! Form::label($fieldName,trans("$crud->name::panel.$field->display"), ['class' => 'col-md-2 control-label']) !!}
-    <div class="col-md-10">
+<div class="{{$field->col ?? 'col-12 col-md-6'}}">
+    <div class="form-group">
         {!! Form::select($fieldName, $values, null,$options)!!}
+        {!! Form::label($fieldName,trans("$crud->name::panel.$field->display"), ['class' => 'control-label']) !!}
     </div>
 </div>
 

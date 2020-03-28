@@ -4,10 +4,9 @@
          $sortOrder = $item->sort_order;
     endif;
 @endphp
-
-<div class="form-group">
-    {!! Form::label($field->name, trans("$crud->name::panel.$field->name"), ['class' => 'col-md-2 control-label']) !!}
-    <div class="col-md-10">
+<div class="{{$field->col ?? 'col-12 col-md-6'}}">
+    <div class="form-group">
         {!! Form::number($field->name,$sortOrder,['class' => 'form-control'])!!}
+        {!! Form::label($field->name, trans("$crud->name::panel.$field->name"), ['class' => 'control-label']) !!}
     </div>
 </div>

@@ -8,12 +8,14 @@
 @section('page-heading'){{trans('crud::panel.create').' '.trans("$crud->name::panel.$crud->name")}} @endsection
 
 @section('content')
+{!! Form::open(['route' => "$crud->name.store", 'method' => 'POST', 'class'=>'form-horizontal', 'enctype'=>'multipart/form-data']) !!}
     <div class="card card-default">
-        <div class="card-header clearfix">{{trans("crud::panel.inputs")}}</div>
-        <div class="card-body">
-            {!! Form::open(['route' => "$crud->name.store", 'method' => 'POST', 'class'=>'form-horizontal row', 'enctype'=>'multipart/form-data']) !!}
+        <div class="card-header d-flex align-items-center">
+            {{trans("crud::panel.inputs")}}
             {{--Submit & Cancel--}}
             @include("crud::scaffold.inputTypes.save",['crud'=>$crud])
+        </div>
+        <div class="card-body">
             @foreach($crud->fields as $field)
                 @if(strpos($field->visible, 'c') !== false)
                     @if(!isset($field->display))
@@ -29,10 +31,10 @@
 
             {{--Submit & Cancel--}}
             @include("crud::scaffold.inputTypes.save",['crud'=>$crud])
-            {!! Form::close() !!}
         </div>
     </div>
 
+    {!! Form::close() !!}
 
 
 @endsection
