@@ -8,8 +8,9 @@
 
 <div class="{{$field->col ?? 'col-12 col-md-6'}}">
     <div class="form-group price-group">
-        {!! Form::number($field->name,null,['class' => 'form-control price'])!!}
-        {!! Form::label($field->name, trans("$crud->name::panel.$field->display"), ['class' => 'control-label' , 'placeholder'=>$placeholder]) !!}
+        {!! Form::number($field->name,null,['class' => 'form-control price' ,'placeholder'=>$placeholder])!!}
+        {{-- {!! Form::label($field->name, trans("$crud->name::panel.$field->display"), ['class' => 'control-label']) !!} --}}
+        <label for="cloneprice" class="control-label text-right">@lang("$crud->name::panel.$field->display")</label>
     </div>
 </div>
 
@@ -34,7 +35,7 @@
         PRICE = addCommand(PRICE);
 
         // $(input).wrap( '<div class="price-group"></div>' );
-        $(input).after('<input class="cloneprice form-control" placeholder="'+placeholder+'" type="text" value="'+PRICE+'" />'
+        $(input).after('<input class="cloneprice form-control" placeholder="'+placeholder+'" type="text" value="'+PRICE+'" id="cloneprice"/>'
         );
 
         $(input).hide();
@@ -69,5 +70,6 @@
     $("input.price").each( function () {
         priceInput(this);
     });
+
 </script>
 @endpush

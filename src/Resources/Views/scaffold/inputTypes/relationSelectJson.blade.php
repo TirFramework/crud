@@ -27,8 +27,8 @@
 
 <div class="{{$field->col ?? 'col-12 col-md-6'}}">
     <div class="form-group">
-        {!! Form::label($fieldName,trans("$crud->name::panel.$field->display"), ['class' => 'control-label']) !!}
         {!! Form::select($fieldName, $values, null,$options)!!}
+        {!! Form::label($fieldName,trans("$crud->name::panel.$field->display"), ['class' => 'control-label']) !!}
     </div>
 </div>
 

@@ -11,7 +11,7 @@ $langs=     json_decode(json_encode($langs));
         <h3>{{$field->display}}</h3>
     </div>
     <div class="card-body">
-                <ul class="nav nav-tabs">
+                <ul class="nav nav-tabs mb-4">
                     @foreach ($langs as $lang)
                     <li class="nav-item">
                         <a href="#language-{{$lang->id}}" class="nav-link @if($loop->first)  active @endif "
@@ -110,5 +110,10 @@ $langs=     json_decode(json_encode($langs));
                 }
             }
         onHashChange()
+
+
+        window.onhashchange = function () {
+            onHashChange()
+        }
     </script>
 @endpush

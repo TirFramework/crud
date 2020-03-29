@@ -16,6 +16,8 @@
             @include("crud::scaffold.inputTypes.save",['crud'=>$crud])
         </div>
         <div class="card-body">
+            <div class="row">
+
             @foreach($crud->fields as $field)
                 @if(strpos($field->visible, 'c') !== false)
                     @if(!isset($field->display))
@@ -28,6 +30,8 @@
                     @endif
                 @endif
             @endforeach
+
+            </div>
 
             {{--Submit & Cancel--}}
             @include("crud::scaffold.inputTypes.save",['crud'=>$crud])
