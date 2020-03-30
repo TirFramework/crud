@@ -105,15 +105,14 @@ use App\Modules\Authorization\acl;
         let table = new datatable('#table',col,"{{$crud->name}}");
 
         @php
-            $orderField =$orderLoop=0;
+            $orderField =0;
         @endphp
         @foreach($crud->fields as $field)
             @if(strpos($field->visible, 'i') !== false)
                 @if(strpos($field->visible, 'o') !== false )
-                    @php $orderField = $orderLoop;  @endphp
+                    @php $orderField = $loop->index;  @endphp
                     @break
                 @endif
-                @php $orderLoop++; @endphp
             @endif
         @endforeach
 

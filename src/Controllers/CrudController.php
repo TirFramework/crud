@@ -130,6 +130,7 @@ class CrudController extends BaseController
         $action = ($action == 'select') ? 'index' : $action;
         $action = ($action == 'store') ? 'create' : $action;
         $action = ($action == 'update') ? 'edit' : $action;
+        $action = ($action == 'updateAttribute') ? 'edit' : $action;
         $action = ($action == 'restore') ? 'destroy' : $action;
         $action = ($action == 'trashData') ? 'trash' : $action;
 

@@ -24,7 +24,9 @@ $langs=     json_decode(json_encode($langs));
             @foreach ($langs as $lang)
                 {{-- This query find a relation where language id = $lang->id --}}
                 @php $multiLanguageItem = $item->{$field->relation}->where('language_id',$lang->id)->first() @endphp
-                {{-- if multiLanguage Item is exist system open create form, else create form will be opened --}}
+                
+                {{-- if multiLanguage Item is exist system open edit form, else create form will be opened --}}
+                {{-- edit --}}
                 @if(isset($multiLanguageItem))
                     <div class="tab-pane fade @if($loop->first) active show @endif" id="language-{{$lang->id}}">
                         {!! Form::model($multiLanguageItem,
@@ -60,8 +62,13 @@ $langs=     json_decode(json_encode($langs));
                         {!! Form::close() !!}
                     </div>
                 @else
+                {{-- create --}}
                     <div class="tab-pane fade @if($loop->first) active show @endif " id="language-{{$lang->id}}">
                         {!! Form::open(['route'=>["$field->routeName.store"],'method' => 'post', 'class'=>'form-horizontal row', 'enctype'=>'multipart/form-data']) !!}
+
+                        {{-- this field is key column for create many to many relation --}}
+                        {!! Form::hidden($field->key, $item->id) !!}
+                        
                         @foreach ($field->fields as $subField)
                             @if(strpos($subField->visible, 'c') !== false)
                                 @if(!isset($subField->display))

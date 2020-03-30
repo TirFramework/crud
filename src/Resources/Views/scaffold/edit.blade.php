@@ -70,7 +70,7 @@
             @endif
             {{--check local folder have input or no--}}
             @if(view()->exists("$crud->name::admin.inputTypes.$aField->type"))
-                    @include("$crud->name::admin.inputTypes.$aField->type",['field'=>$field,'crud'=>$crud, 'item'=>$item])
+                    @include("$crud->name::admin.inputTypes.$aField->type",['field'=>$aField,'crud'=>$crud, 'item'=>$item])
                 @else
                     @include("crud::scaffold.inputTypes.$aField->type",['field'=>$aField,'crud'=>$crud, 'item'=>$item])
             @endif
