@@ -11,7 +11,8 @@
 {!! Form::open(['route' => "$crud->name.store", 'method' => 'POST', 'class'=>'form-horizontal', 'enctype'=>'multipart/form-data']) !!}
     <div class="card card-default">
         <div class="card-header d-flex align-items-center">
-            {{trans("crud::panel.inputs")}}
+            <h3> {{trans('crud::panel.General_fields')}} </h3>
+
             {{--Submit & Cancel--}}
             @include("crud::scaffold.inputTypes.save",['crud'=>$crud])
         </div>
