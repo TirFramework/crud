@@ -18,7 +18,7 @@
 
 <div class="card card-default">
     <div class="card-header d-flex align-items-center">
-        {{trans('crud::panel.inputs')}}
+        <h3> {{trans('crud::panel.general_fields')}} </h3>
 
        {{--Submit & Cancel--}}
         @if(view()->exists("$crud->name::admin.inputTypes.update"))

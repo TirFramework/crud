@@ -11,14 +11,15 @@ $langs=     json_decode(json_encode($langs));
         <h3>{{$field->display}}</h3>
     </div>
     <div class="card-body">
-                <ul class="nav nav-tabs mb-4">
-                    @foreach ($langs as $lang)
-                    <li class="nav-item">
-                        <a href="#language-{{$lang->id}}" class="nav-link @if($loop->first)  active @endif "
-                            data-toggle="tab">{{$lang->name}}</a>
-                    </li>
-                    @endforeach
-                </ul>
+        <ul class="nav nav-tabs mb-4">
+            @foreach ($langs as $lang)
+            <li class="nav-item">
+                <a href="#language-{{$lang->id}}" class="nav-link @if($loop->first)  active @endif "
+                    data-toggle="tab">{{$lang->name}}
+                </a>
+            </li>
+            @endforeach
+        </ul>
 
         <div class="tab-content">
             @foreach ($langs as $lang)
@@ -122,5 +123,15 @@ $langs=     json_decode(json_encode($langs));
         window.onhashchange = function () {
             onHashChange()
         }
+
+
+
+
+    $(".form-horizontal").validate({
+        onkeyup: true,
+        onfocus: true
+    });
+
+
     </script>
 @endpush
