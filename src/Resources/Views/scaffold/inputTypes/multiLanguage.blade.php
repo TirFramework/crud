@@ -25,7 +25,7 @@ $langs=     json_decode(json_encode($langs));
             @foreach ($langs as $lang)
                 {{-- This query find a relation where language id = $lang->id --}}
                 @php $multiLanguageItem = $item->{$field->relation}->where('language_id',$lang->id)->first() @endphp
-                
+
                 {{-- if multiLanguage Item is exist system open edit form, else create form will be opened --}}
                 {{-- edit --}}
                 @if(isset($multiLanguageItem))
@@ -52,7 +52,7 @@ $langs=     json_decode(json_encode($langs));
                         {!! Form::hidden('language_id', $lang->id) !!}
 
                         <div class="col-12">
-                            <div class="form-group">
+                            <div class="form-group text-right">
                                 {!! Form::label('', '', ['class' => ' control-label']) !!}
                                 <div class="">
                                     {!! Form::submit(trans('crud::panel.update'),['class'=>'btn btn-md btn-info save'])!!}
@@ -69,7 +69,7 @@ $langs=     json_decode(json_encode($langs));
 
                         {{-- this field is key column for create many to many relation --}}
                         {!! Form::hidden($field->key, $item->id) !!}
-                        
+
                         @foreach ($field->fields as $subField)
                             @if(strpos($subField->visible, 'c') !== false)
                                 @if(!isset($subField->display))
@@ -101,31 +101,29 @@ $langs=     json_decode(json_encode($langs));
 
 
 @push('scripts')
+
     <script>
-        $(`[data-toggle="tab"]`).click(function() {
-            window.location.hash = $(this).attr('href');
-        });
+        // $(`[data-toggle="tab"]`).click(function() {
+        //     window.location.hash = $(this).attr('href');
+        // });
 
-        function onHashChange() {
-            var hash = window.location.hash;
-            if (hash) {
-                // using ES6 template string syntax
-                $(`[data-toggle="tab"]`).removeClass('active');
-                $(`[data-toggle="tab"][href="${hash}"]`).addClass('active');
+        // function onHashChange() {
+        //     var hash = window.location.hash;
+        //     if (hash) {
+        //         // using ES6 template string syntax
+        //         $(`[data-toggle="tab"]`).removeClass('active');
+        //         $(`[data-toggle="tab"][href="${hash}"]`).addClass('active');
 
-                $('.tab-pane').removeClass('active').removeClass('show');
-                    $(hash).addClass('active').addClass('show');
-                }
-            }
-        onHashChange()
-
-
-        window.onhashchange = function () {
-            onHashChange()
-        }
+        //         $('.tab-pane').removeClass('active').removeClass('show');
+        //             $(hash).addClass('active').addClass('show');
+        //         }
+        //     }
+        // onHashChange()
 
 
-
+        // window.onhashchange = function () {
+        //     onHashChange()
+        // }
 
     $(".form-horizontal").validate({
         onkeyup: true,
@@ -134,4 +132,5 @@ $langs=     json_decode(json_encode($langs));
 
 
     </script>
+
 @endpush
