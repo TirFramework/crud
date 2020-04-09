@@ -24,6 +24,7 @@ trait StoreTrait
         $this->storeValidation($request, $this->validation);
         $request = $this->storeRequestManipulation($request);
         $item = $this->storeCrud($request);
+        $this->saveAdditional($request, $item);
         return $this->storeReturn($request, $item);
     }
 
@@ -72,6 +73,13 @@ trait StoreTrait
 
         return $item;
     }
+
+
+    public function saveAdditional(Request $request, $item)
+    {
+        return null;
+    }
+
     /**
      * This function redirect to view 
      * if user clicked save&close button function redirected user to index page

@@ -22,6 +22,7 @@ trait UpdateTrait
         $this->updateValidation($request, $item);
         $request = $this->updateRequestManipulation($request);
         $this->updateCrud($request, $item);
+        $this->updateAdditional($request, $item);
         return $this->updateReturn($request, $item);
     }
 
@@ -79,6 +80,13 @@ trait UpdateTrait
                 $item->{$field->relation}()->sync($data);
             }
         }
+    }
+
+
+    
+    public function updateAdditional(Request $request, $item)
+    {
+        return $item;
     }
 
     /**

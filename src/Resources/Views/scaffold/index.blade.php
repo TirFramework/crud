@@ -57,10 +57,12 @@ use App\Modules\Authorization\acl;
 
 @push('scripts')
     <script>
+        //TODO: Use package for pass variable to js 
         //datetable
         <?php
             $col=null;
             $filters = null;
+            //if enable drag reorder and add column $loop  must be equals to 1
             $loop=0;
             $responsive= true;
             $className = null;
@@ -69,6 +71,11 @@ use App\Modules\Authorization\acl;
                     $name = $field->name;
                     $key = $crud->table.'.'.$field->name;
                     $render = null;
+                    //if feild is translation for use in data table we must do like many to many relation
+                    if(in_array($field->name, $crud->model->translatedAttributes)):
+                        $name = 'translations'. '[].'. $field->name;
+                        $key =  'translations'. '.'. $field->name;
+                    endif;
                     if($field->type =='relation'):     //relationship must have datatable field for show in datatable
                         $name = $key = $field->relation.'.'.$field->data[1];
                     endif;
@@ -82,16 +89,17 @@ use App\Modules\Authorization\acl;
                     endif;
                     $col .= "{ data:`$name`, name: `$key` $className, defaultContent: '' $render},";
 
-                    //if enable drag reorder and add column must $loop = 1
-                    if(strpos($field->visible, 'f') !== false){
-
-                        if($field->type == 'relation' || $field->type == 'relationM'){
-                            $dataModel = $field->data[0];
-                           $dataField = $field->data[1];
-                           $filters .= $loop.':'.json_encode($dataModel::has(Str::plural($crud->name))->select($dataField)->distinct($dataField)->pluck($dataField)).', ';
-                        }else{
-                            $filters .= $loop.':'.json_encode($crud->model::select($field->name)->distinct($field->name)->pluck($field->name)).', ';
-                        }
+                        if(
+                         strpos($field->visible, 'f') !== false &&
+                         in_array($field->name, $crud->model->translatedAttributes) == false
+                         ){
+                            if($field->type == 'relation' || $field->type == 'relationM'){
+                                $dataModel = $field->data[0];
+                                $dataField = $field->data[1];
+                                $filters .= $loop.':'.json_encode($dataModel::has(Str::plural($crud->name))->select($dataField)->distinct($dataField)->pluck($dataField)).', ';
+                            }else{
+                                    $filters .= $loop.':'.json_encode($crud->model::select($field->name)->distinct($field->name)->pluck($field->name)).', ';
+                            }
                     }
                     $loop++;
                  endif;

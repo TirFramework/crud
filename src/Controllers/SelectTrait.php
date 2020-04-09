@@ -15,15 +15,22 @@ trait SelectTrait
      */
     public function selectCrud($request)
     {
+        //TODO : add comment and refactor this section
         $key = $request['key'];
         $loadMore = 1;
         $offset = $request['page'] * 20;
-        $items = $this->model::select('id' ,"$key as text")->where($key,'LIKE', '%'.$request['search'].'%')->orderBy('text')->paginate(10)->toArray();
- 
+
+        if(in_array($key,$this->model->translatedAttributes)){
+            $items = $this->model::select('id')->whereTranslationLike($key, '%'.$request['search'].'%')->paginate(10)->toArray();
+            $data = str_replace('name','text',json_encode($items['data']));
+        }else{
+            $items = $this->model::select('id' ,"$key as text")->where($key,'LIKE', '%'.$request['search'].'%')->orderBy('text')->paginate(10)->toArray();
+            $data = json_encode($items['data']);
+        }
+
         if(!$items['next_page_url']){
             $loadMore = 0;
         }
-        $data = json_encode($items['data']);
         if($this->permission == 'owner'){
             $items = $items->OnlyOwner();
         }
