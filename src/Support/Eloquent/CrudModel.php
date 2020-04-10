@@ -1,6 +1,6 @@
 <?php
 
-namespace Tir\Crud\Models;
+namespace Tir\Crud\Support\Eloquent;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -11,10 +11,11 @@ class CrudModel extends Model
 
     public static $routeName = '';
 
-    public $timestamps = false;
+   // public $timestamps = false;
 
     protected $dates = ['deleted_at'];
 
+    public $translatedAttributes = [];
 
     //this function generate option for action select in header panel
     public function getActions()

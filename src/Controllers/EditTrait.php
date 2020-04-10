@@ -26,7 +26,6 @@ trait EditTrait
      */
     public function editCrud($item)
     {
-        
         /*
          * First try to load a view from application or other package, that called
          * this function with CRUD name. if this view wasn't exist then try

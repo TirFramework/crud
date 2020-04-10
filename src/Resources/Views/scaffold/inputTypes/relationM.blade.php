@@ -7,10 +7,16 @@
 
 
 
-    $model = $field->data[0];
+    $model =  $field->data[0];
     $key = $field->data[1];
 
-    $values = $model::pluck($key,'id');
+    $model = new $model;
+    if (in_array($key, $model->translatedAttributes)){
+        $values = $model::select('*')->get()->pluck($key,'id');
+    }else{
+        $values = $model::select($key,'id')->where($key,$item->{$field->name})->pluck($key,'id');
+    }
+
 
 @endphp
 

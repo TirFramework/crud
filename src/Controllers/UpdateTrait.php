@@ -11,10 +11,11 @@ use Illuminate\Support\Facades\Validator;
 trait UpdateTrait
 {
     /**
-    * This function called from route. run an event and run update functions
-    * @return void
-    */    
-    public function update(Request $request, $id)
+     * @param Request $request
+     * @param int $id
+     * @return Redirect
+     */
+    public function update(Request $request, int $id)
     {
         event(new UpdateEvent($this->name));
 
@@ -22,13 +23,14 @@ trait UpdateTrait
         $this->updateValidation($request, $item);
         $request = $this->updateRequestManipulation($request);
         $this->updateCrud($request, $item);
+        $this->updateAdditional($request, $item);
         return $this->updateReturn($request, $item);
     }
 
 
     /**
      * This function find an object model and if permission == owner return only owner item
-     * @return eloquent
+     * @return object model
      */
     public function updateFind($id)
     {
@@ -40,9 +42,8 @@ trait UpdateTrait
     }
 
     /**
-     * Run validator on request
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Support\Facades\Validator
+     * @param Request $request
+     * @param $item
      */
     public function updateValidation(request $request, $item)
     {
@@ -53,8 +54,8 @@ trait UpdateTrait
 
     /**
      * This function for manipulation on request data
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Request 
+     * @param Request $request
+     * @return Request
      */
     public function updateRequestManipulation(request $request)
     {
@@ -63,10 +64,10 @@ trait UpdateTrait
 
     /**
      * This function update crud and relations
-     * @param \Illuminate\Http\Request $request
-     * @return nothing
+     * @param Request $request
+     * @param $item
      */
-    public function updateCrud(request $request, $item)
+    public function updateCrud(Request $request, $item)
     {
 
         //update item
@@ -79,6 +80,19 @@ trait UpdateTrait
                 $item->{$field->relation}()->sync($data);
             }
         }
+    }
+
+
+    /**
+     * This method run saveAdditional function again and if we want different functionality in update,
+     * we can override this function in update action
+     * @param Request $request
+     * @param $item
+     * @return mixed
+     */
+    public function updateAdditional(Request $request, $item)
+    {
+        return $this->saveAdditional($request, $item);
     }
 
     /**

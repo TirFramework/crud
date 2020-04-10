@@ -1,5 +1,5 @@
 @php
-    $sortOrder = $crud->model::select('sort_order')->max('sort_order') + 1;
+    $sortOrder = $crud->model::select('position')->max('position') + 1;
     if(isset($item->sort_order)):
          $sortOrder = $item->sort_order;
     endif;

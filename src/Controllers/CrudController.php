@@ -48,15 +48,15 @@ class CrudController extends BaseController
             //split route name and get keyName for route view
             $routeName = explode('.', Route::CurrentRouteName());
             $this->name = $routeName[0];
-            $this->method = $routeName[1];
+            //$this->method = $routeName[1];
         }
 
         //Get Permission
         $this->permission = $this->getPermission($this->name, $this->method);
         //Check permission
-        if (!$this->checkPermission($this->method)) {
-            abort('403');
-        }
+        // if (!$this->checkPermission($this->method)) {
+        //     abort('403');
+        // }
 
         //check model is exist in App\Modules\{model name}
         if (!$this->model) {
@@ -67,7 +67,7 @@ class CrudController extends BaseController
         if (class_exists($this->model)) {
             $this->model = new $this->model;
         } else {
-            return ($this->model . ' model not found');
+            echo ($this->model . ' model not found');
         }
 
         //Get Table name from Model or set plural name
@@ -131,6 +131,7 @@ class CrudController extends BaseController
         $action = ($action == 'store') ? 'create' : $action;
         $action = ($action == 'update') ? 'edit' : $action;
         $action = ($action == 'updateAttribute') ? 'edit' : $action;
+        $action = ($action == 'updateOptionValue') ? 'edit' : $action;
         $action = ($action == 'restore') ? 'destroy' : $action;
         $action = ($action == 'trashData') ? 'trash' : $action;
 
