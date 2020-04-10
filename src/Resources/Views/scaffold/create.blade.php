@@ -24,8 +24,8 @@
                     @if(!isset($field->display))
                         @php $field->display = $field->name; @endphp
                     @endif
-                    @if(view()->exists("$crud->name::inputTypes.$field->type"))
-                        @include("$crud->name::inputTypes.$field->type",['field'=>$field,'crud'=>$crud])
+                    @if(view()->exists("$crud->name::admin.inputTypes.$field->type"))
+                        @include("$crud->name::admin.inputTypes.$field->type",['field'=>$field,'crud'=>$crud])
                     @else
                         @include("crud::scaffold.inputTypes.$field->type",['field'=>$field,'crud'=>$crud])
                     @endif
