@@ -1,6 +1,6 @@
 <?php
 
-namespace Tir\Crud\Entities;
+namespace Tir\Crud\Support\Eloquent;
 
 use Illuminate\Database\Eloquent\Model;
 
