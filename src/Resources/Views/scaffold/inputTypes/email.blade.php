@@ -4,7 +4,7 @@ if( isset($item->{$field->name}) ){
 $model = $item->{$field->name};
 }
 @endphp
-<div class="{{$field->col ?? 'col-12 col-md-6'}}">
+<div class="{{$field->col ?? 'col-12 col-md-12'}}">
 
     <div class="form-group">
             <input type="email" id="{{$field->name}}" name="{{$field->name}}"

@@ -6,7 +6,7 @@ $name = $field->name;
 $index = preg_replace('/[\[\]]/i', '_' , $field->name);
 @endphp
 
-<div class="{{$field->col ?? 'col-12 col-md-6'}}">
+<div class="{{$field->col ?? 'col-12 col-md-12'}}">
     <div class="form-group">
         <div class="input-group">
             <span class="input-group-btn">

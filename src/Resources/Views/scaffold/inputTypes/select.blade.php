@@ -17,7 +17,7 @@ $model = $item->{$field->name};
 }
 ?>
 
-<div class="{{$field->col ?? 'col-12 col-md-6'}}">
+<div class="{{$field->col ?? 'col-12 col-md-12'}}">
     <div class="form-group">
         {{-- {!! Form::label($fieldName,trans("$crud->name::panel.$field->display"), ['class' => ' control-label']) !!}
         <div class="">
