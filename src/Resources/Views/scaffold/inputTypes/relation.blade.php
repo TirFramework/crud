@@ -8,14 +8,8 @@
     if(!isset($item)){
         $item = null;
     }
-    if(isset($field->multiple)):
-        if( $field->multiple == true):
-            $options['multiple'] = 'multiple';
-            $fieldName = $field->name.'[]';
-        endif;
-    else:
-        $options ['placeholder'] = trans('$crud->name::panel.select').' '.trans("$crud->name::panel.$field->display");
-    endif;
+
+    $options ['placeholder'] = trans('$crud->name::panel.select').' '.trans("$crud->name::panel.$field->display");
 
     $model =  $field->data[0];
     $key = $field->data[1];

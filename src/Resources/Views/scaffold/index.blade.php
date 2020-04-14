@@ -1,7 +1,9 @@
 <?php
+//TODO: Refactor index foreach
+
 use Illuminate\Support\Str;
-use App\Modules\Authorization\acl;
 ?>
+
 @extends(config('crud.admin-panel').'::layouts.master')
 
 @section('title', trans("$crud->name::panel.".Str::plural($crud->name)) )
@@ -21,17 +23,20 @@ use App\Modules\Authorization\acl;
                 <table class="table table-striped table-hover responsive nowrap" id="table" width="100%">
                     <thead>
                     <tr>
-                    @foreach($crud->fields as $field)
-                            @if((strpos($field->visible, 'i') !== false))
-                                @if(isset($field->display))
-                                    <th>{{trans("$crud->name::panel.$field->display")}}</th>
-                                @else
-                                    <th>{{trans("$crud->name::panel.$field->name")}}</th>
+                    @foreach($crud->fields as $group)
+                        @foreach($group->tabs as $tab)
+                            @foreach($tab->fields as $field)
+                                @if((strpos($field->visible, 'i') !== false))
+                                    @if(isset($field->display))
+                                        <th>{{trans("$crud->name::panel.$field->display")}}</th>
+                                    @else
+                                        <th>{{trans("$crud->name::panel.$field->name")}}</th>
+                                    @endif
                                 @endif
-                            @endif
+                            @endforeach
+                        @endforeach
                     @endforeach
                         <th >
-                            {{-- {{trans('crud::panel.action')}} --}}&ensp;
                         </th>
 
                     </tr>
@@ -40,11 +45,14 @@ use App\Modules\Authorization\acl;
                     <tfoot>
                     <tr>
                         <th></th>
-
-                    @foreach($crud->fields as $field)
-                            @if((strpos($field->visible, 'i') !== false))
-                                <th></th>
-                            @endif
+                        @foreach($crud->fields as $group)
+                            @foreach($group->tabs as $tab)
+                                @foreach($tab->fields as $field)
+                                    @if((strpos($field->visible, 'i') !== false))
+                                        <th></th>
+                                    @endif
+                                @endforeach
+                            @endforeach
                         @endforeach
                     </tr>
                     </tfoot>
@@ -66,7 +74,9 @@ use App\Modules\Authorization\acl;
             $loop=0;
             $responsive= true;
             $className = null;
-            foreach($crud->fields as $field):
+            foreach($crud->fields as $group):
+                foreach($group->tabs as $tab):
+                    foreach($tab->fields as $field):
                 if(strpos($field->visible, 'i') !== false):        //check visibility for index
                     $name = $field->name;
                     $key = $crud->table.'.'.$field->name;
@@ -104,6 +114,8 @@ use App\Modules\Authorization\acl;
                     $loop++;
                  endif;
              endforeach;
+                endforeach;
+            endforeach;
 
             ?>
 

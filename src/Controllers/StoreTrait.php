@@ -64,10 +64,18 @@ trait StoreTrait
         $item = $this->model::create($request->all());
 
         //Store relations
-        foreach ($this->fields as $field) {
-            if ((strpos($field->visible, 'c') !== false) && $field->type == 'relationM') {
-                $data = $request->input($field->name);
-                $item->{$field->relation}()->sync($data);
+        foreach ($this->fields as $group) {
+            if ((strpos($group->visible, 'c') !== false)) {
+                foreach ($group->tabs as $tab){
+                    if ((strpos($tab->visible, 'c') !== false)) {
+                        foreach ($tab->fields as $field) {
+                            if ((strpos($field->visible, 'c') !== false) && $field->type == 'relationM') {
+                                $data = $request->input($field->name);
+                                $item->{$field->relation}()->sync($data);
+                            }
+                        }
+                    }
+                }
             }
         }
 

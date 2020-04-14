@@ -72,12 +72,19 @@ trait UpdateTrait
 
         //update item
         $item->update($request->all());
-
         //update relation
-        foreach ($this->fields as $field) {
-            if ((strpos($field->visible, 'e') !== false)&& $field->type == 'relationM') {
-                $data = $request->input($field->name);
-                $item->{$field->relation}()->sync($data);
+        foreach ($this->fields as $group) {
+            if ((strpos($group->visible, 'e') !== false)) {
+                foreach ($group->tabs as $tab){
+                    if ((strpos($tab->visible, 'e') !== false)) {
+                        foreach ($tab->fields as $field) {
+                            if ((strpos($field->visible, 'e') !== false) && $field->type == 'relationM') {
+                                $data = $request->input($field->name);
+                                $item->{$field->relation}()->sync($data);
+                            }
+                        }
+                    }
+                 }
             }
         }
     }
