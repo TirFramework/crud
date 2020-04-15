@@ -1,7 +1,7 @@
 @php
     $sortOrder = $crud->model::select('position')->max('position') + 1;
-    if(isset($item->sort_order)):
-         $sortOrder = $item->sort_order;
+    if(isset($item->position)):
+         $sortOrder = $item->position;
     endif;
 @endphp
 <div class="{{$field->col ?? 'col-12 col-md-12'}}">
