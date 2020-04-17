@@ -9,12 +9,15 @@
 
     }
 
-    $lang = 'en';
+    $lang = config('app.locale');
     if(isset($field->lang)){
         $lang = $field->lang;
     }
 
     $startDay = '0';
+    if($lang == 'fa') {
+        $startDay = '6';
+    }
     if(isset($field->startDay)){
         $startDay = $field->startDay;
     }
