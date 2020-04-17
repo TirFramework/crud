@@ -11,7 +11,6 @@ class CrudModel extends Model
 
     public static $routeName = '';
 
-   // public $timestamps = false;
 
     protected $dates = ['deleted_at'];
 

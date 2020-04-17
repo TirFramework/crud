@@ -22,7 +22,7 @@
                                 <h5 class="mb-0">
                                     <a class="btn btn-link" data-toggle="collapse" data-target="#collapse-{{$group->name}}"
                                        aria-expanded="true" aria-controls="collapse-{{$group->name}}">
-                                        @lang("$crud->name::.panel.$group->name")
+                                        @lang("$crud->name::panel.$group->name")
 
                                     </a>
                                 </h5>
@@ -37,7 +37,7 @@
                                             @if($tab->type == 'tab')
                                                 <a class="nav-link @if($loop->first)  @endif "
                                                    href="#v-pills-{{$tab->name}}" >
-                                                    @lang("$crud->name::.panel.$tab->name")
+                                                    @lang("$crud->name::panel.$tab->name")
                                                 </a>
                                             @endif
                                         @endforeach
@@ -56,7 +56,6 @@
 
             <div class="card card-default">
                 <div class="card-header d-flex align-items-center">
-                    <h3> {{trans('crud::panel.general_fields')}} </h3>
 
                     {{--Submit & Cancel--}}
                     @if(view()->exists("$crud->name::admin.inputTypes.update"))

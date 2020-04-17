@@ -15,10 +15,6 @@
         'class'=>'form-horizontal ', 'enctype'=>'multipart/form-data']) !!}
 
 
-
-
-
-
             <div class="row">
                 {{--Side--}}
                 <div class="col-md-3 col-12">
@@ -31,7 +27,7 @@
                                 <h5 class="mb-0">
                                     <a class="btn btn-link" data-toggle="collapse" data-target="#collapse-{{$group->name}}"
                                        aria-expanded="true" aria-controls="collapse-{{$group->name}}">
-                                        @lang("$crud->name::.panel.$group->name")
+                                        @lang("$crud->name::panel.$group->name")
 
                                     </a>
                                 </h5>
@@ -46,7 +42,7 @@
                                             @if($tab->type == 'tab')
                                                 <a class="nav-link @if($loop->first)  @endif "
                                                    href="#v-pills-{{$tab->name}}" >
-                                                   @lang("$crud->name::.panel.$tab->name")
+                                                   @lang("$crud->name::panel.$tab->name")
                                                 </a>
                                             @endif
                                         @endforeach
@@ -78,7 +74,7 @@
                                 @foreach($crud->fields as $group)
                                     @foreach($group->tabs as $tab)
                                         <div class="tab-pane fade @if($loop->first) show active @endif " id="v-pills-{{$tab->name}}" >
-                                            <h4>  @lang("$crud->name::.panel.$tab->name")  </h4>
+                                            <h4>  @lang("$crud->name::panel.$tab->name")  </h4>
                                             <hr />
                                             @foreach($tab->fields as $field)
                                                 @if(strpos($field->visible, 'e') !== false)
