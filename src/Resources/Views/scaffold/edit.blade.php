@@ -76,19 +76,22 @@
                                         <div class="tab-pane fade @if($loop->first) show active @endif " id="v-pills-{{$tab->name}}" >
                                             <h4>  @lang("$crud->name::panel.$tab->name")  </h4>
                                             <hr />
-                                            @foreach($tab->fields as $field)
-                                                @if(strpos($field->visible, 'e') !== false)
-                                                    @if(!isset($field->display))
-                                                        @php $field->display = $field->name; @endphp
+                                            
+                                            <div class="row">
+                                                @foreach($tab->fields as $field)
+                                                    @if(strpos($field->visible, 'e') !== false)
+                                                        @if(!isset($field->display))
+                                                            @php $field->display = $field->name; @endphp
+                                                        @endif
+                                                        {{--check local folder have input or no--}}
+                                                        @if(view()->exists("$crud->name::admin.inputTypes.$field->type"))
+                                                            @include("$crud->name::admin.inputTypes.$field->type",['field'=>$field,'crud'=>$crud, 'item'=>$item])
+                                                        @else
+                                                            @include("crud::scaffold.inputTypes.$field->type",['field'=>$field,'crud'=>$crud, 'item'=>$item])
+                                                        @endif
                                                     @endif
-                                                    {{--check local folder have input or no--}}
-                                                    @if(view()->exists("$crud->name::admin.inputTypes.$field->type"))
-                                                        @include("$crud->name::admin.inputTypes.$field->type",['field'=>$field,'crud'=>$crud, 'item'=>$item])
-                                                    @else
-                                                        @include("crud::scaffold.inputTypes.$field->type",['field'=>$field,'crud'=>$crud, 'item'=>$item])
-                                                    @endif
-                                                @endif
-                                            @endforeach
+                                                @endforeach
+                                            </div>
                                         </div>
                                     @endforeach
                                 @endforeach

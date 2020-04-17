@@ -69,19 +69,21 @@
                         @foreach($crud->fields as $group)
                             @foreach($group->tabs as $tab)
                                 <div class="tab-pane fade @if($loop->first) show active @endif " id="v-pills-{{$tab->name}}" >
-                                    @foreach($tab->fields as $field)
-                                        @if(strpos($field->visible, 'c') !== false)
-                                            @if(!isset($field->display))
-                                                @php $field->display = $field->name; @endphp
+                                    <div class="row">
+                                        @foreach($tab->fields as $field)
+                                            @if(strpos($field->visible, 'c') !== false)
+                                                @if(!isset($field->display))
+                                                    @php $field->display = $field->name; @endphp
+                                                @endif
+                                                {{--check local folder have input or no--}}
+                                                @if(view()->exists("$crud->name::admin.inputTypes.$field->type"))
+                                                    @include("$crud->name::admin.inputTypes.$field->type",['field'=>$field,'crud'=>$crud])
+                                                @else
+                                                    @include("crud::scaffold.inputTypes.$field->type",['field'=>$field,'crud'=>$crud])
+                                                @endif
                                             @endif
-                                            {{--check local folder have input or no--}}
-                                            @if(view()->exists("$crud->name::admin.inputTypes.$field->type"))
-                                                @include("$crud->name::admin.inputTypes.$field->type",['field'=>$field,'crud'=>$crud])
-                                            @else
-                                                @include("crud::scaffold.inputTypes.$field->type",['field'=>$field,'crud'=>$crud])
-                                            @endif
-                                        @endif
-                                    @endforeach
+                                        @endforeach
+                                    </div>
                                 </div>
                             @endforeach
                         @endforeach
