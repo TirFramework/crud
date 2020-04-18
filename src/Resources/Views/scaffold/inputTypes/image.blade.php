@@ -14,7 +14,7 @@ $index = preg_replace('/[\[\]]/i', '_' , $field->name);
                     <i class="fas fa-image"></i> {{trans('crud::panel.choose')}}
                 </a>
             </span>
-            {!! Form::text($field->name,null,['class' => 'form-control','id'=>$index.'_input', 'placeholder'=> $field->name ])!!}
+            {!! Form::text($field->name,null,['class' => 'form-control','id'=>$index.'_input', 'placeholder'=> trans("$crud->name::panel.$field->name")])!!}
         </div>
         {!! Form::label("$field->name", trans("$crud->name::panel.$field->display"), ['class' => 'control-label uploder-label']) !!}
         <img id="{{$index}}_holder" @isset($image) src="{{url('/').'/'.$image}}" @endisset class="image-holder">
