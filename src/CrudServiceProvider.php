@@ -19,7 +19,7 @@ class CrudServiceProvider extends ServiceProvider
     {
         //Merge config file in package and published config file.
         $this->mergeConfigFrom(
-            __DIR__.'/config/crud.php', 'crud'
+            __DIR__.'/Config/crud.php', 'crud'
         );
 
         //Add CustomEnhancement resource routing
