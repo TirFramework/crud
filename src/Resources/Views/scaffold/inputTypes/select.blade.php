@@ -56,6 +56,7 @@ $model = $item->{$field->name};
     <script>
         $("#{{$field->name}}").select2({
             placeholder: "{{$field->placeholder ?? null}}",
+            dir: $('body').attr('dir'),
         });
     </script>
 @endpush

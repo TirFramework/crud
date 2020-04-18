@@ -36,6 +36,7 @@
     <script>
     $("#select-{{$field->name}}").select2({
         placeholder: "{{trans('panel.select').' '.trans("$crud->name::panel.$field->display")}}",
+        dir: $('body').attr('dir'),
         ajax: {
             url: '/admin/{{strtolower($model)}}/select/?key={{$key}}',
             dataType: 'json',

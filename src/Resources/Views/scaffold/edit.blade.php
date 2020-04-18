@@ -111,6 +111,7 @@
 <script>
     editor();
     $(".form-horizontal").validate({
+        lang: $('html').attr('lang'),
         onkeyup: true,
         onfocus: true
     });

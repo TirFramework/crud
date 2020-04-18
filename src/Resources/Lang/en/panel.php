@@ -45,6 +45,7 @@ return [
     'published'                 => 'Published',
     'unpublished'               => 'Unpublished',
     'draft'                     => 'Draft',
+    'action' => 'عملیات',
 
     'status_val'                => [
                                      '1' => 'published'

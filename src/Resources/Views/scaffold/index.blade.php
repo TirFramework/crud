@@ -37,6 +37,7 @@ use Illuminate\Support\Str;
                         @endforeach
                     @endforeach
                         <th >
+                            @lang("$crud->name::panel.action")
                         </th>
 
                     </tr>

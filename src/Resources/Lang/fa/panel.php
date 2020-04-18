@@ -37,4 +37,7 @@ return [
     'unpublished'                 => 'منتشر نشده',
     'draft'                       => 'پیش نویس',
     'please select one from list' => 'لطفا یک گزینه را انتخاب کنید',
+
+    'action' => 'عملیات',
+
 ];
