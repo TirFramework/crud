@@ -3,6 +3,7 @@
 namespace Tir\Crud\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
 use Tir\Crud\Events\StoreEvent;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
@@ -31,7 +32,7 @@ trait StoreTrait
 
     /**
      * Run validator on request
-     * @param \Illuminate\Http\Request $request
+     * @param Request $request
      * @return \Illuminate\Support\Facades\Validator
      */
     public function storeValidation(Request $request, $validation)
@@ -42,8 +43,8 @@ trait StoreTrait
 
     /**
      * This function for manipulation on request data
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Request 
+     * @param Request $request
+     * @return Request
      */
     public function storeRequestManipulation(Request $request)
     {
@@ -52,7 +53,7 @@ trait StoreTrait
 
     /**
      * This function store crud and relations
-     * @param \Illuminate\Http\Request $request
+     * @param Request $request
      * @return void
      */
     public function storeCrud(Request $request)
@@ -89,13 +90,13 @@ trait StoreTrait
     }
 
     /**
-     * This function redirect to view 
+     * This function redirect to view
      * if user clicked save&close button function redirected user to index page
      * if user clicked on save button function redirected user to previous page
      *
-     * @param \Illuminate\Http\Request $request
+     * @param Request $request
      * @param Object $item
-     * @return redirect to url
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
     public function storeReturn(Request $request, $item)
     {
@@ -104,6 +105,9 @@ trait StoreTrait
 
         $message = trans('crud::message.item-created', ['item' => trans("message.item.$this->name")]); //translate message
         Session::flash('message', $message);
+        if($request->requestType == 'ajax'){
+            return $this->storeJsonReturn($item, $message);
+        }
         if($request->input('save_close')){
             return Redirect::to(route("$this->name.index"));
         }elseif($request->input('save_edit')){
@@ -111,6 +115,11 @@ trait StoreTrait
         }else{
             return Redirect::back();
         }
+    }
+
+
+    private function storeJsonReturn ($item, $message){
+        return Response::Json(['message'=> $message, 'item' => $item]);
     }
 
 

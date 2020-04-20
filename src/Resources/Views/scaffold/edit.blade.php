@@ -71,7 +71,7 @@
                         </div>
                         <div class="card-body">
                             <div class="tab-content">
-                                @foreach($crud->fields as $group)
+                            @foreach($crud->fields as $group)
                                     @foreach($group->tabs as $tab)
                                         <div class="tab-pane fade @if($loop->first) show active @endif " id="v-pills-{{$tab->name}}" >
                                             <h4>  @lang("$crud->name::panel.$tab->name")  </h4>
