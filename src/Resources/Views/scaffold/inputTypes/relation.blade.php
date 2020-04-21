@@ -11,10 +11,10 @@
 
     $options ['placeholder'] = trans('$crud->name::panel.select').' '.trans("$crud->name::panel.$field->display");
 
-    $model =  $field->data[0];
-    $key = $field->data[1];
-
+     $model =   get_class($crud->model->{$field->relation[0]}()->getModel());
+    $key = $field->relation[1];
     $model = new $model;
+
     if (in_array($key, $model->translatedAttributes)){
         $values = $model::select('*')->get()->pluck($key,'id');
     }else{

@@ -14,10 +14,27 @@ trait DataTrait
      */
     public function dataInitialFields()
     {
-        foreach ($this->fields as $field){
-            if((strpos($field->visible, 'i') !== false)){
-                if(isset($field->relation)){
-                    array_push($this->relations,$field->relation);
+        //add translation relation
+        if(count($this->model->translatedAttributes) > 0 ){
+            array_push($this->relations, 'translations');
+        }
+
+
+        foreach ($this->fields as $group){
+            foreach ($group->tabs as $tab){
+                foreach ($tab->fields as $field) {
+                    if ((strpos($field->visible, 'i') == false)) {
+                        if (isset($field->relation)) {
+                            //get model form relation
+                            $relationModel =  get_class($this->model->{$field->relation[0]}()->getModel());
+                            $relationModel = new $relationModel;
+                            if(count($relationModel->translatedAttributes) > 0 ){
+                                array_push($this->relations, $field->relation[0].'.translations');
+                            }else{
+                                array_push($this->relations, $field->relation[0]);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -30,10 +47,12 @@ trait DataTrait
      */
     public function dataQuery()
     {
+
         $items = $this->model::select($this->table.'.*')->with($this->relations);
         if($this->permission == 'owner'){
             $items = $items->OnlyOwner();
         }
+
         return $items;
     }
 

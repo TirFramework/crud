@@ -87,31 +87,71 @@ use Illuminate\Support\Str;
                         $name = 'translations'. '[].'. $field->name;
                         $key =  'translations'. '.'. $field->name;
                     endif;
+
                     if($field->type =='relation'):     //relationship must have datatable field for show in datatable
-                        $name = $key = $field->relation.'.'.$field->data[1];
+                        $relationModel =  get_class($crud->model->{$field->relation[0]}()->getModel());
+                        $dataModel = new  $relationModel;
+                        $dataField = $field->relation[1];
+
+                        if(in_array($dataField, $dataModel->translatedAttributes)):
+                            $name = $field->relation[0].'.translations[].'. $field->relation[1];
+                            $key = $field->relation[0].'.translations.'. $field->relation[1];
+                        else:
+                            $name = $key = $field->relation[0].'.'.$field->relation[1];
+                        endif;
                     endif;
                     //for many to many datatable $field->datatable must be array and have two index ,first is name and second is data
                     if($field->type  == 'relationM'):
-                        $name = $field->relation. '[].'. $field->data[1];
-                        $key =  $field->relation. '.'. $field->data[1];
+
+                        $relationModel =  get_class($crud->model->{$field->relation[0]}()->getModel());
+                        $dataModel = new  $relationModel;
+                        $dataField = $field->relation[1];
+
+                        if(in_array($dataField, $dataModel->translatedAttributes)):
+                            $name = $field->relation[0]. '[ , ].translations[].'. $field->relation[1];
+                            $key  = $field->relation[0]. '.translations.' . $field->relation[1];
+                        else:
+                            $name = $field->relation[0]. '[ , ].'. $field->relation[1];
+                            $key =  $field->relation[0]. '.'. $field->relation[1];
+                        endif;
+
+
                     endif;
                     if($field->type == 'order'):
                         $className = ",className:'sort_order'";
                     endif;
                     $col .= "{ data:`$name`, name: `$key` $className, defaultContent: '' $render},";
 
+
+                    //filters
+                    //translated fields can not filter
                         if(
-                         strpos($field->visible, 'f') !== false &&
-                         in_array($field->name, $crud->model->translatedAttributes) == false
-                         ){
+                         strpos($field->visible, 'f') !== false){
                             if($field->type == 'relation' || $field->type == 'relationM'){
-                                $dataModel = $field->data[0];
-                                $dataField = $field->data[1];
-                                $filters .= $loop.':'.json_encode($dataModel::has(Str::plural($crud->name))->select($dataField)->distinct($dataField)->pluck($dataField)).', ';
+
+                                $relationModel =  get_class($crud->model->{$field->relation[0]}()->getModel());
+                                $dataModel = new  $relationModel;
+                                $dataField = $field->relation[1];
+
+                                //check relation model field not translated
+                                if(in_array($dataField, $dataModel->translatedAttributes) == false){
+                                    $filters .= $loop.':'.json_encode($dataModel::has(Str::plural($crud->name))->select($dataField)->distinct($dataField)->pluck($dataField)).', ';
+                                }else{
+                                    $filters .= $loop.':'.json_encode($dataModel::has(Str::plural($crud->name))->select('*')->get()->pluck($dataField)).', ';
+                                        if($field->type == 'relationM'){
+                                            $filters .= $loop.':["disabled in many to many translation"], ';
+                                        }
+
+                                }
                             }else{
+                                if( in_array($field->name, $crud->model->translatedAttributes) == false){
                                     $filters .= $loop.':'.json_encode($crud->model::select($field->name)->distinct($field->name)->pluck($field->name)).', ';
+                                }else{
+                                   $filters .= $loop.':'.json_encode($crud->model::select('*')->get()->pluck($field->name)).', ';
+                                }
                             }
-                    }
+                         }
+
                     $loop++;
                  endif;
              endforeach;

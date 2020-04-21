@@ -80,7 +80,7 @@ trait UpdateTrait
                         foreach ($tab->fields as $field) {
                             if ((strpos($field->visible, 'e') !== false) && $field->type == 'relationM') {
                                 $data = $request->input($field->name);
-                                $item->{$field->relation}()->sync($data);
+                                $item->{$field->relation[0]}()->sync($data);
                             }
                         }
                     }
