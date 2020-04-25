@@ -15,6 +15,18 @@ class CrudHelper {
      }
 
 
+    /**
+     * Determine if the given / current locale is RTL script.
+     *
+     * @param string|null $locale
+     * @return bool
+     */
+    public static function is_rtl($locale = null)
+    {
+        return RTLDetector::detect($locale ?: self::locale());
+    }
+
+
      
 
     /**
@@ -45,5 +57,26 @@ class CrudHelper {
 
             return $array;
         
+    }
+
+
+    public static function version()
+    {
+        /**
+         * Version a relative asset using the time its contents last changed.
+         *
+         * @param string $value
+         * @return string
+         */
+        function v($path)
+        {
+            if (config('app.env') === 'local') {
+                $version = uniqid();
+            } else {
+                $version = FleetCart::VERSION;
+            }
+
+            return "{$path}?v=" . $version;
+        }
     }
 }

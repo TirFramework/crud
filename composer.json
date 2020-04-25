@@ -17,7 +17,8 @@
 
     "autoload": {
         "psr-4": {
-            "Tir\\Crud\\": "src/"
+            "Tir\\Crud\\": "src/",
+            "": "src/Helpers"
         }
     },
 
