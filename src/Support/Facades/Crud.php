@@ -1,8 +1,12 @@
 <?php
 
-namespace Tir\Crud\Support\Helpers;
+namespace Tir\Crud\Support\Facades;
 
-class CrudHelper {
+use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
+use Tir\Crud\Support\Language\RTLDetector;
+
+class Crud
+{
 
     /**
      * Get current locale.
@@ -13,6 +17,17 @@ class CrudHelper {
      {
          return app()->getLocale();
      }
+
+        /**
+         * Get all supported locales.
+         *
+         * @return array
+         */
+        public static function supported_locales()
+        {
+            return LaravelLocalization::getSupportedLocales();
+        }
+
 
 
     /**
@@ -60,7 +75,7 @@ class CrudHelper {
     }
 
 
-    public static function version()
+    public static function version($path)
     {
         /**
          * Version a relative asset using the time its contents last changed.
@@ -68,8 +83,7 @@ class CrudHelper {
          * @param string $value
          * @return string
          */
-        function v($path)
-        {
+
             if (config('app.env') === 'local') {
                 $version = uniqid();
             } else {
@@ -77,6 +91,11 @@ class CrudHelper {
             }
 
             return "{$path}?v=" . $version;
-        }
+
+    }
+
+    public static function localized_url($locale, $url = null)
+    {
+        return LaravelLocalization::getLocalizedURL($locale, $url);
     }
 }

@@ -3,7 +3,7 @@
 namespace Tir\Crud\Support\Eloquent;
 
 use Illuminate\Database\Eloquent\Model;
-use Tir\Crud\Support\Helpers\CrudHelper;
+use Tir\Crud\Support\Facades\Crud;
 
 class TranslationModel extends Model
 {
@@ -25,7 +25,7 @@ class TranslationModel extends Model
 
         /** Show only active or fallback language data */
         static::addGlobalScope('locale', function ($query) {
-            $query->whereIn('locale', [CrudHelper::locale(), config('app.fallback_locale')]);
+            $query->whereIn('locale', [Crud::locale(), config('app.fallback_locale')]);
         });
     }
   

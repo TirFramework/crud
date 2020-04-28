@@ -9,16 +9,11 @@
         }
     ],
     "require": {
-        "tir/first-panel": "dev-master",
-        "laravelcollective/html": "^5.2.0",
-        "yajra/laravel-datatables-oracle": "^9.0",
-        "cartalyst/sentinel": "^3.0"
     },
 
     "autoload": {
         "psr-4": {
-            "Tir\\Crud\\": "src/",
-            "": "src/Helpers"
+            "Tir\\Crud\\": "src/"
         }
     },
 
@@ -26,7 +21,10 @@
         "laravel": {
             "providers": [
                 "Tir\\Crud\\CrudServiceProvider"
-            ]
+            ],
+            "aliases": {
+                "Crud": "Tir\\Crud\\Support\\Facades\\Crud"
+            }
         }
     }
 }

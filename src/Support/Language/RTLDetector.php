@@ -1,6 +1,6 @@
 <?php
 
-namespace Tir\Crud\Support\Helpers;
+namespace Tir\Crud\Support\Language;
 
 class RTLDetector
 {
