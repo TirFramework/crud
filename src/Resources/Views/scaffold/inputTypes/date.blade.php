@@ -23,7 +23,7 @@
     }
 
     if( isset( $item->{$field->name} ) ){
-        $value = jDate($item->{$field->name});
+        $value = $item->{$field->name};
     } else {
         $value = '';
     }
