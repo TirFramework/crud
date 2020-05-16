@@ -18,7 +18,11 @@
     if (in_array($key, $model->translatedAttributes)){
         $values = $model::select('*')->get()->pluck($key,'id');
     }else{
-        $values = $model::select($key,'id')->where($key,$item->{$field->name})->pluck($key,'id');
+        if(isset($item->{$field->name})){
+             $values = $model::select($key,'id')->where($key,$item->{$field->name})->pluck($key,'id');
+        }else{
+             $values = [];
+        }
     }
 
 
