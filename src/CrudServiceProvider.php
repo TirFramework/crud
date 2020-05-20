@@ -3,6 +3,7 @@
 namespace Tir\Crud;
 
 
+use Illuminate\Database\Query\Builder;
 use Tir\Crud\EventServiceProvider;
 use Illuminate\Support\ServiceProvider;
 use Tir\Crud\Services\ResourceRegistrar;
@@ -39,11 +40,15 @@ class CrudServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+
+
         $this->loadRoutesFrom(__DIR__.'/Routes/web.php');
 
         $this->loadViewsFrom(__DIR__.'/Resources/Views', 'crud');
 
         $this->loadTranslationsFrom(__DIR__.'/Resources/Lang/', 'crud');
+
+        $this->registerResetOrderMacro();
 
         $this->publishes([
             __DIR__.'/config/crud.php' => config_path('crud.php'),
@@ -51,6 +56,15 @@ class CrudServiceProvider extends ServiceProvider
 
 
     }
+
+    private function registerResetOrderMacro()
+    {
+        Builder::macro('resetOrders', function () {
+            $this->{$this->unions ? 'unionOrders' : 'orders'} = null;
+            return $this;
+        });
+    }
+
 
 }
 

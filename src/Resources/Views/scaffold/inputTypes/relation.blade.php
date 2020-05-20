@@ -4,7 +4,7 @@
     $fieldName = $field->name;
     $options = ['id'=> "select-$id", 'class'=>'dropdown-toggle form-control'];
 
-    //when we are in create page set $item to null for undefind variable error
+    //when we are in create page set $item to null for undefined variable error
     if(!isset($item)){
         $item = null;
     }
