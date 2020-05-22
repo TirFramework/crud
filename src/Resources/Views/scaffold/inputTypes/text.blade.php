@@ -4,20 +4,20 @@ $model = null;
 if( isset($item->{$field->name}) ){
     $model = $item->{$field->name};
 }
-//TODO:remove laravel form generator package
+$id = $field->name;
+$class = 'form-control';
+$options = ['class'=>$class, $field->validation ?? null];
+
+if($errors->has($field->name)){
+    $options['class'] = $class. ' is-invalid';
+}
+
 @endphp
 <div class="{{$field->col ?? 'col-12 col-md-12'}}">
 
     <div class="form-group">
-            <input type="text"
-            id="{{$field->name}}"
-            name="{{$field->name}}"
-            placeholder="{{$field->placeholder ?? null}}"
-            {{$field->option ?? null}}
-            value="{{ old( $field->name, $model ) }}"
-            class="form-control @error($field->name) is-invalid @enderror"
-            {!!$field->validation ?? null!!}
-            >
+        {!!  Form::text($field->name,null,$options)  !!}
+
             <span class="invalid-feedback" role="alert">
                 @error($field->name)
                 <strong>{{ $message }}</strong>
