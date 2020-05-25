@@ -40,6 +40,7 @@
     $("#select-{{$id}}").select2({
         placeholder: "{{trans('crud::panel.select').' '.trans("$crud->name::panel.$field->display")}}",
         dir: $('body').attr('dir'),
+        allowClear: true,
         ajax: {
             url: "/admin/{{$model::$routeName}}/select/?key={{$key}}",
             dataType: 'json',

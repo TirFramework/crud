@@ -54,9 +54,21 @@ $model = $item->{$field->name};
 
 @push('scripts')
     <script>
-        $("#{{$field->name}}").select2({
+        $('[name="{{$field->name}}"').select2({
             placeholder: "{{$field->placeholder ?? null}}",
             dir: $('body').attr('dir'),
+            // allowClear: true,
         });
     </script>
 @endpush
+
+
+@isset($field->script)
+    @push('scripts')
+
+    <script>
+        {!!$field->script!!}
+    </script>
+    @endpush
+@endisset
+
