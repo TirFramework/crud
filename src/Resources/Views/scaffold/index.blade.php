@@ -162,7 +162,8 @@ use Illuminate\Support\Str;
 
         var col=[ {!! $col !!} ];
         var filters = { {!! $filters !!} };     // it must something like this         var filters = { 5:["travelogue","article","news"] };
-
+        var  dataRoute = "{{route($crud->routeName.'.data')}}";
+        var  trashRoute = "{{route($crud->routeName.'.trashData')}}";
         let table = new datatable('#table',col,"{{$crud->name}}");
 
         @php
@@ -178,9 +179,9 @@ use Illuminate\Support\Str;
         @endforeach
 
         @if(isset($trash))
-        table.create([{{$orderField}}, "desc"],filters,'trashData',{{$crud->options['datatableServerSide']}});    //([column for filter, 'desc or ace'], 'filters data','route')
+        table.create([{{$orderField}}, "desc"],filters,trashData,{{$crud->options['datatableServerSide']}});    //([column for filter, 'desc or ace'], 'filters data','route')
         @else
-        table.create([{{$orderField}}, "desc"],filters,'data',{{$crud->options['datatableServerSide']}});    //([column for filter, 'desc or ace'], 'filters data','route')
+        table.create([{{$orderField}}, "desc"],filters,dataRoute,{{$crud->options['datatableServerSide']}});    //([column for filter, 'desc or ace'], 'filters data','route')
         @endif
         table.reorder();
     </script>

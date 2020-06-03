@@ -23,6 +23,8 @@ class CrudController extends BaseController
     //$model will be similar to App\Models\{model name}
     protected $model;
 
+    protected $routeName;
+
     protected $actions = [];
 
     protected $crud = [];
@@ -77,6 +79,9 @@ class CrudController extends BaseController
             $this->table = Str::plural($this->name);
         }
 
+        //Get route name from model
+        $this->routeName = $this->model::$routeName;
+
         // Get fields from model and convert to objective array
         $this->fields = $this->model->getFields();
 
@@ -107,7 +112,15 @@ class CrudController extends BaseController
         /** All information about CRUD such as name, model, table, fields, etc,
          *  that used in Index, Data, Create, Store, and etc methods
          */
-        $this->crud = (object) ['name' => $this->name, 'model' => $this->model, 'table' => $this->table, 'fields' => $this->fields, 'additionalFields' => $this->additionalFields, 'options' => $this->options, 'actions' => $this->actions, 'permission'=>$this->permission];
+        $this->crud = (object) ['name' => $this->name,
+                                'model' => $this->model,
+                                'routeName' => $this->routeName,
+                                'table' => $this->table,
+                                'fields' => $this->fields,
+                                'additionalFields' => $this->additionalFields,
+                                'options' => $this->options,
+                                'actions' => $this->actions,
+                                'permission'=>$this->permission];
 
     }
 
