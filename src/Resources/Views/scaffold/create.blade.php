@@ -58,11 +58,15 @@
                 <div class="card-header d-flex align-items-center">
 
                     {{--Submit & Cancel--}}
-                    @if(view()->exists("$crud->name::admin.inputTypes.update"))
+                    @if(view()->exists("$crud->name::admin.inputTypes.save"))
                         @include("$crud->name::admin.inputTypes.save",['crud'=>$crud])
+                    @elseif (view()->exists("admin.$crud->name.inputTypes.save"))
+                        @include("admin.$crud->name.inputTypes.save",['crud'=>$crud])
                     @else
                         @include("crud::scaffold.inputTypes.save",['crud'=>$crud])
                     @endif
+
+
                 </div>
                 <div class="card-body">
                     <div class="tab-content">
@@ -76,8 +80,11 @@
                                                 @if(!isset($field->display))
                                                     @php $field->display = $field->name; @endphp
                                                 @endif
+                                                
                                                 {{--check local folder have input or no--}}
-                                                @if(view()->exists("$crud->name::admin.inputTypes.$field->type"))
+                                                @if(view()->exists("admin.$crud->name.inputTypes.$field->type"))
+                                                    @include("admin.$crud->name.inputTypes.$field->type",['field'=>$field,'crud'=>$crud])
+                                                @elseif (view()->exists("$crud->name::admin.inputTypes.$field->type"))
                                                     @include("$crud->name::admin.inputTypes.$field->type",['field'=>$field,'crud'=>$crud])
                                                 @else
                                                     @include("crud::scaffold.inputTypes.$field->type",['field'=>$field,'crud'=>$crud])

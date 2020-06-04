@@ -63,9 +63,12 @@
                         <div class="card-header d-flex align-items-center">
                              {{--TODO: //add tab title here--}}
                             {{--Submit & Cancel--}}
+
                             @if(view()->exists("$crud->name::admin.inputTypes.update"))
                                 @include("$crud->name::admin.inputTypes.update",['crud'=>$crud])
-                            @else
+                            @elseif (view()->exists("admin.$crud->name.inputTypes.update"))
+                                @include("admin.$crud->name.inputTypes.update",['crud'=>$crud])
+                            @else    
                                 @include("crud::scaffold.inputTypes.update",['crud'=>$crud])
                             @endif
                         </div>
@@ -82,8 +85,10 @@
                                                             @php $field->display = $field->name; @endphp
                                                         @endif
                                                         {{--check local folder have input or no--}}
-                                                        @if(view()->exists("$crud->name::admin.inputTypes.$field->type"))
-                                                            @include("$crud->name::admin.inputTypes.$field->type",['field'=>$field,'crud'=>$crud, 'item'=>$item])
+                                                        @if(view()->exists("admin.$crud->name.inputTypes.$field->type"))
+                                                            @include("admin.$crud->name.inputTypes.$field->type",['field'=>$field,'crud'=>$crud])
+                                                        @elseif (view()->exists("$crud->name::admin.inputTypes.$field->type"))
+                                                            @include("$crud->name::admin.inputTypes.$field->type",['field'=>$field,'crud'=>$crud])
                                                         @else
                                                             @include("crud::scaffold.inputTypes.$field->type",['field'=>$field,'crud'=>$crud, 'item'=>$item])
                                                         @endif
