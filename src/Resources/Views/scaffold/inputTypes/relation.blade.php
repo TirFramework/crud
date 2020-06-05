@@ -42,7 +42,8 @@
         dir: $('body').attr('dir'),
         allowClear: true,
         ajax: {
-            url: "/admin/{{$model::$routeName}}/select/?key={{$key}}",
+            // url: "/admin/{{$model::$routeName}}/select/?key={{$key}}",
+            url: "{{ route($model::$routeName.'.select') }}/?key={{$key}}",
             dataType: 'json',
             data: function (params) {
                 var query = {
