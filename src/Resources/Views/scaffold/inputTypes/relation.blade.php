@@ -1,8 +1,8 @@
 @php
     //set #id for jquery confilict
-    $id = preg_replace("/[^a-zA-Z_]/", "", $field->name);
+    $idTag = preg_replace("/[^a-zA-Z_]/", "", $field->name);
     $fieldName = $field->name;
-    $options = ['id'=> "select-$id", 'class'=>'dropdown-toggle form-control'];
+    $options = ['id'=> "select-$idTag", 'class'=>'dropdown-toggle form-control'];
 
     //when we are in create page set $item to null for undefined variable error
     if(!isset($item)){
@@ -39,7 +39,7 @@
 
 @push('scripts')
     <script>
-    $("#select-{{$id}}").select2({
+    $("#select-{{$idTag}}").select2({
         placeholder: "{{$options ['placeholder']}}",
         dir: $('body').attr('dir'),
         allowClear: true,
