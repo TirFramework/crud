@@ -55,10 +55,7 @@ class CrudController extends BaseController
 
         //Get Permission
         $this->permission = $this->getPermission($this->name, $this->method);
-        //Check permission
-        // if (!$this->checkPermission($this->method)) {
-        //     abort('403');
-        // }
+
 
         //check model is exist in App\Modules\{model name}
         if (!$this->model) {
@@ -138,6 +135,7 @@ class CrudController extends BaseController
 
     private function checkPermission($action)
     {
+        return true;
         $action = ($action == 'data') ? 'index' : $action;
         $action = ($action == 'reorder') ? 'index' : $action;
         $action = ($action == 'select') ? 'index' : $action;
