@@ -6,6 +6,7 @@ namespace Tir\Crud;
 use Illuminate\Database\Query\Builder;
 use Tir\Crud\EventServiceProvider;
 use Illuminate\Support\ServiceProvider;
+use Tir\Crud\Services\AdminFileds;
 use Tir\Crud\Services\ResourceRegistrar;
 use Tir\Setting\Facades\Stg;
 
@@ -30,7 +31,6 @@ class CrudServiceProvider extends ServiceProvider
         $this->app->bind('Illuminate\Routing\ResourceRegistrar', function () use ($registrar) {
             return $registrar;
         });
-
     }
 
     /**

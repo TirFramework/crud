@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Tir\Crud\Controllers\TrashTrait;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Routing\Controller as BaseController;
+use Tir\Crud\Events\GetCrudEvent;
 
 class CrudController extends BaseController
 {
@@ -118,6 +119,9 @@ class CrudController extends BaseController
                                 'options' => $this->options,
                                 'actions' => $this->actions,
                                 'permission'=>$this->permission];
+
+        $this->crud = event(new GetCrudEvent($this->crud))[0];
+
 
     }
 

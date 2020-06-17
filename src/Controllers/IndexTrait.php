@@ -13,6 +13,8 @@ trait IndexTrait
      */
     public function index()
     {
+
+//        dd($this->crud);
         //here we can add some functionality with other packages or in application
         //event(new IndexEvent($this->name));
         return View::first(["$this->name::admin.index", "crud::scaffold.index"])->with('crud', $this->crud);
