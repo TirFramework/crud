@@ -58,6 +58,8 @@ class CrudController extends BaseController
             //Update crud singleton
             $crud->setName($this->name);
             //$this->method = $routeName[1];
+
+
         }
 
         //Get Permission
@@ -76,6 +78,9 @@ class CrudController extends BaseController
             echo($this->model . ' model not found');
         }
 
+        //Get route name from model
+        $this->routeName = $this->model::$routeName;
+
         //Get Table name from Model or set plural name
         if (isset($this->model->table)) {
             $this->table = $this->model->table;
@@ -83,8 +88,6 @@ class CrudController extends BaseController
             $this->table = Str::plural($this->name);
         }
 
-        //Get route name from model
-        $this->routeName = $this->model::$routeName;
 
         // Get fields from model and convert to objective array
         $this->fields = $this->model->getFields();
@@ -122,7 +125,6 @@ class CrudController extends BaseController
          *  will used in Index, Data, Create, Store, and etc methods
          */
 
-        //dd($this->fields);
         $this->crud = (object)['name'             => $this->name,
                                'model'            => $this->model,
                                'routeName'        => $this->routeName,
@@ -132,7 +134,6 @@ class CrudController extends BaseController
                                'options'          => $this->options,
                                'actions'          => $this->actions,
                                'permission'       => $this->permission];
-
 
 
     }

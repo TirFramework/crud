@@ -42,11 +42,13 @@ class CrudModel extends Model
     {
         $fields = [];
 
-        return $fields;}
+        return $fields;
+    }
 
     public function getAdditionalFields()
     {
         $fields = [];
-        return $fields;}
+        return $fields;
+    }
 
 }
