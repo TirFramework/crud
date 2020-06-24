@@ -7,6 +7,7 @@ use Illuminate\Database\Query\Builder;
 use Tir\Crud\EventServiceProvider;
 use Illuminate\Support\ServiceProvider;
 use Tir\Crud\Services\AdminFileds;
+use Tir\Crud\Services\Crud;
 use Tir\Crud\Services\ResourceRegistrar;
 use Tir\Setting\Facades\Stg;
 
@@ -30,6 +31,10 @@ class CrudServiceProvider extends ServiceProvider
         $registrar = new ResourceRegistrar($this->app['router']);
         $this->app->bind('Illuminate\Routing\ResourceRegistrar', function () use ($registrar) {
             return $registrar;
+        });
+
+        $this->app->singleton('Crud', function (){
+            return new Crud;
         });
     }
 

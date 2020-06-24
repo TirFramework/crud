@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 use Tir\Crud\Controllers\TrashTrait;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Routing\Controller as BaseController;
-use Tir\Crud\Events\GetCrudEvent;
+use Tir\Crud\Events\PrepareFieldsEvent;
 
 class CrudController extends BaseController
 {
@@ -45,12 +45,18 @@ class CrudController extends BaseController
 
     public function __construct()
     {
+
+        $crud = resolve('Crud');
+
         //set Crud name
         if (!$this->name) {
             //TODO: problem in console
             //split route name and get keyName for route view
             $routeName = explode('.', Route::CurrentRouteName());
             $this->name = $routeName[0];
+
+            //Update crud singleton
+            $crud->setName($this->name);
             //$this->method = $routeName[1];
         }
 
@@ -67,7 +73,7 @@ class CrudController extends BaseController
         if (class_exists($this->model)) {
             $this->model = new $this->model;
         } else {
-            echo ($this->model . ' model not found');
+            echo($this->model . ' model not found');
         }
 
         //Get Table name from Model or set plural name
@@ -85,10 +91,9 @@ class CrudController extends BaseController
 
 
         // check additional method exist
-        if(method_exists($this->model,'getAdditionalFields')){
+        if (method_exists($this->model, 'getAdditionalFields')) {
             $this->additionalFields = $this->model->getAdditionalFields();
         }
-
 
 
         //options
@@ -106,21 +111,28 @@ class CrudController extends BaseController
         //actions
         $this->actions = $this->model->getActions();
 
+        //add other packages fields to crud fields
+        // event(new PrepareFieldsEvent());
+
+        $crud->setFields($this->fields);
+        $crud->mergeFields();
+        $this->fields = $crud->getFields();
 
         /** All information about CRUD such as name, model, table, fields, etc,
-         *  that used in Index, Data, Create, Store, and etc methods
+         *  will used in Index, Data, Create, Store, and etc methods
          */
-        $this->crud = (object) ['name' => $this->name,
-                                'model' => $this->model,
-                                'routeName' => $this->routeName,
-                                'table' => $this->table,
-                                'fields' => $this->fields,
-                                'additionalFields' => $this->additionalFields,
-                                'options' => $this->options,
-                                'actions' => $this->actions,
-                                'permission'=>$this->permission];
 
-        $this->crud = event(new GetCrudEvent($this->crud))[0];
+        //dd($this->fields);
+        $this->crud = (object)['name'             => $this->name,
+                               'model'            => $this->model,
+                               'routeName'        => $this->routeName,
+                               'table'            => $this->table,
+                               'fields'           => $this->fields,
+                               'additionalFields' => $this->additionalFields,
+                               'options'          => $this->options,
+                               'actions'          => $this->actions,
+                               'permission'       => $this->permission];
+
 
 
     }

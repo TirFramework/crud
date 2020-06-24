@@ -8,6 +8,7 @@
 
     if(isset($item->{$field->name})){
         $price = $item->{$field->name};
+       $price = floor($price->amount());
     }
 @endphp
 
