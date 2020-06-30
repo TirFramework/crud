@@ -112,6 +112,7 @@
         editor();
         $(".form-horizontal").validate({
             lang: $('html').attr('lang'),
+            ignore: [],
             onkeyup: true,
             onfocus: true
         });
