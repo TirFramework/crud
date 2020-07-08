@@ -75,6 +75,8 @@ use Illuminate\Support\Str;
             $loop=0;
             $responsive= true;
             $className = null;
+            $orderField =0;
+
             foreach($crud->fields as $group):
                 foreach($group->tabs as $tab):
                     foreach($tab->fields as $field):
@@ -117,16 +119,16 @@ use Illuminate\Support\Str;
 
 
                     endif;
-                    if($field->type == 'order'):
-                        $className = ",className:'sort_order'";
+                    if($field->type == 'position'):
+                        $className = ",className:'position'";
+                        $orderField = $loop;
                     endif;
                     $col .= "{ data:`$name`, name: `$key` $className, defaultContent: '' $render},";
 
 
                     //filters
                     //translated fields can not filter
-                        if(
-                         strpos($field->visible, 'f') !== false){
+                        if(strpos($field->visible, 'f') !== false){
                             if($field->type == 'relation' || $field->type == 'relationM'){
 
                                 $relationModel =  get_class($crud->model->{$field->relation[0]}()->getModel());
@@ -151,7 +153,6 @@ use Illuminate\Support\Str;
                                 }
                             }
                          }
-
                     $loop++;
                  endif;
              endforeach;
@@ -166,20 +167,21 @@ use Illuminate\Support\Str;
         var  trashRoute = "{{route($crud->routeName.'.trashData')}}";
         let table = new datatable('#table',col,"{{$crud->name}}");
 
-        @php
-            $orderField =0;
-        @endphp
-        @foreach($crud->fields as $field)
-            @if(strpos($field->visible, 'i') !== false)
-                @if(strpos($field->visible, 'o') !== false )
-                    @php $orderField = $loop->index;  @endphp
-                    @break
-                @endif
-            @endif
+        @foreach($crud->fields as $group)
+            @foreach($group->tabs as $tab)
+                @foreach($tab->fields as $field)
+                    @if(strpos($field->visible, 'i') !== false)
+                        @if(strpos($field->visible, 'o') !== false )
+                            @php $orderField = $loop->index;  @endphp
+                            @break
+                        @endif
+                    @endif
+                @endforeach
+            @endforeach
         @endforeach
 
         @if(isset($trash))
-        table.create([{{$orderField}}, "desc"],filters,trashData,{{$crud->options['datatableServerSide']}});    //([column for filter, 'desc or ace'], 'filters data','route')
+        table.create([{{$orderField}}, "desc"],filters,trashRoute,{{$crud->options['datatableServerSide']}});    //([column for filter, 'desc or ace'], 'filters data','route')
         @else
         table.create([{{$orderField}}, "desc"],filters,dataRoute,{{$crud->options['datatableServerSide']}});    //([column for filter, 'desc or ace'], 'filters data','route')
         @endif

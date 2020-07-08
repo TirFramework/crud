@@ -126,10 +126,12 @@ trait DataTrait
                 $DeleteBtn = $restoreBtn=null;
 
                 if($this->checkPermission('destroy')){
-                    $restoreBtn = '<a href="'.route( $this->name.'.restore',$item->getKey()).'" class="btn btn-sm btn-success"><i class="fas fa-repeat"></i> <span class="hidden">'.trans('panel.restore').'</span></a>';
+                    $restoreBtn = '<a href="'.route( $this->name.'.restore',$item->getKey()). '" class="fa-md text-success"><i title="' . trans('panel.restore') . '" class="fas fa-recycle"></i></a>';
+
+//                    $restoreBtn = '<a href="'.route( $this->name.'.restore',$item->getKey()).'" class="btn btn-sm btn-success"><i class="fas fa-repeat"></i> <span class="hidden"></span></a>';
                 }
                 if($this->checkPermission('forceDestroy')){
-                    $DeleteBtn = '<button onclick=' . '"deleteRow(' . "'" . route($this->name . '.forceDestroy', $item->getKey()) . "'" . ')" class="btn btn-sm btn-danger"> <i class="fas fa-trash"></i> <span class="hidden">' . trans('panel.delete') . '</span></button>';
+                    $DeleteBtn = '<button onclick=' . '"deleteRow(' . "'" . route($this->name . '.forceDestroy', $item->getKey()) . "'" . ')" class="fa-md text-danger"> <i title="' . trans('panel.delete') . '" class="fas fa-trash"></i></button>';
                 }
                 return $restoreBtn.' '.$DeleteBtn;
             })->addColumns($this->addColumns())

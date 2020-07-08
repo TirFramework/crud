@@ -148,9 +148,9 @@ trait ActionTrait
 
         if ($request->input('id') !== null) {
             $id = $request->input('id');
-            $position = $request->input('sort_order');
-            $item = $this->model::withTrashed()->findOrFail($id);
-            $item->sort_order = $position;
+            $position = $request->input('position');
+            $item = $this->model::findOrFail($id);
+            $item->position = $position;
             if ($item->save()) {
                 $response = 'send response records updated goes here';
                 return response()->json($response);
