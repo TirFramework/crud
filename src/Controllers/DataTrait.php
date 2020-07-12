@@ -23,7 +23,7 @@ trait DataTrait
         foreach ($this->fields as $group){
             foreach ($group->tabs as $tab){
                 foreach ($tab->fields as $field) {
-                    if ((strpos($field->visible, 'i') == false)) {
+                    if ((strpos($field->visible, 'i') !== false)) {
                         if (isset($field->relation)) {
                             //get model form relation
                             $relationModel =  get_class($this->model->{$field->relation[0]}()->getModel());
@@ -117,7 +117,6 @@ trait DataTrait
     /**
      * This function return Datatables with add columsn
      * @param object $items
-     * @return  \Yajra\DataTables\Facades\DataTables
      */
     public function trashDataTable($items)
     {
