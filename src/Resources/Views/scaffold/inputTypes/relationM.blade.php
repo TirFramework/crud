@@ -4,7 +4,9 @@
     $fieldName = $field->name.'[]';
     $options = ['id'=> "select-$id", 'class'=>'dropdown-toggle form-control','multiple'];
 
-
+    if(! isset($item->{$field->name}) || count($item->{$field->name}) == 0){
+        $item = (object)[$field->name => ''];
+    }
 
 
     $model =   get_class($crud->model->{$field->relation[0]}()->getModel());
