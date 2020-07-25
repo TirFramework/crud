@@ -4,7 +4,6 @@ $name = $field->name;
 
 // remove '[' and ']' from field name because fix upload problem
 $clearName = preg_replace('/[\[\]]/i', '_' , $field->name);
-$index =
 @endphp
 
 <div class="{{$field->col ?? 'col-12 col-md-12'}}">
