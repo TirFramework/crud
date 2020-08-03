@@ -31,7 +31,10 @@ trait EditTrait
          * this function with CRUD name. if this view wasn't exist then try
          * load create view from CRUD(this) package.
          */
-        return View::first(["$this->name::admin.edit", "crud::scaffold.edit"])->with(['crud'=>$this->crud, 'item'=>$item]);
+
+
+        // return request();
+        return View::first(["$this->name::admin.edit", "crud::scaffold.edit"])->with(['crud'=>$this->crud, 'item'=>$item , 'tab' => request()->input('tab') ]);
     }
 
     /**

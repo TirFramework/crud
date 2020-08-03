@@ -119,7 +119,7 @@ trait UpdateTrait
         if($request->input('save_close')){
             return Redirect::to(route("$this->name.index"));
         }else{
-            return Redirect::back();
+            return Redirect::to(route("$this->name.edit",$item->getKey()))->with('tab', $request->input('tab'));
         }
     }
 
