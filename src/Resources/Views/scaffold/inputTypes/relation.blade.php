@@ -2,16 +2,23 @@
     //set #id for jquery confilict
     $idTag = preg_replace("/[^a-zA-Z_]/", "", $field->name);
     $fieldName = $field->name;
-    $options = ['id'=> "select-$idTag", 'class'=>'dropdown-toggle form-control'];
+    $class = 'dropdown-toggle form-control';
+
+    $options = ['id'=> "select-$idTag", 'class'=> $class , $field->validation ?? null];
 
     //when we are in create page set $item to null for undefined variable error
     if(!isset($item)){
         $item = null;
     }
 
+
+    if($errors->has($field->name)){
+        $options['class'] = $class. ' is-invalid';
+    }
+
     $options ['placeholder'] = trans("$crud->name::panel.select").' '.trans("$crud->name::panel.$field->display");
 
-     $model =   get_class($crud->model->{$field->relation[0]}()->getModel());
+    $model =   get_class($crud->model->{$field->relation[0]}()->getModel());
     $key = $field->relation[1];
     $model = new $model;
 
@@ -33,6 +40,15 @@
 <div class="{{$field->col ?? 'col-12 col-md-12'}}">
     <div class="form-group">
         {!! Form::select($fieldName, $values, null, $options)!!}
+
+        
+        <span class="invalid-feedback" role="alert">
+            @error($field->name)
+            <strong>{{ $message }}</strong>
+            @enderror
+        </span>
+
+
         {!! Form::label($fieldName,trans("$crud->name::panel.$field->display"), ['class' => 'control-label']) !!}
     </div>
 </div>

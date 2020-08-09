@@ -188,9 +188,7 @@ $tabStatus = Session::get('tab') ?? null @endphp
 
     $('.nav-link').click(function (event) {
         
-        event.preventDefault()
-
-        
+        event.preventDefault()        
         var id = $(this).attr('href');
         activeingTab(id);
 
@@ -202,7 +200,6 @@ $tabStatus = Session::get('tab') ?? null @endphp
     function activeingTab(element) {
         $('.nav-link').removeClass('active');
         $('a[href="'+element+'"]').addClass('active');
-
         $('.tab-content .tab-pane').removeClass('active show');
         $(element).addClass('active show');
     }

@@ -1,6 +1,6 @@
 <?php
 $fieldName = $field->name;
-$options = ['class'=>'select2 input-lg dropdown-toggle form-control'];
+$options = ['class'=>'select2 input-lg dropdown-toggle form-control', $field->validation ?? null ];
 if(isset($field->multiple)):
     if( $field->multiple == true):
         $options['multiple'] = 'multiple';
@@ -48,6 +48,7 @@ endif;
     <script>
         $('[name="{{$field->name}}"').select2({
             placeholder: "{{$field->placeholder ?? null}}",
+            allowClear: true,
             dir: $('body').attr('dir'),
             // allowClear: true,
         });

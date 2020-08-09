@@ -6,7 +6,11 @@ if( isset($item->{$field->name}) ){
 }
 $id = $field->name;
 $class = 'form-control';
-$options = ['class'=>$class, $field->validation ?? null];
+$options = ['class'=>$class , $field->validation ?? null];
+
+if(isset($field->placeholder)){
+    $options['placeholder'] = $field->placeholder;
+}
 
 if($errors->has($field->name)){
     $options['class'] = $class. ' is-invalid';
