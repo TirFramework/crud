@@ -7,7 +7,7 @@
 
     $fieldName = $field->name.'[]';
     $images[0] = '';
-    if( isset( $item->{$name} )){
+    if( isset( $item->{$name} ) ){
         if ($item->{$name} != null) {
             if(  count($item->{$name})  ){
                 $images = $item->{$name} ;
