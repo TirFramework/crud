@@ -34,7 +34,8 @@
     <div id="cloningimages" class="sortable">
 
     @foreach ($images as $image)
-    @isset($image)
+    {{-- @dd($image) --}}
+    {{-- @isset($image) --}}
 
         <div class="item" style=" margin-bottom: 15px;">
 
@@ -49,7 +50,7 @@
                                 max-height: 100px;
                             }">
                                 @isset($image)
-                                    <img src="{{ $image ?? null }}" alt="" style="max-width: 100px; max-height: 100px">
+                                    <img src="{{ $image ?? '' }}" alt="" style="max-width: 100px; max-height: 100px">
                                 @endisset
                             </div>
 
@@ -65,7 +66,7 @@
                                 <i class="fas fa-image"></i> {{trans('crud::panel.choose')}}
                             </a>
                                 
-                            {!! Form::text($fieldName, $image  ,['class' => 'form-control','id'=>$index.'_input-'.$loop->index, 'id-template'=>$index.'_input-xxx',   'name-template'=>$field->name.'[xxx]', 'placeholder'=> trans("$crud->name::panel.$field->name")])!!}
+                            {!! Form::text($fieldName, $image or null ,['class' => 'form-control','id'=>$index.'_input-'.$loop->index, 'id-template'=>$index.'_input-xxx',   'name-template'=>$field->name.'[xxx]', 'placeholder'=> trans("$crud->name::panel.$field->name")])!!}
                         </span>
 
                     </div>
@@ -73,7 +74,7 @@
 
             </div>
         </div>
-        @endisset
+    {{-- @endisset --}}
 
     @endforeach
 
