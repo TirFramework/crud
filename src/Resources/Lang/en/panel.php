@@ -47,6 +47,7 @@ return [
     'draft'                     => 'Draft',
     'select-action'             => 'Select Action',
     'action'                    => 'action',
+    'preview'                   => 'preview',
 
     'status_val'                => [
                                      '1' => 'published'

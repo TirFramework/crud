@@ -67,9 +67,9 @@ trait DataTrait
         return Datatables::eloquent($items)
             ->addColumn('action', function ($item) {
                 $viewBtn = $DeleteBtn = $editBtn=null;
-                if($this->checkPermission('show')){
-                    $viewBtn = '<a href="'.route( $this->name.'.show',$item->getKey()). '" class="fa-md text-success"><i title="' . trans('panel.view') . '" class="far fa-eye"></i></a>';
-                }
+                // if($this->checkPermission('show')){
+                //     $viewBtn = '<a href="'.route( $this->name.'.show',$item->getKey()). '" class="fa-md text-success"><i title="' . trans('panel.view') . '" class="far fa-eye"></i></a>';
+                // }
                 if($this->checkPermission('edit')){
                     $editBtn = '<a href="'.route( $this->name.'.edit',$item->getKey()). '" class="fa-md text-info"><i title="' . trans('panel.edit') . '" class="fas fa-pencil-alt"></i></a>';
                 }
