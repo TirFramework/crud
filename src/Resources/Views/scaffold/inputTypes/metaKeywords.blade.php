@@ -1,6 +1,9 @@
 <?php
 $fieldName = $field->name;
-$options = ['class'=>'select2 input-lg dropdown-toggle form-control', $field->validation ?? null ];
+
+$fieldData = arrayReplaceKey($item->meta->meta_keywords);
+
+$options = ['class'=>'select2 metaKeywords input-lg dropdown-toggle form-control', $field->validation ?? null ];
 if(isset($field->multiple)):
     if( $field->multiple == true):
         $options['multiple'] = 'multiple';
@@ -14,7 +17,7 @@ endif;
 
 <div class="{{  $field->col ?? 'col-12 col-md-12' }}">
     <div class="form-group">
-            {!! Form::select($fieldName, $field->data, null,$options)!!}
+            {!! Form::select($fieldName, $fieldData, null,$options)!!}
 
         <label for="{{$field->name}}" class="control-label text-right">@lang("$crud->name::panel.$field->display")</label>
     </div>
@@ -29,11 +32,11 @@ endif;
             dir: $('body').attr('dir'),
             // allowClear: true,
         });
-        //
-        // $(".select2.taggable-c").select2({
-        //     tags: true,
-        //     tokenSeparators: [',', ' ']
-        // });
+
+        $(".select2.metaKeywords").select2({
+            tags: true,
+            tokenSeparators: [',']
+        });
     </script>
 @endpush
 
@@ -46,4 +49,15 @@ endif;
     </script>
     @endpush
 @endisset
+
+<?php
+
+/*for form select data we need remove array index and replace with value */
+function arrayReplaceKey($data) {
+    $newArray= [];
+    foreach ($data as $key => $value){
+        $newArray[$value]=$value;
+    }
+    return $newArray;
+}
 
