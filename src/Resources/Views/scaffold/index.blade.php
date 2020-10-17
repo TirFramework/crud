@@ -84,6 +84,7 @@ use Illuminate\Support\Str;
                     $name = $field->name;
                     $key = $crud->table.'.'.$field->name;
                     $render = null;
+                    $searchable = 'true';
                     //if feild is translation for use in data table we must do like many to many relation
                     if(in_array($field->name, $crud->model->translatedAttributes)):
                         $name = 'translations'. '[].'. $field->name;
@@ -123,7 +124,15 @@ use Illuminate\Support\Str;
                         $className = ",className:'position'";
                         $orderField = $loop;
                     endif;
-                    $col .= "{ data:`$name`, name: `$key` $className, defaultContent: '' $render},";
+
+                    //add searchable item
+                    if(isset($field->searchable))
+                    {
+                        if ($field->searchable == false || $field->searchable == 'false') {
+                            $searchable = 'false';
+                        }
+                    }
+                    $col .= "{ data:`$name`, name: `$key` $className, defaultContent: '' $render, searchable: $searchable},";
 
 
                     //filters

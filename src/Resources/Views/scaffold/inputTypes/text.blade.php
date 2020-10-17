@@ -1,4 +1,3 @@
-
 @php
 $model = null;
 if( isset($item->{$field->name}) ){
@@ -15,10 +14,9 @@ if(isset($field->placeholder)){
 if($errors->has($field->name)){
     $options['class'] = $class. ' is-invalid';
 }
-
 @endphp
-<div class="{{$field->col ?? 'col-12 col-md-12'}}">
 
+<div class="{{$field->col ?? 'col-12 col-md-12'}}">
     <div class="form-group">
         {!!  Form::text($field->name,null,$options)  !!}
 
