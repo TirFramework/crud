@@ -85,7 +85,7 @@ use Illuminate\Support\Str;
                     $key = $crud->table.'.'.$field->name;
                     $render = null;
                     $searchable = 'true';
-                    //if feild is translation for use in data table we must do like many to many relation
+                    //if field is translation for use in data table we must do like many to many relation
                     if(in_array($field->name, $crud->model->translatedAttributes)):
                         $name = 'translations'. '[].'. $field->name;
                         $key =  'translations'. '.'. $field->name;
