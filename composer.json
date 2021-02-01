@@ -9,10 +9,10 @@
         }
     ],
     "require": {
-        "laravel/framework": "^7.22.2",
+        "laravel/framework": "^8.0",
         "astrotomic/laravel-translatable" : "*",
         "laravelcollective/html": "^6.0",
-        "yajra/laravel-datatables-oracle": "^9.9"
+        "yajra/laravel-datatables-oracle": "^9.0"
     },
 
     "autoload": {
