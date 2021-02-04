@@ -3,13 +3,9 @@
 namespace Tir\Crud;
 
 
-use Illuminate\Database\Query\Builder;
-use Tir\Crud\EventServiceProvider;
 use Illuminate\Support\ServiceProvider;
-use Tir\Crud\Services\AdminFileds;
 use Tir\Crud\Services\Crud;
-use Tir\Crud\Services\ResourceRegistrar;
-use Tir\Setting\Facades\Stg;
+use Tir\Crud\Support\Resource\ResourceRegistrar;
 
 class CrudServiceProvider extends ServiceProvider
 {
@@ -21,21 +17,13 @@ class CrudServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //Merge config file in package and published config file.
         $this->mergeConfigFrom(
             __DIR__.'/Config/crud.php', 'crud'
         );
 
-        //Add CustomEnhancement resource routing
-        //this route register several route resource those use in CRUD Module
-        $registrar = new ResourceRegistrar($this->app['router']);
-        $this->app->bind('Illuminate\Routing\ResourceRegistrar', function () use ($registrar) {
-            return $registrar;
-        });
+        $this->registerNewRouteResource();
 
-        $this->app->singleton('Crud', function (){
-            return new Crud;
-        });
+        $this->registerCrudSingleton();
     }
 
     /**
@@ -45,16 +33,9 @@ class CrudServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-
-
         $this->loadRoutesFrom(__DIR__.'/Routes/web.php');
-
         $this->loadViewsFrom(__DIR__.'/Resources/Views', 'crud');
-
         $this->loadTranslationsFrom(__DIR__.'/Resources/Lang/', 'crud');
-
-        $this->registerResetOrderMacro();
-
         $this->publishes([
             __DIR__.'/config/crud.php' => config_path('crud.php'),
         ]);
@@ -62,11 +43,28 @@ class CrudServiceProvider extends ServiceProvider
 
     }
 
-    private function registerResetOrderMacro()
+
+    /**
+     * Register several route resource those use in CRUD Module
+     *
+     * @return void
+     */
+    private function registerNewRouteResource()
     {
-        Builder::macro('resetOrders', function () {
-            $this->{$this->unions ? 'unionOrders' : 'orders'} = null;
-            return $this;
+        $registrar = new ResourceRegistrar($this->app['router']);
+        $this->app->bind('Illuminate\Routing\ResourceRegistrar', function () use ($registrar) {
+            return $registrar;
+        });
+    }
+
+
+    /**
+     * Register a singleton container
+     */
+    private function registerCrudSingleton()
+    {
+        $this->app->singleton('Crud', function (){
+            return new Crud;
         });
     }
 

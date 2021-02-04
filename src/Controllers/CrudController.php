@@ -2,12 +2,10 @@
 
 namespace Tir\Crud\Controllers;
 
-use Tir\Acl\Acl;
 use Illuminate\Support\Str;
 use Tir\Crud\Controllers\TrashTrait;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Routing\Controller as BaseController;
-use Tir\Crud\Events\PrepareFieldsEvent;
 
 class CrudController extends BaseController
 {
@@ -38,9 +36,7 @@ class CrudController extends BaseController
 
     protected $fields = [];
 
-    protected $additionalFields = [];
 
-    protected $permission;
 
 
     public function __construct()
@@ -60,15 +56,6 @@ class CrudController extends BaseController
             //$this->method = $routeName[1];
 
 
-        }
-
-        //Get Permission
-        $this->permission = $this->getPermission($this->name, $this->method);
-
-
-        //check model is exist in App\Modules\{model name}
-        if (!$this->model) {
-            $this->model = 'App\Models\\' . ucfirst($this->name);
         }
 
         // check model is exist
@@ -138,37 +125,5 @@ class CrudController extends BaseController
 
     }
 
-    private function getPermission($name, $action)
-    {
-        //if Acl package installed, add permission
-        if (class_exists(\Tir\Acl\Permission::class)) {
-            $permission = \Tir\Acl\Permission::list($name, $action);
-        } else {
-            $permission = ['index' => 'all', 'show' => 'all', 'create' => 'all', 'edit' => 'all', 'delete' => 'all', 'fulldelete' => 'all'];
-        }
 
-        return $permission;
-    }
-
-    private function checkPermission($action)
-    {
-        return true;
-        $action = ($action == 'data') ? 'index' : $action;
-        $action = ($action == 'reorder') ? 'index' : $action;
-        $action = ($action == 'select') ? 'index' : $action;
-        $action = ($action == 'store') ? 'create' : $action;
-        $action = ($action == 'update') ? 'edit' : $action;
-        $action = ($action == 'updateAttribute') ? 'edit' : $action;
-        $action = ($action == 'updateOptionValue') ? 'edit' : $action;
-        $action = ($action == 'restore') ? 'destroy' : $action;
-        $action = ($action == 'trashData') ? 'trash' : $action;
-
-        if (isset($this->permission[$action])) {
-            if ($this->permission[$action] != 'deny') {
-                return true;
-            }
-            return false;
-        }
-        return false;
-    }
 }

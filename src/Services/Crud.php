@@ -56,11 +56,11 @@ Class Crud
 
     private function addField($field)
     {
-            $group = $field['group'] ?? 0;
-            $tab = $field['tab'] ?? 0;
-            $position = $field['position'] ?? 1000;
-            $addField = [$field['fields']];
-            array_splice($this->fields[$group]['tabs'][$tab]['fields'], $position, 0, $addField);
+        $group = $field['group'] ?? 0;
+        $tab = $field['tab'] ?? 0;
+        $position = $field['position'] ?? 1000;
+        $addField = [$field['fields']];
+        array_splice($this->fields[$group]['tabs'][$tab]['fields'], $position, 0, $addField);
 
     }
 

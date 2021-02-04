@@ -16,39 +16,5 @@ class CrudModel extends Model
 
     public $translatedAttributes = [];
 
-    //this function generate option for action select in header panel
-    public function getActions()
-    {
-        $actions = [
-            'index' =>
-            [
-                'delete' => trans('crud::panel.delete'),
-            ],
-
-            'trash' =>
-            [
-                'restore' => trans('panel.restore'),
-            ],
-        ];
-        return $actions;
-    }
-
-    public function getValidation()
-    {
-        return [];
-    }
-
-    public function getFields()
-    {
-        $fields = [];
-
-        return $fields;
-    }
-
-    public function getAdditionalFields()
-    {
-        $fields = [];
-        return $fields;
-    }
 
 }
