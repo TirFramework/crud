@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Tir\Crud\Support\Scaffold;
 
 
@@ -19,9 +18,16 @@ class Fields
     }
 
 
-    public function text(Text $text)
+    /**
+     * @param $inputs
+     * @return $this
+     */
+    public function add($inputs)
     {
-        return $text;
+        foreach ($inputs as $input){
+            array_push($this->fields, $input->get());
+        }
+        return $this;
 
     }
 

@@ -37,6 +37,7 @@ trait CrudScaffold
     public function fields()
     {
         return $this->fields;
+
     }
 
 //    public function getAdditionalFields()

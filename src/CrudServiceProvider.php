@@ -63,9 +63,12 @@ class CrudServiceProvider extends ServiceProvider
      */
     private function registerCrudSingleton()
     {
-        $this->app->singleton('Crud', function (){
-            return new Crud;
-        });
+//        $this->app->singleton('Crud', function (){
+//            return new Crud;
+//        });
+
+        $crud = \Tir\Crud\Support\Scaffold\Crud::getCrud();
+        $crud->setName('test');
     }
 
 
