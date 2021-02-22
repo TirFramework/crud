@@ -67,7 +67,7 @@ class CrudServiceProvider extends ServiceProvider
 //            return new Crud;
 //        });
 
-        $crud = \Tir\Crud\Support\Scaffold\Crud::getCrud();
+        $crud = \Tir\Crud\Support\Scaffold\Crud::get();
         $crud->setName('test');
     }
 

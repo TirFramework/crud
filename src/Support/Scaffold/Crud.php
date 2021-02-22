@@ -4,7 +4,7 @@
 namespace Tir\Crud\Support\Scaffold;
 
 
-class Crud
+final class Crud
 {
     private string $name;
 
@@ -13,6 +13,8 @@ class Crud
     private string $routeName;
 
     private array $option;
+
+    private array $fields;
 
 //    protected object $method;
 //
@@ -33,7 +35,7 @@ class Crud
     private static self $obj;
 
 
-    public static function getCrud() {
+    final static function get() {
         if(!isset(self::$obj)) {
             self::$obj = new Crud();
         }
@@ -43,34 +45,34 @@ class Crud
     /**
      * @return string
      */
-    public function getName(): string
+    final static function getName(): string
     {
-        return $this->name;
+        return static::get()->name;
     }
 
     /**
      * @param string $name
      */
-    public function setName(string $name): void
+    final static function setName(string $name): void
     {
-        $this->name = $name;
+        static::get()->name = $name;
     }
 
     /**
-     * @return object
+     * @return string
      */
-    public function getModel(): object
+    final static function getModel(): string
     {
-        return $this->model;
+        return static::get()->model;
     }
 
     /**
      * @param string $model
      */
-    public function setModel(string $model): void
+    final static function setModel(string $model): void
     {
         if (class_exists($model)) {
-            $this->model = new $model;
+            static::get()->model = new $model;
         } else {
             echo($model . ' model not found');
         }
@@ -80,23 +82,33 @@ class Crud
     /**
      * @return string
      */
-    public function getRouteName(): string
+    final static function getRouteName(): string
     {
-        return $this->routeName;
+        return static::get()->routeName;
     }
 
     /**
      * @param string $routeName
      */
-    public function setRouteName(string $routeName): void
+    final static function setRouteName(string $routeName): void
     {
-        $this->routeName = $routeName;
+        static::get()->routeName = $routeName;
     }
+
+
+    final static function setFields(array $fields){
+        static::get()->fields = $fields;
+    }
+
+    final static function getFields(){
+        return static::get()->fields;
+    }
+
 
     /**
      * @return array
      */
-    public function getOption(): array
+    final function getOption(): array
     {
         return $this->option;
     }
@@ -104,7 +116,7 @@ class Crud
     /**
      * @param array $option
      */
-    public function addOption(array $option): void
+    final function addOption(array $option): void
     {
         $this->option = $option;
     }

@@ -3,6 +3,7 @@
 namespace Tir\Crud\Controllers;
 
 use Illuminate\Support\Facades\View;
+use Tir\Crud\Support\Scaffold\Crud;
 
 trait IndexTrait
 {
@@ -12,7 +13,8 @@ trait IndexTrait
      */
     public function index()
     {
-        return View::first(["$this->name::admin.index", "crud::scaffold.index"])->with('crud', $this->crud);
+        return  Crud::getFields();
+        return View::first([Crud::name()."::admin.index", "crud::scaffold.index"])->with('crud', $this->m);
     }
 
 }

@@ -3,7 +3,7 @@
 namespace Tir\Crud\Support\Scaffold\Fields;
 
 
- abstract Class BaseField
+abstract Class BaseField
 {
 
     protected string $type;
@@ -12,21 +12,23 @@ namespace Tir\Crud\Support\Scaffold\Fields;
     protected string $display;
     protected string $placeholder;
     protected bool $disable;
-    protected string $value;
-    protected $showOnIndex = true;
+    protected string $defaultValue;
+    protected bool $showOnIndex = true;
     protected bool $showOnDetail = true;
-    protected bool $showOnCreation = true;
-    protected bool $showOnUpdate = true;
+    protected bool $showOnCreate = true;
+    protected bool $showOnEdit = true;
+    protected bool $sortable;
 
-     /**
+    /**
      * Add name attribute to input
      *
      * @param string $name It will be name of input field
      * @return $this
      */
-    public static function make(string $name){
+    public static function make(string $name)
+    {
         $obj = new static;
-         $obj->name = $name;
+        $obj->name = $name;
         return $obj;
     }
 
@@ -37,9 +39,10 @@ namespace Tir\Crud\Support\Scaffold\Fields;
      * @param string $value It will be display attribute of input
      * @return $this
      */
-    public function display(string $value){
+    public function display(string $value)
+    {
 
-        $this->display=$value;
+        $this->display = $value;
         return $this;
     }
 
@@ -98,46 +101,120 @@ namespace Tir\Crud\Support\Scaffold\Fields;
      * @param string $value
      * @return $this
      */
-    public function value(string $value)
+    public function default(string $value)
     {
-        $this->value = $value;
+        $this->defaultValue = $value;
         return $this;
     }
 
-    public function showOnIndex($check = true){
+
+    /**
+     * @param bool $check
+     * @return $this
+     */
+    public function showOnIndex($check = true)
+    {
         $this->showOnIndex = $check;
         return $this;
     }
 
-     public function showOnCreate($check = true){
-         $this->showOnIndex = $check;
-         return $this;
-     }
+    /**
+     * @param bool $check
+     * @return $this
+     */
+    public function showOnCreate($check = true)
+    {
+        $this->showOnCreate = $check;
+        return $this;
+    }
 
-     public function showOnEdit($check = true){
-         $this->showOnIndex = $check;
-         return $this;
-     }
 
-     public function showOnDetail($check = true){
-         $this->showOnIndex = $check;
-         return $this;
-     }
+    /**
+     * @param bool $check
+     * @return $this
+     */
+    public function showOnEdit($check = true)
+    {
+        $this->showOnEdit = $check;
+        return $this;
+    }
 
-     public function hideOnIndex($callback = true)
-     {
-         $this->showOnIndex = function () use ($callback) {
-             return ! call_user_func_array($callback, func_get_args());
-         };
 
-         return $this;
+    /**
+     * @param bool $check
+     * @return $this
+     */
+    public function showOnDetail($check = true)
+    {
+        $this->showOnIndex = $check;
+        return $this;
+    }
 
-     }
+
+    /**
+     * @param bool $callback
+     * @return $this
+     */
+    public function hideOnIndex($callback = true)
+    {
+        $this->showOnIndex = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
+            : !$callback;
+        return $this;
+    }
+
+
+    /**
+     * @param bool $callback
+     * @return $this
+     */
+    public function hideFromCreate($callback = true)
+    {
+        $this->showOnCreate = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
+            : !$callback;
+        return $this;
+    }
+
+
+    /**
+     * @param bool $callback
+     * @return $this
+     */
+    public function hideFromEdit($callback = true)
+    {
+        $this->showOn = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
+            : !$callback;
+        return $this;
+    }
+
+
+    /**
+     * @param bool $callback
+     * @return $this
+     */
+    public function hideFromDetail($callback = true)
+    {
+        $this->showOnDetail = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
+            : !$callback;
+        return $this;
+    }
+
+
+    /**
+     * @param bool $check
+     * @return $this
+     */
+    public function sortable(bool $check = true)
+    {
+        $this->sortable = $check;
+        return $this;
+
+    }
+
 
     /**
      * @return array
      */
-    public  function get()
+    public function get()
     {
         return get_object_vars($this);
     }

@@ -2,47 +2,50 @@
 namespace Tir\Crud\Support\Scaffold;
 
 
-trait CrudScaffold
+abstract Class CrudScaffold
 {
 
-    private Fields $fields;
+    protected abstract static function name();
+    protected abstract static function model();
+    protected abstract static function fields();
 
-    public function __construct()
+    protected static function routeName()
     {
-        parent::__construct();
-        $this->fields = new Fields;
-    }
-    //this function generate option for action select in header panel
-//    public function getActions()
-//    {
-//        $actions = [
-//            'index' =>
-//                [
-//                    'delete' => trans('crud::panel.delete'),
-//                ],
-//
-//            'trash' =>
-//                [
-//                    'restore' => trans('panel.restore'),
-//                ],
-//        ];
-//        return $actions;
-//    }
-//
-//    public function getValidation()
-//    {
-//        return [];
-//    }
-
-    public function fields()
-    {
-        return $this->fields;
-
+        return static::name();
     }
 
-//    public function getAdditionalFields()
-//    {
-//        $fields = [];
-//        return $fields;
-//    }
+
+    /**
+     * @return array
+     */
+    final static function getFields(){
+        Fields::add(static::fields());
+        return Fields::get();
+    }
+
+    /**
+     * @return string
+     */
+    final static function getCrudName()
+    {
+        return static::name();
+    }
+
+    /**
+     * @return string
+     */
+    final static function getModel()
+    {
+        return static::model();
+    }
+
+    /**
+     * @return string
+     */
+    final static function getRouteName(): string
+    {
+        return static::routeName();
+    }
+
+
 }
