@@ -2,11 +2,10 @@
 
 namespace Tir\Crud\Support\Scaffold\Inputs;
 
-use Tir\Setting\Entities\Setting;
+use Tir\Crud\Support\Scaffold\Fields\BaseField;
 
-class Select extends BaseInput
+class Select extends BaseField
 {
-    use GetSelfTrait;
     protected static string $type = 'blank';
 
 }

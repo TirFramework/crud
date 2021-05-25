@@ -25,7 +25,7 @@ if($errors->has($field->name)){
                 <strong>{{ $message }}</strong>
                 @enderror
             </span>
-            <label for="{{$field->name}}" class="control-label text-right">@lang("$crud->name::panel.$field->display")</label>
+            <label for="{{$field->name}}" class="control-label text-right">@lang("$crud->locale".$field->display)</label>
     </div>
 
 </div>

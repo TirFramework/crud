@@ -3,6 +3,7 @@
 
 namespace Tir\Crud\Support\Scaffold;
 
+use Illuminate\Support\Arr;
 
 final class Crud
 {
@@ -14,8 +15,19 @@ final class Crud
 
     private array $option;
 
-    private array $fields;
+    private $fields;
 
+    private array $indexFields;
+
+    private array $createFields;
+
+    private array $editFields;
+
+    private array $detailFields;
+
+    private string $table;
+
+    protected string $locale;
 //    protected object $method;
 //
 //
@@ -35,90 +47,106 @@ final class Crud
     private static self $obj;
 
 
-    final static function get() {
+    public static function init() {
         if(!isset(self::$obj)) {
             self::$obj = new Crud();
         }
         return self::$obj;
     }
 
-    /**
-     * @return string
-     */
-    final static function getName(): string
-    {
-        return static::get()->name;
-    }
 
     /**
      * @param string $name
      */
-    final static function setName(string $name): void
+    public static function setName(string $name): void
     {
-        static::get()->name = $name;
-    }
-
-    /**
-     * @return string
-     */
-    final static function getModel(): string
-    {
-        return static::get()->model;
+        static::init()->name = $name;
     }
 
     /**
      * @param string $model
      */
-    final static function setModel(string $model): void
+    public static function setModel(string $model): void
     {
         if (class_exists($model)) {
-            static::get()->model = new $model;
+            static::init()->model = new $model;
         } else {
             echo($model . ' model not found');
         }
 
     }
 
-    /**
-     * @return string
-     */
-    final static function getRouteName(): string
-    {
-        return static::get()->routeName;
-    }
 
     /**
      * @param string $routeName
      */
-    final static function setRouteName(string $routeName): void
+    public static function setRouteName(string $routeName): void
     {
-        static::get()->routeName = $routeName;
+        static::init()->routeName = $routeName;
     }
 
 
-    final static function setFields(array $fields){
-        static::get()->fields = $fields;
+    public static function setFields(array $fields){
+        static::init()->fields = $fields;
     }
 
-    final static function getFields(){
-        return static::get()->fields;
+
+
+    public static function setLocalization(bool $check)
+    {
+        static::init()->locale = $check ? static::init()->name.'::panel.' : '';
     }
 
 
     /**
-     * @return array
+     * @return void
      */
-    final function getOption(): array
-    {
-        return $this->option;
+    private function setIndexFields() {
+        $this->indexFields = Arr::where($this->fields, function ($value) {
+             return $value->showOnIndex;
+        });
     }
 
     /**
-     * @param array $option
+     * @return void
      */
-    final function addOption(array $option): void
-    {
-        $this->option = $option;
+    private function setDetailFields(){
+        $this->detailFields =  Arr::where($this->fields, function ($value) {
+            return $value->showOnDetail;
+        });
+    }
+
+    /**
+     * @return void
+     */
+    private function setCreateFields() {
+        $this->createFields =  Arr::where($this->fields, function ($value) {
+            return $value->showOnCreate;
+        });
+    }
+
+    /**
+     * @return void
+     */
+    private function setEditFields() {
+        $this->editFields =  Arr::where($this->fields, function ($value) {
+            return $value->showOnEdit;
+        });
+    }
+
+    private function setTable(){
+        $this->table = $this->model->getTable();
+    }
+
+
+    public static function get(){
+        static::init()->setIndexFields();
+        static::init()->setCreateFields();
+        static::init()->setEditFields();
+        static::init()->setDetailFields();
+        static::init()->setTable();
+        return (object)get_object_vars(self::$obj);
+
     }
 
 

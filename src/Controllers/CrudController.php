@@ -3,26 +3,48 @@
 namespace Tir\Crud\Controllers;
 
 use Illuminate\Support\Str;
-use Tir\Crud\Controllers\TrashTrait;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Routing\Controller as BaseController;
 use Tir\Crud\Support\Scaffold\Crud;
+use Tir\Crud\Support\Scaffold\BaseScaffold;
 
 class CrudController extends BaseController
 {
-    use IndexTrait;
+    use IndexTrait, CreateTrait, DataTrait;
 
-    protected string $model;
-    protected string $scaffold;
+
+    /**
+     * Extend of CrudScaffold
+     * @var BaseScaffold | object
+     */
+    protected mixed $scaffold;
+//    protected object $crud;
+
+    protected array $relations = [];
+    protected $model;
+
 
     public function __construct()
     {
-        $this->scaffold = $this->model::$scaffold;
-        Crud::setModel($this->model);
-        Crud::setName($this->scaffold::getCrudName());
-        Crud::setRouteName($this->scaffold::getRouteName());
-        Crud::setFields($this->scaffold::getFields());
+//        $this->setCrud();
+        $this->getScaffold();
     }
+
+    private function getScaffold()
+    {
+        $this->scaffold = new $this->scaffold;
+    }
+//    private function setCrud(): void
+//    {
+//        $scaffold = new $this->scaffold;
+//
+//        Crud::setModel($scaffold->getModel());
+//        Crud::setName($scaffold->getCrudName());
+//        Crud::setRouteName($scaffold->getRouteName());
+//        Crud::setFields($scaffold->getFields());
+//        Crud::setLocalization($scaffold->getLocalization());
+//        $this->crud = Crud::get();
+//    }
 //    //TODO: add show trait and method
 //    use IndexTrait, DataTrait, SelectTrait, CreateTrait, StoreTrait, EditTrait, UpdateTrait, TrashTrait, DestroyTrait, ForceDestroyTrait, ActionTrait;
 //
@@ -42,7 +64,6 @@ class CrudController extends BaseController
 //
 //    protected $crud = [];
 //
-//    protected $relations = [];
 //
 //    protected $validation = [];
 //
@@ -138,6 +159,11 @@ class CrudController extends BaseController
 //
 //
 //    }
+
+    private function checkPermission($action)
+    {
+        return true;
+    }
 
 
 }

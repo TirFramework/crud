@@ -7,23 +7,22 @@ use Tir\Crud\Support\Scaffold\Inputs\Text;
 
 class Fields
 {
-    private static array $fields = [];
+    private array $fields = [];
 
     /**
      * @return array
      */
-    public static function get()
+    public function get():array
     {
-        return static::$fields;
+        return json_decode(json_encode($this->fields), false);
     }
 
 
-    public static function add($inputs=[])
+    public function add($inputs=[])
     {
         foreach ($inputs as $input){
-            array_push(static::$fields, $input->get());
+            array_push($this->fields, $input->get());
         }
-        return static::$fields;
 
     }
 

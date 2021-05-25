@@ -2,7 +2,6 @@
 
 namespace Tir\Crud\Support\Scaffold\Fields;
 
-use Tir\Setting\Entities\Setting;
 
 class Select extends BaseField
 {
@@ -15,7 +14,7 @@ class Select extends BaseField
      * @param array $data
      * @return $this
      */
-    public function data(array $data)
+    public function data(array $data):static
     {
         $this->data = $data;
         return $this;
@@ -27,7 +26,8 @@ class Select extends BaseField
      * @param bool $check
      * @return $this
      */
-    public function multiple(bool $check){
+    public function multiple(bool $check):static
+    {
         $this->multiple = $check;
         return $this;
     }
