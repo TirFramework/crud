@@ -12,7 +12,7 @@ abstract Class BaseScaffold
     protected abstract function setFields();
 
     private array $fieldsArray;
-    private Fields $fields;
+    private array $fields = [];
     private string $name;
     private string $model;
 
@@ -36,19 +36,19 @@ abstract Class BaseScaffold
         $this->model = $this->setModel();
         $this->fieldsArray = $this->setFields();
 
-        $this->addFields();
+        $this->addFieldsToScaffold();
         $this->setRouteName();
         $this->setLocalization();
     }
 
 
-    private function addFields(): void
+    private function addFieldsToScaffold(): void
     {
-
-        $this->fields = new Fields;
-        $this->fields->add($this->fieldsArray);
-
+        foreach ($this->fieldsArray as $input){
+            array_push($this->fields, $input->get());
+        }
     }
+
 
     private function setLocalization():void {
         if(!isset($this->localization))
@@ -67,8 +67,13 @@ abstract Class BaseScaffold
     }
 
 
+
+
+
+
+
     final function getFields():array {
-        return $this->fields->get();
+        return json_decode(json_encode($this->fields), false);
     }
 
     final function getName():string

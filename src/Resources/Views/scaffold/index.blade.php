@@ -11,10 +11,13 @@ use Tir\Crud\Support\Scaffold\Crud;
 
 @section('page-heading')
     {{trans($scaffold->getLocale().Str::plural($scaffold->getName()))}}
+
     @isset($trash)
         {{trans('crud::panel.trash')}}
      @endisset
 @endsection
+
+
 @section('content')
     <div id="result"></div>
     <div class="card card-default">
@@ -24,13 +27,11 @@ use Tir\Crud\Support\Scaffold\Crud;
                 <table class="table table-striped table-hover responsive nowrap" id="table" width="100%">
                     <thead>
                     <tr>
-                            @foreach($scaffold->getIndexFields() as $field)
-                                @if($field->showOnIndex)
-                                    @if(isset($field->display))
-                                        <th>{{trans($scaffold->getLocale().$field->name)}}</th>
-                                    @endif
-                                @endif
-                            @endforeach
+                        @foreach($scaffold->getIndexFields() as $field)
+                            @if($field->showOnIndex)
+                                <th>{{trans($scaffold->getLocale().$field->display)}}</th>
+                            @endif
+                        @endforeach
                         <th >
                             @lang($scaffold->getLocale().'action')
                         </th>

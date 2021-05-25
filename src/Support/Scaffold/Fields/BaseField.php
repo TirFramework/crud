@@ -18,6 +18,7 @@ abstract Class BaseField
     protected bool $showOnCreate = true;
     protected bool $showOnEdit = true;
     protected bool $sortable;
+
     /**
      * Add name attribute to input
      * For label remove underline and capital of first character of each word
@@ -42,7 +43,6 @@ abstract Class BaseField
      */
     public function display(string $value): static
     {
-
         $this->display = ucwords(str_replace('_',' ', $value));
         return $this;
     }
