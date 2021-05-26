@@ -8,14 +8,26 @@ use Yajra\DataTables\Facades\DataTables;
 trait DataTrait
 {
 
-    public function dataInitialFields()
+    /**
+     * return datatable object
+     * @return object
+     */
+    public function data(): object
     {
-        foreach ($this->scaffold->getIndexFields as $field) {
-            if (isset($field->relation)) {
+        $this->getRelationFields();
+        $items = $this->dataQuery();
+        return $this->dataTable($items);
+    }
+
+
+
+    public function getRelationFields()
+    {
+        foreach ($this->crud->indexFields as $field) {
+            if ($field->type == 'oneToMany') {
                 //get model form relation
-                $relationModel = get_class($this->scaffold->model->{$field->relation[0]}()->getModel());
-                $relationModel = new $relationModel;
-                array_push($this->relations, $field->relation[0]);
+                $relationModel = get_class($this->crud->model->{$field->relationName}()->getModel());
+                array_push($this->relations, $field->relationName);
             }
         }
     }
@@ -27,8 +39,8 @@ trait DataTrait
      */
     public function dataQuery()
     {
-        $model = $this->scaffold->getModel();
-        $items = $model::select($this->scaffold->getTable() . '.*')->with($this->relations);
+        $model = $this->crud->model;
+        $items = $model::select($this->crud->table . '.*')->with($this->relations);
 //        if($this->permission == 'owner'){
 //            $items = $items->OnlyOwner();
 //        }
@@ -37,19 +49,19 @@ trait DataTrait
     }
 
 
-    public function dataTable($items)
+    public function dataTable($items): \Illuminate\Http\JsonResponse
     {
         return Datatables::eloquent($items)
             ->addColumn('action', function ($item) {
                 $viewBtn = $DeleteBtn = $editBtn = null;
-                // if($this->checkPermission('show')){
-                //     $viewBtn = '<a href="'.route( $this->name.'.show',$item->getKey()). '" class="fa-md text-success"><i title="' . trans('panel.view') . '" class="far fa-eye"></i></a>';
-                // }
+                 if($this->checkPermission('show')){
+                     $viewBtn = '<a href="'.route( $this->crud->name.'.show',$item->getKey()). '" class="fa-md text-success"><i title="' . trans('panel.view') . '" class="far fa-eye"></i></a>';
+                 }
                 if ($this->checkPermission('edit')) {
-                    $editBtn = '<a href="' . route($this->scaffold->getName() . '.edit', $item->getKey()) . '" class="fa-md text-info"><i title="' . trans('panel.edit') . '" class="fas fa-pencil-alt"></i></a>';
+                    $editBtn = '<a href="' . route($this->crud->name . '.edit', $item->getKey()) . '" class="fa-md text-info"><i title="' . trans('panel.edit') . '" class="fas fa-pencil-alt"></i></a>';
                 }
                 if ($this->checkPermission('destroy')) {
-                    $DeleteBtn = '<button onclick=' . '"deleteRow(' . "'" . route($this->scaffold->getName() . '.destroy', $item->getKey()) . "'" . ')" class="fa-md text-danger"> <i title="' . trans('panel.delete') . '" class="fas fa-trash"></i></button>';
+                    $DeleteBtn = '<button onclick=' . '"deleteRow(' . "'" . route($this->crud->name . '.destroy', $item->getKey()) . "'" . ')" class="fa-md text-danger"> <i title="' . trans('panel.delete') . '" class="fas fa-trash"></i></button>';
                 }
                 return $viewBtn . ' ' . $editBtn . ' ' . $DeleteBtn;
             })->addColumns($this->addColumns())
@@ -60,30 +72,20 @@ trait DataTrait
      * Add extra column to datatable
      * @return array
      */
-    public function addColumns()
+    public function addColumns(): array
     {
         return [];
     }
 
-    /**
-     * return datatable object
-     * @return object
-     */
-    public function data()
-    {
-//        $this->dataInitialFields();
-        $items = $this->dataQuery();
-        return $this->dataTable($items);
-    }
 
 
     /**
      * return datatable object
      * @return object
      */
-    public function trashData()
+    public function trashData(): object
     {
-        $this->dataInitialFields();
+        $this->getRelationFields();
         $items = $this->dataQuery()->onlyTrashed();
         return $this->trashDataTable($items);
     }

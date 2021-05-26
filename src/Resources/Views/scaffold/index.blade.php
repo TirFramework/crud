@@ -7,10 +7,10 @@ use Tir\Crud\Support\Scaffold\Crud;
 
 @extends(config('crud.admin-panel').'::layouts.master')
 
-@section('title', trans($scaffold->getLocale().Str::plural($scaffold->getName())) )
+@section('title', trans($crud->locale.Str::plural($crud->name)) )
 
 @section('page-heading')
-    {{trans($scaffold->getLocale().Str::plural($scaffold->getName()))}}
+    {{trans($crud->locale.Str::plural($crud->name))}}
 
     @isset($trash)
         {{trans('crud::panel.trash')}}
@@ -21,19 +21,19 @@ use Tir\Crud\Support\Scaffold\Crud;
 @section('content')
     <div id="result"></div>
     <div class="card card-default">
-        @include(config('crud.admin-panel').'::layouts.panel-heading',['name'=>$scaffold->getName(), 'actions'=>[]])
+        @include(config('crud.admin-panel').'::layouts.panel-heading',['name'=>$crud->name, 'actions'=>[]])
         <div class="card-body">
             <div class="">
                 <table class="table table-striped table-hover responsive nowrap" id="table" width="100%">
                     <thead>
                     <tr>
-                        @foreach($scaffold->getIndexFields() as $field)
+                        @foreach($crud->indexFields as $field)
                             @if($field->showOnIndex)
-                                <th>{{trans($scaffold->getLocale().$field->display)}}</th>
+                                <th>{{trans($crud->locale.$field->display)}}</th>
                             @endif
                         @endforeach
                         <th >
-                            @lang($scaffold->getLocale().'action')
+                            @lang($crud->locale.'action')
                         </th>
 
                     </tr>
@@ -42,7 +42,7 @@ use Tir\Crud\Support\Scaffold\Crud;
                     <tfoot>
                     <tr>
                         <th></th>
-                        @foreach($scaffold->getIndexFields() as $field)
+                        @foreach($crud->indexFields as $field)
                             @if(($field->showOnIndex))
                                 <th></th>
                             @endif
@@ -70,34 +70,34 @@ use Tir\Crud\Support\Scaffold\Crud;
             $orderField =0;
 
 
-            foreach($scaffold->getIndexFields() as $field):
+            foreach($crud->indexFields as $field):
                     $name = $field->name;
-                    $key = $scaffold->getTable().'.'.$field->name;
+                    $key = $crud->table.'.'.$field->name;
                     $render = null;
                     $searchable = 'true';
                     //if field is translation for use in data table we must do like many to many relation
 
-//                    if(in_array($field->name, $scaffold->getModel()->translatedAttributes)):
+//                    if(in_array($field->name, $crud->getModel()->translatedAttributes)):
 //                        $name = 'translations'. '[].'. $field->name;
 //                        $key =  'translations'. '.'. $field->name;
 //                    endif;
 
-                    if($field->type =='relation'):     //relationship must have datatable field for show in datatable
-                        $relationModel =  get_class($scaffold->model->{$field->relation[0]}()->getModel());
+                    if($field->type =='oneToMany'):     //relationship must have datatable field for show in datatable
+                        $relationModel =  get_class($crud->model->{$field->relationName}()->getModel());
                         $dataModel = new  $relationModel;
-                        $dataField = $field->relation[1];
+                        $dataField = $field->relationName;
 
-                        if(in_array($dataField, $dataModel->translatedAttributes)):
-                            $name = $field->relation[0].'.translations[].'. $field->relation[1];
-                            $key = $field->relation[0].'.translations.'. $field->relation[1];
-                        else:
-                            $name = $key = $field->relation[0].'.'.$field->relation[1];
-                        endif;
+//                        if(in_array($dataField, $dataModel->translatedAttributes)):
+//                            $name = $field->relation[0].'.translations[].'. $field->relation[1];
+//                            $key = $field->relation[0].'.translations.'. $field->relation[1];
+//                        else:
+                            $name = $key = $field->relationName.'.'.$field->relationKey;
+//                        endif;
                     endif;
                     //for many to many datatable $field->datatable must be array and have two index ,first is name and second is data
                     if($field->type  == 'relationM'):
 
-                        $relationModel =  get_class($scaffold->model->{$field->relation[0]}()->getModel());
+                        $relationModel =  get_class($crud->model->{$field->relation[0]}()->getModel());
                         $dataModel = new  $relationModel;
                         $dataField = $field->relation[1];
 
@@ -131,25 +131,25 @@ use Tir\Crud\Support\Scaffold\Crud;
 //                        if(strpos($field->visible, 'f') !== false){
 //                            if($field->type == 'relation' || $field->type == 'relationM'){
 //
-//                                $relationModel =  get_class($scaffold->model->{$field->relation[0]}()->getModel());
+//                                $relationModel =  get_class($crud->model->{$field->relation[0]}()->getModel());
 //                                $dataModel = new  $relationModel;
 //                                $dataField = $field->relation[1];
 //
 //                                //check relation model field not translated
 //                                if(in_array($dataField, $dataModel->translatedAttributes) == false){
-//                                    $filters .= $loop.':'.json_encode($dataModel::has(Str::plural($scaffold->getName()))->select($dataField)->distinct($dataField)->pluck($dataField)).', ';
+//                                    $filters .= $loop.':'.json_encode($dataModel::has(Str::plural($crud->name))->select($dataField)->distinct($dataField)->pluck($dataField)).', ';
 //                                }else{
-//                                    $filters .= $loop.':'.json_encode($dataModel::has(Str::plural($scaffold->getName()))->select('*')->get()->pluck($dataField)).', ';
+//                                    $filters .= $loop.':'.json_encode($dataModel::has(Str::plural($crud->name))->select('*')->get()->pluck($dataField)).', ';
 //                                        if($field->type == 'relationM'){
 //                                            $filters .= $loop.':["disabled in many to many translation"], ';
 //                                        }
 //
 //                                }
 //                            }else{
-//                                if( in_array($field->name, $scaffold->model->translatedAttributes) == false){
-//                                    $filters .= $loop.':'.json_encode($scaffold->model::select($field->name)->distinct($field->name)->pluck($field->name)).', ';
+//                                if( in_array($field->name, $crud->model->translatedAttributes) == false){
+//                                    $filters .= $loop.':'.json_encode($crud->model::select($field->name)->distinct($field->name)->pluck($field->name)).', ';
 //                                }else{
-//                                   $filters .= $loop.':'.json_encode($scaffold->model::select('*')->get()->pluck($field->name)).', ';
+//                                   $filters .= $loop.':'.json_encode($crud->model::select('*')->get()->pluck($field->name)).', ';
 //                                }
 //                            }
 //                         }
@@ -161,11 +161,11 @@ use Tir\Crud\Support\Scaffold\Crud;
 
         var col=[ {!! $col !!} ];
         var filters = { {!! $filters !!} };     // it must something like this         var filters = { 5:["travelogue","article","news"] };
-        var  dataRoute = "{{route($scaffold->routeName.'.data')}}";
-        var  trashRoute = "{{route($scaffold->routeName.'.trashData')}}";
-        let table = new datatable('#table',col,"{{$scaffold->getName()}}");
+        var  dataRoute = "{{route($crud->routeName.'.data')}}";
+        var  trashRoute = "{{route($crud->routeName.'.trashData')}}";
+        let table = new datatable('#table',col,"{{$crud->name}}");
 
-{{--        @foreach($scaffold->fields as $group)--}}
+{{--        @foreach($crud->fields as $group)--}}
 {{--            @foreach($group->tabs as $tab)--}}
 {{--                @foreach($tab->fields as $field)--}}
 {{--                    @if(strpos($field->visible, 'i') !== false)--}}

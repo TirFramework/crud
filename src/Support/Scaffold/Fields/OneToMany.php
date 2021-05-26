@@ -3,37 +3,40 @@
 namespace Tir\Crud\Support\Scaffold\Fields;
 
  use Illuminate\Database\Eloquent\Model;
+ use Tir\Crud\Support\Scaffold\Crud;
 
  class OneToMany extends BaseField
 {
 
      protected string $type = 'oneToMany';
 
-     protected string $relation;
+     protected string $relationName;
      protected string $name;
+     protected string $model;
+     protected string $relationKey;
 
 
      /**
       * This function set relation name
       * @param string $name
+      * @param string $key
       * @return $this
       */
-     public function relation(string $name):static
+     public function relation(string $name, string $key):static
      {
-         $this->relation = $name;
-
-         $this->getModelFromRelation();
+         $this->relationName = $name;
+         $this->relationKey = $key;
+//         $this->getModelFromRelation();
          return $this;
      }
 
 
      /**
       * Get model class of relation
-      * @return string
       */
-     private function getModelFromRelation():string
+     private function getModelFromRelation()
      {
-         $this->model = get_class($this->relation->getModel());
+         $this->model = get_class($model->getModel());
      }
 
 }

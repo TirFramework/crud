@@ -9,13 +9,13 @@ final class Crud
 {
     private string $name;
 
-    private object $model;
+    protected mixed $model;
 
     private string $routeName;
 
     private array $option;
 
-    private $fields;
+    private array $fields = [];
 
     private array $indexFields;
 
@@ -23,7 +23,7 @@ final class Crud
 
     private array $editFields;
 
-    private array $detailFields;
+    protected array $detailFields;
 
     private string $table;
 
@@ -44,14 +44,31 @@ final class Crud
 //    protected $fields = [];
 
 
-    private static self $obj;
+    private static Crud $obj;
 
 
-    public static function init() {
+    public static function init(): Crud
+    {
         if(!isset(self::$obj)) {
             self::$obj = new Crud();
         }
         return self::$obj;
+    }
+
+    public static function setScaffold($scaffold)
+    {
+        $scaffold = new $scaffold;
+
+        Crud::setModel($scaffold->getModel());
+        Crud::setName($scaffold->getName());
+        Crud::setRouteName($scaffold->getRouteName());
+        Crud::setFields($scaffold->getFields());
+        Crud::setLocalization($scaffold->getLocalization());
+        Crud::setIndexFields();
+        Crud::setCreateFields();
+        Crud::setEditFields();
+        Crud::setDetailFields();
+        Crud::setTable();
     }
 
 
@@ -60,7 +77,7 @@ final class Crud
      */
     public static function setName(string $name): void
     {
-        static::init()->name = $name;
+        Crud::init()->name = $name;
     }
 
     /**
@@ -69,7 +86,7 @@ final class Crud
     public static function setModel(string $model): void
     {
         if (class_exists($model)) {
-            static::init()->model = new $model;
+            Crud::init()->model = new $model;
         } else {
             echo($model . ' model not found');
         }
@@ -82,27 +99,27 @@ final class Crud
      */
     public static function setRouteName(string $routeName): void
     {
-        static::init()->routeName = $routeName;
+        Crud::init()->routeName = $routeName;
     }
 
 
     public static function setFields(array $fields){
-        static::init()->fields = $fields;
+        Crud::init()->fields = $fields;
     }
 
 
 
     public static function setLocalization(bool $check)
     {
-        static::init()->locale = $check ? static::init()->name.'::panel.' : '';
+        Crud::init()->locale = $check ? static::init()->name.'::panel.' : '';
     }
 
 
     /**
      * @return void
      */
-    private function setIndexFields() {
-        $this->indexFields = Arr::where($this->fields, function ($value) {
+    private static function setIndexFields() {
+        Crud::init()->indexFields = Arr::where(Crud::init()->fields, function ($value) {
              return $value->showOnIndex;
         });
     }
@@ -110,8 +127,8 @@ final class Crud
     /**
      * @return void
      */
-    private function setDetailFields(){
-        $this->detailFields =  Arr::where($this->fields, function ($value) {
+    private static function setDetailFields(){
+        Crud::init()->detailFields =  Arr::where(Crud::init()->fields, function ($value) {
             return $value->showOnDetail;
         });
     }
@@ -119,8 +136,8 @@ final class Crud
     /**
      * @return void
      */
-    private function setCreateFields() {
-        $this->createFields =  Arr::where($this->fields, function ($value) {
+    private static function setCreateFields() {
+        Crud::init()->createFields =  Arr::where(Crud::init()->fields, function ($value) {
             return $value->showOnCreate;
         });
     }
@@ -128,26 +145,23 @@ final class Crud
     /**
      * @return void
      */
-    private function setEditFields() {
-        $this->editFields =  Arr::where($this->fields, function ($value) {
+    private static function setEditFields() {
+        Crud::init()->editFields =  Arr::where(Crud::init()->fields, function ($value) {
             return $value->showOnEdit;
         });
     }
 
-    private function setTable(){
-        $this->table = $this->model->getTable();
+    private static function setTable(){
+        Crud::init()->table = Crud::init()->model->getTable();
     }
+
 
 
     public static function get(){
-        static::init()->setIndexFields();
-        static::init()->setCreateFields();
-        static::init()->setEditFields();
-        static::init()->setDetailFields();
-        static::init()->setTable();
         return (object)get_object_vars(self::$obj);
-
     }
+
+
 
 
 }

@@ -107,12 +107,5 @@ abstract Class BaseScaffold
         return $this->localization ? $this->name.'::panel.' : '';
     }
 
-    final function getIndexFields():array
-    {
-        return  Arr::where($this->getFields(), function ($value) {
-            return $value->showOnIndex;
-        });
-    }
-
 
 }

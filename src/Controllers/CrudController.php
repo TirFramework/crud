@@ -18,7 +18,7 @@ class CrudController extends BaseController
      * @var BaseScaffold | object
      */
     protected mixed $scaffold;
-//    protected object $crud;
+    protected object $crud;
 
     protected array $relations = [];
     protected $model;
@@ -26,25 +26,20 @@ class CrudController extends BaseController
 
     public function __construct()
     {
-//        $this->setCrud();
-        $this->getScaffold();
+        $this->setCrud();
+//        $this->getScaffold();
     }
 
-    private function getScaffold()
-    {
-        $this->scaffold = new $this->scaffold;
-    }
-//    private function setCrud(): void
+//    private function getScaffold()
 //    {
-//        $scaffold = new $this->scaffold;
-//
-//        Crud::setModel($scaffold->getModel());
-//        Crud::setName($scaffold->getCrudName());
-//        Crud::setRouteName($scaffold->getRouteName());
-//        Crud::setFields($scaffold->getFields());
-//        Crud::setLocalization($scaffold->getLocalization());
-//        $this->crud = Crud::get();
+//        $this->scaffold = new $this->scaffold;
 //    }
+    private function setCrud(): void
+    {
+
+        Crud::setScaffold($this->scaffold);
+        $this->crud = Crud::get();
+    }
 //    //TODO: add show trait and method
 //    use IndexTrait, DataTrait, SelectTrait, CreateTrait, StoreTrait, EditTrait, UpdateTrait, TrashTrait, DestroyTrait, ForceDestroyTrait, ActionTrait;
 //

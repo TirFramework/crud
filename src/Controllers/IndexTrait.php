@@ -11,7 +11,7 @@ trait IndexTrait
      */
     public function index()
     {
-        return View::first([$this->scaffold->getName()."::admin.index", "crud::scaffold.index"],['scaffold'=>$this->scaffold]);
+        return View::first([$this->crud->name."::admin.index", "crud::scaffold.index"],['crud'=>$this->crud]);
     }
 
 }
