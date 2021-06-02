@@ -1,8 +1,6 @@
 <?php
 //TODO: Refactor index foreach
 
-use Illuminate\Support\Str;
-use Tir\Crud\Support\Scaffold\Crud;
 ?>
 
 @extends(config('crud.admin-panel').'::layouts.master')
@@ -153,26 +151,26 @@ use Tir\Crud\Support\Scaffold\Crud;
 //                                }
 //                            }
 //                         }
-                    $loop++;
-             endforeach;
+                $loop++;
+            endforeach;
 
 
-            ?>
+        ?>
 
-        var col=[ {!! $col !!} ];
-        var filters = { {!! $filters !!} };     // it must something like this         var filters = { 5:["travelogue","article","news"] };
-        var  dataRoute = "{{route($crud->routeName.'.data')}}";
-        var  trashRoute = "{{route($crud->routeName.'.trashData')}}";
-        let table = new datatable('#table',col,"{{$crud->name}}");
+        var col = [{!! $col !!}];
+        var filters = {{!! $filters !!}};     // it must something like this         var filters = { 5:["travelogue","article","news"] };
+        var dataRoute = "{{route('admin.'.$crud->routeName.'.data')}}";
+        var trashRoute = "{{route('admin.'.$crud->routeName.'.trashData')}}";
+        let table = new datatable('#table', col, "{{$crud->name}}");
 
-{{--        @foreach($crud->fields as $group)--}}
-{{--            @foreach($group->tabs as $tab)--}}
-{{--                @foreach($tab->fields as $field)--}}
-{{--                    @if(strpos($field->visible, 'i') !== false)--}}
-{{--                        @if(strpos($field->visible, 'o') !== false )--}}
-{{--                            @php $orderField = $loop->index;  @endphp--}}
-{{--                            @break--}}
-{{--                        @endif--}}
+        {{--        @foreach($crud->fields as $group)--}}
+        {{--            @foreach($group->tabs as $tab)--}}
+        {{--                @foreach($tab->fields as $field)--}}
+        {{--                    @if(strpos($field->visible, 'i') !== false)--}}
+        {{--                        @if(strpos($field->visible, 'o') !== false )--}}
+        {{--                            @php $orderField = $loop->index;  @endphp--}}
+        {{--                            @break--}}
+        {{--                        @endif--}}
 {{--                    @endif--}}
 {{--                @endforeach--}}
 {{--            @endforeach--}}

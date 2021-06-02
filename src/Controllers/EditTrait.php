@@ -2,8 +2,8 @@
 
 namespace Tir\Crud\Controllers;
 
-use Tir\Crud\Events\EditEvent;
 use Illuminate\Support\Facades\View;
+use Tir\Crud\Events\EditEvent;
 
 trait EditTrait
 {
@@ -13,16 +13,16 @@ trait EditTrait
      */
     public function findForEdit($id)
     {
-        $items = $this->model::findOrFail($id);
-        if($this->permission == 'owner'){
-            $items = $items->OnlyOwner();
-        }
+        $items = $this->crud->model->findOrFail($id);
+//        if($this->permission == 'owner'){
+//            $items = $items->OnlyOwner();
+//        }
         return $items;
     }
 
     /**
      * This function return a view and pass $crud
-     * @return \Illuminate\Support\Facades\View;
+     * @return View;
      */
     public function editCrud($item)
     {
@@ -34,7 +34,7 @@ trait EditTrait
 
 
         // return request();
-        return View::first(["$this->name::admin.edit", "crud::scaffold.edit"])->with(['crud'=>$this->crud, 'item'=>$item , 'tab' => request()->input('tab') ]);
+        return View::first([$this->crud->name . "::admin.edit", "crud::scaffold.edit"])->with(['crud' => $this->crud, 'item' => $item]);
     }
 
     /**
@@ -46,7 +46,6 @@ trait EditTrait
     public function edit($id)
     {
         //return 'edit';
-        event(new EditEvent($this->name));
         $item = $this->findForEdit($id);
         return $this->editCrud($item);
     }

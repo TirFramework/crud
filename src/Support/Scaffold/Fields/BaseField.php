@@ -18,6 +18,7 @@ abstract Class BaseField
     protected bool $showOnCreate = true;
     protected bool $showOnEdit = true;
     protected bool $sortable;
+    protected mixed $roles = '';
 
     /**
      * Add name attribute to input
@@ -210,6 +211,18 @@ abstract Class BaseField
         return $this;
     }
 
+
+    public function rules(mixed ...$role): static
+    {
+        $this->roles = $role;
+        return $this;
+    }
+
+    public function creationRules(mixed ...$role): static
+    {
+        $this->roles = $role;
+        return $this;
+    }
 
     /**
      * @return array

@@ -8,7 +8,7 @@
 @section('page-heading'){{trans('crud::panel.create').' '.trans("$crud->name::panel.$crud->name")}} @endsection
 
 @section('content')
-{!! Form::open(['route' => "$crud->name.store", 'method' => 'POST', 'class'=>'form-horizontal', 'enctype'=>'multipart/form-data']) !!}
+{!! Form::open(['route' => "admin.$crud->name.store", 'method' => 'POST', 'class'=>'form-horizontal', 'enctype'=>'multipart/form-data']) !!}
 
     <div class="row">
 

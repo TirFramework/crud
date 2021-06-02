@@ -4,8 +4,9 @@ namespace Tir\Crud;
 
 
 use Illuminate\Support\ServiceProvider;
-use Tir\Crud\Services\Crud;
+use Tir\Crud\Support\Module\Modules;
 use Tir\Crud\Support\Resource\ResourceRegistrar;
+use Tir\Crud\Support\Scaffold\Crud;
 
 class CrudServiceProvider extends ServiceProvider
 {
@@ -18,12 +19,14 @@ class CrudServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(
-            __DIR__.'/Config/crud.php', 'crud'
+            __DIR__ . '/Config/crud.php', 'crud'
         );
 
         $this->registerNewRouteResource();
 
         $this->registerCrudSingleton();
+
+        $this->registerModulesSingleton();
     }
 
     /**
@@ -39,7 +42,6 @@ class CrudServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/config/crud.php' => config_path('crud.php'),
         ]);
-
 
     }
 
@@ -63,15 +65,12 @@ class CrudServiceProvider extends ServiceProvider
      */
     private function registerCrudSingleton()
     {
-//        $this->app->singleton('Crud', function (){
-//            return new Crud;
-//        });
-
-        $crud = \Tir\Crud\Support\Scaffold\Crud::init();
-        $crud->setName('test');
+        Crud::init();
     }
 
+    private function registerModulesSingleton()
+    {
+        Modules::init();
+    }
 
 }
-
-

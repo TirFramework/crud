@@ -3,13 +3,14 @@
 namespace Tir\Crud\Controllers;
 
 use Illuminate\Http\Request;
-use Tir\Crud\Events\UpdateEvent;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Session;
+use Tir\Crud\Events\UpdateEvent;
 
 trait UpdateTrait
 {
+    use ValidationTrait;
+
     /**
      * @param Request $request
      * @param int $id
@@ -17,10 +18,9 @@ trait UpdateTrait
      */
     public function update(Request $request, int $id)
     {
-        event(new UpdateEvent($this->name));
 
         $item = $this->updateFind($id);
-        $this->updateValidation($request, $item);
+        $this->updateValidation($request, $this->crud->validation, $item);
         $request = $this->updateRequestManipulation($request);
         $this->updateCrud($request, $item);
         $this->updateAdditional($request, $item);
@@ -34,22 +34,11 @@ trait UpdateTrait
      */
     public function updateFind($id)
     {
-        $item = $this->model::findOrFail($id);
-        if ($this->permission == 'owner') {
-            $item = $item->OnlyOwner();
-        }
+        $item = $this->crud->model->findOrFail($id);
+//        if ($this->permission == 'owner') {
+//            $item = $item->OnlyOwner();
+//        }
         return $item;
-    }
-
-    /**
-     * @param Request $request
-     * @param $item
-     */
-    public function updateValidation(request $request, $item)
-    {
-        $validation = $item->getValidation();
-         Validator::make($request->all(), $validation)->validate();
-
     }
 
     /**
@@ -73,9 +62,9 @@ trait UpdateTrait
         //update item
         $item->update($request->all());
         //update relation
-        foreach ($this->fields as $group) {
+        foreach ($this->crud->editFields as $group) {
             if ((strpos($group->visible, 'e') !== false)) {
-                foreach ($group->tabs as $tab){
+                foreach ($group->tabs as $tab) {
                     if ((strpos($tab->visible, 'e') !== false)) {
                         foreach ($tab->fields as $field) {
                             if ((strpos($field->visible, 'e') !== false) && $field->type == 'relationM') {
@@ -103,11 +92,11 @@ trait UpdateTrait
     }
 
     /**
-     * This function redirect to view 
+     * This function redirect to view
      * if user clicked save&close button function redirected user to index page
      * if user clicked on save button function redirected user to previous page
      *
-     * @param \Illuminate\Http\Request $request
+     * @param Request $request
      * @param Object $item
      * @return redirect to url
      */

@@ -28,6 +28,9 @@ final class Crud
     private string $table;
 
     protected string $locale;
+
+    protected array $validationRules = [];
+
 //    protected object $method;
 //
 //
@@ -37,7 +40,6 @@ final class Crud
 //
 //    protected $relations = [];
 //
-//    protected $validation = [];
 //
 //    protected $options = [];
 //
@@ -69,6 +71,7 @@ final class Crud
         Crud::setEditFields();
         Crud::setDetailFields();
         Crud::setTable();
+        Crud::setValidationRules();
     }
 
 
@@ -145,19 +148,29 @@ final class Crud
     /**
      * @return void
      */
-    private static function setEditFields() {
-        Crud::init()->editFields =  Arr::where(Crud::init()->fields, function ($value) {
+    private static function setEditFields()
+    {
+        Crud::init()->editFields = Arr::where(Crud::init()->fields, function ($value) {
             return $value->showOnEdit;
         });
     }
 
-    private static function setTable(){
+    private static function setTable()
+    {
         Crud::init()->table = Crud::init()->model->getTable();
     }
 
+    private static function setValidationRules()
+    {
+        foreach (Crud::init()->fields as $field) {
+            Crud::init()->validationRules[$field->name] = $field->roles;
+        }
+
+    }
 
 
-    public static function get(){
+    public static function get()
+    {
         return (object)get_object_vars(self::$obj);
     }
 

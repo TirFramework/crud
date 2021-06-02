@@ -2,51 +2,42 @@
 
 namespace Tir\Crud\Controllers;
 
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Response;
-use Tir\Crud\Events\StoreEvent;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Session;
+use Tir\Crud\Support\Scaffold\Crud;
 
-
-
+/**
+ * @property Crud $crud
+ */
 trait StoreTrait
 {
     /**
-    * This function called from route. run an event and run createCrud functions
-    * @return void
-    */    
+     * This function called from route. run an event and run createCrud functions
+     * @param Request $request
+     * @return JsonResponse|RedirectResponse
+     */
     public function store(Request $request)
     {
-        event(new StoreEvent($this->name));
-
-        $this->storeValidation($request, $this->validation);
+        $this->storeValidation($request, $this->crud->validationRules);
         $request = $this->storeRequestManipulation($request);
         $item = $this->storeCrud($request);
-        $this->saveAdditional($request, $item);
+        $this->storeAdditional($request, $item);
         return $this->storeReturn($request, $item);
     }
 
-
-    /**
-     * Run validator on request
-     * @param Request $request
-     * @return \Illuminate\Support\Facades\Validator
-     */
-    public function storeValidation(Request $request, $validation)
-    {
-       $validation =  $this->validation;
-        return Validator::make($request->all(), $validation)->validate();
-    }
 
     /**
      * This function for manipulation on request data
      * @param Request $request
      * @return Request
      */
-    public function storeRequestManipulation(Request $request)
+    public function storeRequestManipulation(Request $request): Request
     {
         return $request;
     }
@@ -59,32 +50,22 @@ trait StoreTrait
     public function storeCrud(Request $request)
     {
 
-        // Add user_id to data for detect which user create item. this column use for ACL package and detect owner of item
+        // Add user_id to data for detect which user create item. this column use for authorization package and detect owner of item
         $request->merge(['user_id' => Auth::id()]);
-        // Store model
-        $item = $this->model::create($request->all());
 
-        //Store relations
-        foreach ($this->fields as $group) {
-            if ((strpos($group->visible, 'c') !== false)) {
-                foreach ($group->tabs as $tab){
-                    if ((strpos($tab->visible, 'c') !== false)) {
-                        foreach ($tab->fields as $field) {
-                            if ((strpos($field->visible, 'c') !== false) && $field->type == 'relationM') {
-                                $data = $request->input($field->name);
-                                $item->{$field->relation[0]}()->sync($data);
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        return DB::transaction(function () use ($request) { // Start the transaction
+            // Store model
+            $item = $this->crud->model->create($request->all());
 
-        return $item;
+            //Store relations
+            $this->storeRelations($request, $item);
+
+            return $item;
+        });
     }
 
 
-    public function saveAdditional(Request $request, $item)
+    public function storeAdditional(Request $request, $item)
     {
         return null;
     }
@@ -96,32 +77,40 @@ trait StoreTrait
      *
      * @param Request $request
      * @param Object $item
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     * @return JsonResponse|RedirectResponse
      */
     public function storeReturn(Request $request, $item)
     {
-        //if user select SAVE button url will like this /admin/xxx/1/edit
-        //$url = ($request->input('save_close') ? route("$this->name.index") : route("$this->name.edit", [$this->name => $item->getKey()]));
 
-        $message = trans('crud::message.item-created', ['item' => trans("message.item.$this->name")]); //translate message
+        $message = trans('crud::message.item-created', ['item' => trans("message.item.$this->crud->name")]); //translate message
         Session::flash('message', $message);
-        if($request->requestType == 'ajax'){
+        if ($request->requestType == 'ajax') {
             return $this->storeJsonReturn($item, $message);
         }
-        if($request->input('save_close')){
-            return Redirect::to(route("$this->name.index"));
-        }elseif($request->input('save_edit')){
-            return Redirect::to(route("$this->name.edit",$item->getKey()));
-        }else{
+        if ($request->input('save_close')) {
+            return Redirect::to(route("$this->crud->name.index"));
+        } elseif ($request->input('save_edit')) {
+            return Redirect::to(route("$this->crud->name.edit", $item->getKey()));
+        } else {
             return Redirect::back();
         }
     }
 
 
-    private function storeJsonReturn ($item, $message){
-        return Response::Json(['message'=> $message, 'item' => $item]);
+    private function storeJsonReturn($item, $message): JsonResponse
+    {
+        return Response::Json(['message' => $message, 'item' => $item]);
     }
 
+    private function storeRelations(Request $request, $item)
+    {
+        foreach ($this->crud->createFields as $field) {
+            if ($field->type == 'manyToMany') {
+                $data = $request->input($field->name);
+                $item->{$field->relation[0]}()->sync($data);
+            }
+        }
+    }
 
 
 }

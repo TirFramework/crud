@@ -5,7 +5,8 @@ if( isset($item->{$field->name}) ){
 }
 $id = $field->name;
 $class = 'form-control';
-$options = ['class'=>$class , $field->validation ?? null, $field->option ?? null];
+// $options = ['class'=>$class , $field->validation ?? null, $field->option ?? null];
+$options = ['class'=>$class , $field->option ?? null];
 
 if(isset($field->placeholder)){
     $options['placeholder'] = $field->placeholder;
