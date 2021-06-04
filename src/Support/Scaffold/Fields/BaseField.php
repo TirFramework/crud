@@ -15,8 +15,8 @@ abstract Class BaseField
     protected string $defaultValue;
     protected bool $showOnIndex = true;
     protected bool $showOnDetail = true;
-    protected bool $showOnCreate = true;
-    protected bool $showOnEdit = true;
+    protected bool $showOnCreating = true;
+    protected bool $showOnEditing = true;
     protected bool $sortable;
     protected mixed $roles = '';
 
@@ -111,44 +111,36 @@ abstract Class BaseField
 
 
     /**
-     * @param bool $check
      * @return $this
      */
-    public function showOnIndex(bool $check = true): static
+    public function showOnIndex(bool $callback = true): static
     {
-        $this->showOnIndex = $check;
-        return $this;
-    }
-
-    /**
-     * @param bool $check
-     * @return $this
-     */
-    public function showOnCreate(bool $check = true): static
-    {
-        $this->showOnCreate = $check;
+        $this->showOnIndex = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
+            : $callback;
         return $this;
     }
 
 
-    /**
-     * @param bool $check
-     * @return $this
-     */
-    public function showOnEdit(bool $check = true): static
+    public function showOnCreating(bool $callback = true): static
     {
-        $this->showOnEdit = $check;
+        $this->showOnCreating = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
+            : $callback;
         return $this;
     }
 
 
-    /**
-     * @param bool $check
-     * @return $this
-     */
-    public function showOnDetail(bool $check = true): static
+    public function showOnEditing(bool $callback = true): static
     {
-        $this->showOnIndex = $check;
+        $this->showOnEditing = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
+            : $callback;
+        return $this;
+    }
+
+
+    public function showOnDetail(bool $callback = true): static
+    {
+        $this->showOnEditing = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
+            : $callback;
         return $this;
     }
 
@@ -157,7 +149,7 @@ abstract Class BaseField
      * @param bool $callback
      * @return $this
      */
-    public function hideOnIndex(bool $callback = true): static
+    public function hideFromIndex(bool $callback = true): static
     {
         $this->showOnIndex = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : !$callback;
@@ -169,9 +161,9 @@ abstract Class BaseField
      * @param bool $callback
      * @return $this
      */
-    public function hideFromCreate(bool $callback = true): static
+    public function hideWhenCreating(bool $callback = true): static
     {
-        $this->showOnCreate = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
+        $this->showOnCreating = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : !$callback;
         return $this;
     }
@@ -181,9 +173,9 @@ abstract Class BaseField
      * @param bool $callback
      * @return $this
      */
-    public function hideFromEdit(bool $callback = true): static
+    public function hideWhenEditing(bool $callback = true): static
     {
-        $this->showOn = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
+        $this->showOnEditing = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : !$callback;
         return $this;
     }
@@ -200,6 +192,45 @@ abstract Class BaseField
         return $this;
     }
 
+    public function hideFromAll(bool|callable $callback = true): static
+    {
+
+        $this->showOnCreating =
+        $this->showOnEditing =
+        $this->showOnIndex =
+        $this->showOnDetail =
+            is_callable($callback) ? !call_user_func_array($callback, func_get_args())
+                : !$callback;
+        return $this;
+    }
+
+    public function onlyOnIndex(): static
+    {
+        $this->showOnCreating = $this->showOnEditing = $this->showOnDetail = false;
+        $this->showOnIndex = true;
+        return $this;
+    }
+
+    public function onlyOnCreating(): static
+    {
+        $this->showOnIndex = $this->showOnEditing = $this->showOnDetail = false;
+        $this->showOnCreating = true;
+        return $this;
+    }
+
+    public function onlyOnEditing(): static
+    {
+        $this->showOnCreating = $this->showOnEditing = $this->showOnDetail = false;
+        $this->showOnEditing = true;
+        return $this;
+    }
+
+    public function onlyOnDetail(): static
+    {
+        $this->showOnCreating = $this->showOnEditing = $this->showOnIndex = false;
+        $this->showOnDetail = true;
+        return $this;
+    }
 
     /**
      * @param bool $check

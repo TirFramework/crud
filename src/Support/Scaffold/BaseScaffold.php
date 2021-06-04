@@ -2,7 +2,6 @@
 
 namespace Tir\Crud\Support\Scaffold;
 
-use Illuminate\Support\Arr;
 
 abstract Class BaseScaffold
 {

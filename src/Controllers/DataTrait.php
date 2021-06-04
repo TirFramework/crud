@@ -12,6 +12,7 @@ trait DataTrait
     /**
      * return datatable object
      * @return object
+     * @throws \Exception
      */
     public function data(): object
     {
@@ -35,7 +36,6 @@ trait DataTrait
 
     /**
      * This function return a eloquent select with relation ship
-     * @return eloquent
      */
     public function dataQuery(): object
     {
@@ -48,6 +48,10 @@ trait DataTrait
     }
 
 
+    /**
+     *
+     * @throws \Exception
+     */
     public function dataTable($items): JsonResponse
     {
         return Datatables::eloquent($items)
@@ -80,6 +84,7 @@ trait DataTrait
     /**
      * return datatable object
      * @return object
+     * @throws \Exception
      */
     public function trashData(): object
     {
@@ -89,6 +94,9 @@ trait DataTrait
     }
 
 
+    /**
+     * @throws \Exception
+     */
     public function trashDataTable($items): JsonResponse
     {
         return Datatables::eloquent($items)
@@ -96,11 +104,11 @@ trait DataTrait
                 $DeleteBtn = $restoreBtn = null;
 
                 if ($this->checkAccess('destroy')) {
-                    $restoreBtn = '<a href="' . route($this->name . '.restore', $item->getKey()) . '" class="fa-md text-success"><i title="' . trans('panel.restore') . '" class="fas fa-recycle"></i></a>';
+                    $restoreBtn = '<a href="' . route($this->crud->name . '.restore', $item->getKey()) . '" class="fa-md text-success"><i title="' . trans('panel.restore') . '" class="fas fa-recycle"></i></a>';
 
                 }
                 if ($this->checkAccess('forceDestroy')) {
-                    $DeleteBtn = '<button onclick=' . '"deleteRow(' . "'" . route($this->name . '.forceDestroy', $item->getKey()) . "'" . ')" class="fa-md text-danger"> <i title="' . trans('panel.delete') . '" class="fas fa-trash"></i></button>';
+                    $DeleteBtn = '<button onclick=' . '"deleteRow(' . "'" . route($this->crud->name . '.forceDestroy', $item->getKey()) . "'" . ')" class="fa-md text-danger"> <i title="' . trans('panel.delete') . '" class="fas fa-trash"></i></button>';
                 }
                 return $restoreBtn . ' ' . $DeleteBtn;
             })->addColumns($this->addColumns())

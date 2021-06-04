@@ -5,15 +5,12 @@ namespace Tir\Crud\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Session;
-use Tir\Crud\Support\Scaffold\Crud;
 
 /**
- * @property Crud $crud
+ * @property object $crud
  */
 trait StoreTrait
 {
@@ -22,12 +19,10 @@ trait StoreTrait
      * @param Request $request
      * @return JsonResponse|RedirectResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse|RedirectResponse
     {
         $this->storeValidation($request, $this->crud->validationRules);
-        $request = $this->storeRequestManipulation($request);
         $item = $this->storeCrud($request);
-        $this->storeAdditional($request, $item);
         return $this->storeReturn($request, $item);
     }
 
@@ -45,13 +40,10 @@ trait StoreTrait
     /**
      * This function store crud and relations
      * @param Request $request
-     * @return void
+     * @return mixed
      */
-    public function storeCrud(Request $request)
+    public function storeCrud(Request $request): mixed
     {
-
-        // Add user_id to data for detect which user create item. this column use for authorization package and detect owner of item
-        $request->merge(['user_id' => Auth::id()]);
 
         return DB::transaction(function () use ($request) { // Start the transaction
             // Store model
@@ -65,11 +57,6 @@ trait StoreTrait
     }
 
 
-    public function storeAdditional(Request $request, $item)
-    {
-        return null;
-    }
-
     /**
      * This function redirect to view
      * if user clicked save&close button function redirected user to index page
@@ -77,16 +64,13 @@ trait StoreTrait
      *
      * @param Request $request
      * @param Object $item
-     * @return JsonResponse|RedirectResponse
+     * @return RedirectResponse
      */
-    public function storeReturn(Request $request, $item)
+    public function storeReturn(Request $request, object $item): RedirectResponse
     {
 
         $message = trans('crud::message.item-created', ['item' => trans("message.item.$this->crud->name")]); //translate message
         Session::flash('message', $message);
-        if ($request->requestType == 'ajax') {
-            return $this->storeJsonReturn($item, $message);
-        }
         if ($request->input('save_close')) {
             return Redirect::to(route("$this->crud->name.index"));
         } elseif ($request->input('save_edit')) {
@@ -94,12 +78,6 @@ trait StoreTrait
         } else {
             return Redirect::back();
         }
-    }
-
-
-    private function storeJsonReturn($item, $message): JsonResponse
-    {
-        return Response::Json(['message' => $message, 'item' => $item]);
     }
 
     private function storeRelations(Request $request, $item)
@@ -111,6 +89,5 @@ trait StoreTrait
             }
         }
     }
-
 
 }

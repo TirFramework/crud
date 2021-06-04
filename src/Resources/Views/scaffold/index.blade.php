@@ -68,38 +68,27 @@
             $orderField =0;
 
 
-            foreach($crud->indexFields as $field):
-                    $name = $field->name;
-                    $key = $crud->table.'.'.$field->name;
-                    $render = null;
-                    $searchable = 'true';
-                    //if field is translation for use in data table we must do like many to many relation
+        foreach ($crud->indexFields as $field):
+            $name = $field->name;
+            $key = $crud->table . '.' . $field->name;
+            $render = null;
+            $searchable = 'true';
 
-//                    if(in_array($field->name, $crud->getModel()->translatedAttributes)):
-//                        $name = 'translations'. '[].'. $field->name;
-//                        $key =  'translations'. '.'. $field->name;
-//                    endif;
+            if ($field->type == 'oneToMany'):     //relationship must have datatable field for show in datatable
+                $relationModel = get_class($crud->model->{$field->relationName}()->getModel());
+                $dataModel = new  $relationModel;
+                $dataField = $field->relationName;
+                $name = $key = $field->relationName . '.' . $field->relationKey;
 
-                    if($field->type =='oneToMany'):     //relationship must have datatable field for show in datatable
-                        $relationModel =  get_class($crud->model->{$field->relationName}()->getModel());
-                        $dataModel = new  $relationModel;
-                        $dataField = $field->relationName;
+            endif;
+            //for many to many datatable $field->datatable must be array and have two index ,first is name and second is data
+            if ($field->type == 'relationM'):
 
-//                        if(in_array($dataField, $dataModel->translatedAttributes)):
-//                            $name = $field->relation[0].'.translations[].'. $field->relation[1];
-//                            $key = $field->relation[0].'.translations.'. $field->relation[1];
-//                        else:
-                            $name = $key = $field->relationName.'.'.$field->relationKey;
-//                        endif;
-                    endif;
-                    //for many to many datatable $field->datatable must be array and have two index ,first is name and second is data
-                    if($field->type  == 'relationM'):
+                $relationModel = get_class($crud->model->{$field->relation[0]}()->getModel());
+                $dataModel = new  $relationModel;
+                $dataField = $field->relation[1];
 
-                        $relationModel =  get_class($crud->model->{$field->relation[0]}()->getModel());
-                        $dataModel = new  $relationModel;
-                        $dataField = $field->relation[1];
-
-                        if(in_array($dataField, $dataModel->translatedAttributes)):
+                if (in_array($dataField, $dataModel->translatedAttributes)):
                             $name = $field->relation[0]. '[ , ].translations[].'. $field->relation[1];
                             $key  = $field->relation[0]. '.translations.' . $field->relation[1];
                         else:
@@ -162,19 +151,6 @@
         var dataRoute = "{{route('admin.'.$crud->routeName.'.data')}}";
         var trashRoute = "{{route('admin.'.$crud->routeName.'.trashData')}}";
         let table = new datatable('#table', col, "{{$crud->name}}");
-
-        {{--        @foreach($crud->fields as $group)--}}
-        {{--            @foreach($group->tabs as $tab)--}}
-        {{--                @foreach($tab->fields as $field)--}}
-        {{--                    @if(strpos($field->visible, 'i') !== false)--}}
-        {{--                        @if(strpos($field->visible, 'o') !== false )--}}
-        {{--                            @php $orderField = $loop->index;  @endphp--}}
-        {{--                            @break--}}
-        {{--                        @endif--}}
-{{--                    @endif--}}
-{{--                @endforeach--}}
-{{--            @endforeach--}}
-{{--        @endforeach--}}
 
         @if(isset($trash))
         table.create([{{$orderField}}, "desc"],filters,trashRoute,[true]);    //([column for filter, 'desc or ace'], 'filters data','route')

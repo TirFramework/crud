@@ -114,7 +114,7 @@ final class Crud
 
     public static function setLocalization(bool $check)
     {
-        Crud::init()->locale = $check ? static::init()->name.'::panel.' : '';
+        Crud::init()->locale = $check ? Crud::init()->name . '::panel.' : '';
     }
 
 
@@ -141,7 +141,7 @@ final class Crud
      */
     private static function setCreateFields() {
         Crud::init()->createFields =  Arr::where(Crud::init()->fields, function ($value) {
-            return $value->showOnCreate;
+            return $value->showOnCreating;
         });
     }
 
@@ -151,7 +151,7 @@ final class Crud
     private static function setEditFields()
     {
         Crud::init()->editFields = Arr::where(Crud::init()->fields, function ($value) {
-            return $value->showOnEdit;
+            return $value->showOnEditing;
         });
     }
 
