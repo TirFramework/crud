@@ -5,10 +5,10 @@
 
 @extends(config('crud.admin-panel').'::layouts.master')
 
-@section('title', trans($crud->locale.Str::plural($crud->name)) )
+@section('title', trans($model->getLocalization().Str::plural($model->getScaffoldName())) )
 
 @section('page-heading')
-    {{trans($crud->locale.Str::plural($crud->name))}}
+    {{trans($model->locale.Str::plural($model->getscaffoldName()))}}
 
     @isset($trash)
         {{trans('crud::panel.trash')}}
@@ -19,19 +19,17 @@
 @section('content')
     <div id="result"></div>
     <div class="card card-default">
-        @include(config('crud.admin-panel').'::layouts.panel-heading',['name'=>$crud->name, 'actions'=>[]])
+        @include(config('crud.admin-panel').'::layouts.panel-heading',['name'=>$model->getScaffoldName(), 'actions'=>[]])
         <div class="card-body">
             <div class="">
                 <table class="table table-striped table-hover responsive nowrap" id="table" width="100%">
                     <thead>
                     <tr>
-                        @foreach($crud->indexFields as $field)
-                            @if($field->showOnIndex)
-                                <th>{{trans($crud->locale.$field->display)}}</th>
-                            @endif
+                        @foreach($model->getIndexFields() as $field)
+                            <th>{{trans($model->getLocalization().$field->display)}}</th>
                         @endforeach
-                        <th >
-                            @lang($crud->locale.'action')
+                        <th>
+                            @lang($model->getLocalization().'action')
                         </th>
 
                     </tr>
@@ -40,10 +38,8 @@
                     <tfoot>
                     <tr>
                         <th></th>
-                        @foreach($crud->indexFields as $field)
-                            @if(($field->showOnIndex))
+                        @foreach($model->getIndexFields() as $field)
                                 <th></th>
-                            @endif
                         @endforeach
                     </tr>
                     </tfoot>
@@ -59,24 +55,24 @@
         //TODO: Use package for pass variable to js 
         //datetable
         <?php
-            $col=null;
-            $filters = null;
-            //if enable drag reorder and add column $loop  must be equals to 1
-            $loop=0;
-            $responsive= true;
-            $className = null;
-            $orderField =0;
+        $col = null;
+        $filters = null;
+        //if enable drag reorder and add column $loop  must be equals to 1
+        $loop = 0;
+        $responsive = true;
+        $className = null;
+        $orderField = 0;
 
 
-        foreach ($crud->indexFields as $field):
+        foreach ($model->getIndexFields() as $field):
             $name = $field->name;
-            $key = $crud->table . '.' . $field->name;
+            $key = $model->getTable() . '.' . $field->name;
             $render = null;
             $searchable = 'true';
 
             if ($field->type == 'oneToMany'):     //relationship must have datatable field for show in datatable
-                $relationModel = get_class($crud->model->{$field->relationName}()->getModel());
-                $dataModel = new  $relationModel;
+//                $relationModel = get_class($model->{$field->relationName}()->getModel());
+//                $dataModel = new  $relationModel;
                 $dataField = $field->relationName;
                 $name = $key = $field->relationName . '.' . $field->relationKey;
 
@@ -84,17 +80,17 @@
             //for many to many datatable $field->datatable must be array and have two index ,first is name and second is data
             if ($field->type == 'relationM'):
 
-                $relationModel = get_class($crud->model->{$field->relation[0]}()->getModel());
+                $relationModel = get_class($model->model->{$field->relation[0]}()->getModel());
                 $dataModel = new  $relationModel;
                 $dataField = $field->relation[1];
 
                 if (in_array($dataField, $dataModel->translatedAttributes)):
-                            $name = $field->relation[0]. '[ , ].translations[].'. $field->relation[1];
-                            $key  = $field->relation[0]. '.translations.' . $field->relation[1];
-                        else:
-                            $name = $field->relation[0]. '[ , ].'. $field->relation[1];
-                            $key =  $field->relation[0]. '.'. $field->relation[1];
-                        endif;
+                    $name = $field->relation[0] . '[ , ].translations[].' . $field->relation[1];
+                    $key = $field->relation[0] . '.translations.' . $field->relation[1];
+                else:
+                    $name = $field->relation[0] . '[ , ].' . $field->relation[1];
+                    $key = $field->relation[0] . '.' . $field->relation[1];
+                endif;
 
 
                     endif;
@@ -110,54 +106,54 @@
                             $searchable = 'false';
                         }
                     }
-                    $col .= "{ data:`$name`, name: `$key` $className, defaultContent: '' $render, searchable: $searchable},";
+            $col .= "{ data:`$name`, name: `$key` $className, defaultContent: '' $render, searchable: $searchable},";
 
 
-                    //filters
-                    //translated fields can not filter
+            //filters
+            //translated fields can not filter
 //                        if(strpos($field->visible, 'f') !== false){
 //                            if($field->type == 'relation' || $field->type == 'relationM'){
 //
-//                                $relationModel =  get_class($crud->model->{$field->relation[0]}()->getModel());
+//                                $relationModel =  get_class($model->model->{$field->relation[0]}()->getModel());
 //                                $dataModel = new  $relationModel;
 //                                $dataField = $field->relation[1];
 //
 //                                //check relation model field not translated
 //                                if(in_array($dataField, $dataModel->translatedAttributes) == false){
-//                                    $filters .= $loop.':'.json_encode($dataModel::has(Str::plural($crud->name))->select($dataField)->distinct($dataField)->pluck($dataField)).', ';
+//                                    $filters .= $loop.':'.json_encode($dataModel::has(Str::plural($model->name))->select($dataField)->distinct($dataField)->pluck($dataField)).', ';
 //                                }else{
-//                                    $filters .= $loop.':'.json_encode($dataModel::has(Str::plural($crud->name))->select('*')->get()->pluck($dataField)).', ';
+//                                    $filters .= $loop.':'.json_encode($dataModel::has(Str::plural($model->name))->select('*')->get()->pluck($dataField)).', ';
 //                                        if($field->type == 'relationM'){
 //                                            $filters .= $loop.':["disabled in many to many translation"], ';
 //                                        }
 //
 //                                }
 //                            }else{
-//                                if( in_array($field->name, $crud->model->translatedAttributes) == false){
-//                                    $filters .= $loop.':'.json_encode($crud->model::select($field->name)->distinct($field->name)->pluck($field->name)).', ';
+//                                if( in_array($field->name, $model->model->translatedAttributes) == false){
+//                                    $filters .= $loop.':'.json_encode($model->model::select($field->name)->distinct($field->name)->pluck($field->name)).', ';
 //                                }else{
-//                                   $filters .= $loop.':'.json_encode($crud->model::select('*')->get()->pluck($field->name)).', ';
+//                                   $filters .= $loop.':'.json_encode($model->model::select('*')->get()->pluck($field->name)).', ';
 //                                }
 //                            }
 //                         }
-                $loop++;
-            endforeach;
+            $loop++;
+        endforeach;
 
 
         ?>
 
         var col = [{!! $col !!}];
         var filters = {{!! $filters !!}};     // it must something like this         var filters = { 5:["travelogue","article","news"] };
-        var dataRoute = "{{route('admin.'.$crud->routeName.'.data')}}";
-        var trashRoute = "{{route('admin.'.$crud->routeName.'.trashData')}}";
-        let table = new datatable('#table', col, "{{$crud->name}}");
+        var dataRoute = "{{route('admin.'.$model->getScaffoldName().'.data')}}";
+        var trashRoute = "{{route('admin.'.$model->getScaffoldName().'.trashData')}}";
+        let table = new datatable('#table', col, "{{$model->getScaffoldName()}}");
 
         @if(isset($trash))
-        table.create([{{$orderField}}, "desc"],filters,trashRoute,[true]);    //([column for filter, 'desc or ace'], 'filters data','route')
+        table.create([{{$orderField}}, "desc"], filters, trashRoute, [true]);    //([column for filter, 'desc or ace'], 'filters data','route')
         @else
-        table.create([{{$orderField}}, "desc"],filters,dataRoute,[true]);    //([column for filter, 'desc or ace'], 'filters data','route')
+        table.create([{{$orderField}}, "desc"], filters, dataRoute, [true]);    //([column for filter, 'desc or ace'], 'filters data','route')
         @endif
-        table.reorder();
+        // table.reorder();
     </script>
 
 @endpush

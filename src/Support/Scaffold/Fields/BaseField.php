@@ -113,7 +113,7 @@ abstract Class BaseField
     /**
      * @return $this
      */
-    public function showOnIndex(bool $callback = true): static
+    public function showOnIndex(\Closure|bool $callback = true): static
     {
         $this->showOnIndex = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : $callback;
@@ -121,7 +121,7 @@ abstract Class BaseField
     }
 
 
-    public function showOnCreating(bool $callback = true): static
+    public function showOnCreating(\Closure|bool $callback = true): static
     {
         $this->showOnCreating = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : $callback;

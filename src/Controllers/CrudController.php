@@ -10,18 +10,17 @@ class CrudController extends BaseController
 {
     use IndexTrait, CreateTrait, DataTrait, StoreTrait, EditTrait, UpdateTrait;
 
-    /**
-     * Extend of CrudScaffold
-     * @var string
-     */
-    protected mixed $scaffold;
-    protected object $crud;
+//    protected mixed $scaffold;
+//    protected object $crud;
 
+    protected $model;
+    protected $scaffoldName;
     protected array $relations = [];
 
     public function __construct()
     {
-        $this->setCrud();
+//        $this->setCrud();
+
     }
 
     private function setCrud(): void
@@ -30,18 +29,18 @@ class CrudController extends BaseController
         $this->crud = Crud::get();
     }
 
-    protected function checkAccess($action): string
+    protected function checkAccess($module, $action): string
     {
         if (class_exists(access::class)) {
-            return access::check($this->crud->name, $action);
+            return access::check($module, $action);
         }
         return 'allow';
     }
 
-    protected function executeAccess($action): string
+    protected function executeAccess($module, $action): string
     {
         if (class_exists(access::class)) {
-            return access::execute($this->crud->name, $action);
+            return access::execute($module, $action);
         }
         return 'allow';
     }

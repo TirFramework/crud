@@ -16,32 +16,34 @@ trait DataTrait
      */
     public function data(): object
     {
-        $this->getRelationFields();
-        $items = $this->dataQuery();
-        return $this->dataTable($items);
+        $model = new $this->model;
+        $this->scaffoldName = $model->getScaffoldName();
+        $relations = $this->getRelationFields($model);
+        $items = $this->dataQuery($model, $relations);
+        return $this->dataTable($model, $items);
     }
 
 
-    public function getRelationFields()
+    public function getRelationFields($model)
     {
-        foreach ($this->crud->indexFields as $field) {
+        $relations = [];
+        foreach ($model->getIndexFields() as $field) {
             if ($field->type == 'oneToMany') {
-                //get model form relation
-                $relationModel = get_class($this->crud->model->{$field->relationName}()->getModel());
-                array_push($this->relations, $field->relationName);
+                array_push($relations, $field->relationName);
             }
         }
+
+        return $relations;
     }
 
 
     /**
      * This function return a eloquent select with relation ship
      */
-    public function dataQuery(): object
+    public function dataQuery($model, $relation): object
     {
-        $model = $this->crud->model;
-        $items = $model::select($this->crud->table . '.*')->with($this->relations);
-        if ($this->checkAccess('index') == 'owner') {
+        $items = $model->select($model->getTable() . '.*')->with($relation);
+        if ($this->checkAccess($this->scaffoldName, 'index') == 'owner') {
             $items = $items->OnlyOwner();
         }
         return $items;
@@ -52,19 +54,19 @@ trait DataTrait
      *
      * @throws \Exception
      */
-    public function dataTable($items): JsonResponse
+    public function dataTable($model, $items): JsonResponse
     {
         return Datatables::eloquent($items)
             ->addColumn('action', function ($item) {
                 $viewBtn = $DeleteBtn = $editBtn = null;
-                if ($this->checkAccess('show') != 'deny') {
-                    $viewBtn = '<a href="' . route('admin.' . $this->crud->name . '.show', $item->getKey()) . '" class="fa-md text-success"><i title="' . trans('panel.view') . '" class="far fa-eye"></i></a>';
+                if ($this->checkAccess($this->scaffoldName, 'index') != 'deny') {
+                    $viewBtn = '<a href="' . route('admin.' . $this->scaffoldName . '.show', $item->getKey()) . '" class="fa-md text-success"><i title="' . trans('panel.view') . '" class="far fa-eye"></i></a>';
                 }
-                if ($this->checkAccess('edit') != 'deny') {
-                    $editBtn = '<a href="' . route('admin.' . $this->crud->name . '.edit', $item->getKey()) . '" class="fa-md text-info"><i title="' . trans('panel.edit') . '" class="fas fa-pencil-alt"></i></a>';
+                if ($this->checkAccess($this->scaffoldName, 'edit') != 'deny') {
+                    $editBtn = '<a href="' . route('admin.' . $this->scaffoldName . '.edit', $item->getKey()) . '" class="fa-md text-info"><i title="' . trans('panel.edit') . '" class="fas fa-pencil-alt"></i></a>';
                 }
-                if ($this->checkAccess('destroy') != 'deny') {
-                    $DeleteBtn = '<button onclick=' . '"deleteRow(' . "'" . route('admin.' . $this->crud->name . '.destroy', $item->getKey()) . "'" . ')" class="fa-md text-danger"> <i title="' . trans('panel.delete') . '" class="fas fa-trash"></i></button>';
+                if ($this->checkAccess($this->scaffoldName, 'destroy') != 'deny') {
+                    $DeleteBtn = '<button onclick=' . '"deleteRow(' . "'" . route('admin.' . $this->scaffoldName . '.destroy', $item->getKey()) . "'" . ')" class="fa-md text-danger"> <i title="' . trans('panel.delete') . '" class="fas fa-trash"></i></button>';
                 }
                 return $viewBtn . ' ' . $editBtn . ' ' . $DeleteBtn;
             })->addColumns($this->addColumns())
