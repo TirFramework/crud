@@ -19,7 +19,7 @@ abstract class BaseField
     protected bool $showOnCreating = true;
     protected bool $showOnEditing = true;
     protected bool $sortable;
-    protected mixed $roles = '';
+    protected $roles = '';
 
     /**
      * Add name attribute to input
@@ -28,7 +28,7 @@ abstract class BaseField
      * @param string $name It will be name of input field
      * @return $this
      */
-    public static function make(string $name): static
+    public static function make(string $name): BaseField
     {
         $obj = new static;
         $obj->name = $name;
@@ -43,7 +43,7 @@ abstract class BaseField
      * @param string $value It will be display attribute of input
      * @return $this
      */
-    public function display(string $value): static
+    public function display(string $value): BaseField
     {
         $this->display = ucwords(str_replace('_', ' ', $value));
         return $this;
@@ -55,7 +55,7 @@ abstract class BaseField
      * @param string $name
      * @return $this
      */
-    public function class(string $name): static
+    public function class(string $name): BaseField
     {
         $this->class = $name;
         return $this;
@@ -67,7 +67,7 @@ abstract class BaseField
      * @param string $name
      * @return $this
      */
-    public function id(string $name): static
+    public function id(string $name): BaseField
     {
         $this->id = $name;
         return $this;
@@ -79,7 +79,7 @@ abstract class BaseField
      * @param string $text
      * @return $this
      */
-    public function placeholder(string $text): static
+    public function placeholder(string $text): BaseField
     {
         $this->placeholder = $text;
         return $this;
@@ -91,7 +91,7 @@ abstract class BaseField
      * @param bool $option
      * @return $this
      */
-    public function disable(bool $option): static
+    public function disable(bool $option): BaseField
     {
         $this->disable = $option;
         return $this;
@@ -104,7 +104,7 @@ abstract class BaseField
      * @param string $value
      * @return $this
      */
-    public function default(string $value): static
+    public function default(string $value): BaseField
     {
         $this->defaultValue = $value;
         return $this;
@@ -114,7 +114,7 @@ abstract class BaseField
     /**
      * @return $this
      */
-    public function showOnIndex(\Closure|bool $callback = true): static
+    public function showOnIndex($callback = true): BaseField
     {
         $this->showOnIndex = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : $callback;
@@ -122,7 +122,7 @@ abstract class BaseField
     }
 
 
-    public function showOnCreating(\Closure|bool $callback = true): static
+    public function showOnCreating($callback = true): BaseField
     {
         $this->showOnCreating = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : $callback;
@@ -130,7 +130,7 @@ abstract class BaseField
     }
 
 
-    public function showOnEditing(bool $callback = true): static
+    public function showOnEditing($callback = true): BaseField
     {
         $this->showOnEditing = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : $callback;
@@ -138,7 +138,7 @@ abstract class BaseField
     }
 
 
-    public function showOnDetail(bool $callback = true): static
+    public function showOnDetail($callback = true): BaseField
     {
         $this->showOnEditing = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : $callback;
@@ -150,7 +150,7 @@ abstract class BaseField
      * @param bool $callback
      * @return $this
      */
-    public function hideFromIndex(bool $callback = true): static
+    public function hideFromIndex(bool $callback = true): BaseField
     {
         $this->showOnIndex = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : !$callback;
@@ -162,7 +162,7 @@ abstract class BaseField
      * @param bool $callback
      * @return $this
      */
-    public function hideWhenCreating(bool $callback = true): static
+    public function hideWhenCreating($callback = true): BaseField
     {
         $this->showOnCreating = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : !$callback;
@@ -174,7 +174,7 @@ abstract class BaseField
      * @param bool $callback
      * @return $this
      */
-    public function hideWhenEditing(bool $callback = true): static
+    public function hideWhenEditing($callback = true): BaseField
     {
         $this->showOnEditing = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : !$callback;
@@ -186,14 +186,14 @@ abstract class BaseField
      * @param bool $callback
      * @return $this
      */
-    public function hideFromDetail(bool $callback = true): static
+    public function hideFromDetail($callback = true): BaseField
     {
         $this->showOnDetail = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : !$callback;
         return $this;
     }
 
-    public function hideFromAll(bool|callable $callback = true): static
+    public function hideFromAll($callback = true): BaseField
     {
 
         $this->showOnCreating =
@@ -205,28 +205,28 @@ abstract class BaseField
         return $this;
     }
 
-    public function onlyOnIndex(): static
+    public function onlyOnIndex(): BaseField
     {
         $this->showOnCreating = $this->showOnEditing = $this->showOnDetail = false;
         $this->showOnIndex = true;
         return $this;
     }
 
-    public function onlyOnCreating(): static
+    public function onlyOnCreating(): BaseField
     {
         $this->showOnIndex = $this->showOnEditing = $this->showOnDetail = false;
         $this->showOnCreating = true;
         return $this;
     }
 
-    public function onlyOnEditing(): static
+    public function onlyOnEditing(): BaseField
     {
         $this->showOnCreating = $this->showOnEditing = $this->showOnDetail = false;
         $this->showOnEditing = true;
         return $this;
     }
 
-    public function onlyOnDetail(): static
+    public function onlyOnDetail(): BaseField
     {
         $this->showOnCreating = $this->showOnEditing = $this->showOnIndex = false;
         $this->showOnDetail = true;
@@ -237,20 +237,20 @@ abstract class BaseField
      * @param bool $check
      * @return $this
      */
-    public function sortable(bool $check = true): static
+    public function sortable(bool $check = true): BaseField
     {
         $this->sortable = $check;
         return $this;
     }
 
 
-    public function rules(mixed ...$role): static
+    public function rules(...$role): BaseField
     {
         $this->roles = $role;
         return $this;
     }
 
-    public function creationRules(mixed ...$role): static
+    public function creationRules(...$role): BaseField
     {
         $this->roles = $role;
         return $this;

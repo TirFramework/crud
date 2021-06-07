@@ -14,7 +14,7 @@ class Select extends BaseField
      * @param array $data
      * @return $this
      */
-    public function data(array $data):static
+    public function data(array $data): Select
     {
         $this->data = $data;
         return $this;
@@ -26,7 +26,7 @@ class Select extends BaseField
      * @param bool $check
      * @return $this
      */
-    public function multiple(bool $check):static
+    public function multiple(bool $check): Select
     {
         $this->multiple = $check;
         return $this;

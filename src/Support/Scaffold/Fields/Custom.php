@@ -7,7 +7,7 @@ class Custom extends BaseField
 
     protected string $type = 'custom';
 
-    public function type(string $name): static
+    public function type(string $name): Custom
     {
         $this->type = $name;
         return $this;
