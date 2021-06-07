@@ -3,7 +3,9 @@
 namespace Tir\Crud;
 
 
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Tir\Crud\Components\Field;
 use Tir\Crud\Support\Module\AdminMenu;
 use Tir\Crud\Support\Module\Modules;
 use Tir\Crud\Support\Resource\ResourceRegistrar;
@@ -43,6 +45,8 @@ class CrudServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/config/crud.php' => config_path('crud.php'),
         ]);
+
+        Blade::component('field', Field::class);
 
 
     }
