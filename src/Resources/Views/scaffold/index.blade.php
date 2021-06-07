@@ -1,25 +1,20 @@
-<?php
-//TODO: Refactor index foreach
-
-?>
-
 @extends(config('crud.admin-panel').'::layouts.master')
 
-@section('title', trans($model->getLocalization().Str::plural($model->getScaffoldName())) )
+@section('title', trans($model->getLocalization().Str::plural($model->moduleName)) )
 
 @section('page-heading')
-    {{trans($model->locale.Str::plural($model->getscaffoldName()))}}
+    {{trans($model->locale.Str::plural($model->moduleName))}}
 
     @isset($trash)
-        {{trans('crud::panel.trash')}}
-     @endisset
+        {{trans('core::panel.trash')}}
+    @endisset
 @endsection
 
 
 @section('content')
     <div id="result"></div>
     <div class="card card-default">
-        @include(config('crud.admin-panel').'::layouts.panel-heading',['name'=>$model->getScaffoldName(), 'actions'=>[]])
+        @include(config('crud.admin-panel').'::layouts.panel-heading',['name'=>$model->moduleName, 'actions'=>[]])
         <div class="card-body">
             <div class="">
                 <table class="table table-striped table-hover responsive nowrap" id="table" width="100%">
@@ -29,7 +24,7 @@
                             <th>{{trans($model->getLocalization().$field->display)}}</th>
                         @endforeach
                         <th>
-                            @lang($model->getLocalization().'action')
+                            @lang('core::panel.Action')
                         </th>
 
                     </tr>
@@ -39,7 +34,7 @@
                     <tr>
                         <th></th>
                         @foreach($model->getIndexFields() as $field)
-                                <th></th>
+                            <th></th>
                         @endforeach
                     </tr>
                     </tfoot>
@@ -50,110 +45,89 @@
     </div>
 @stop
 
-@push('scripts')
-    <script>
-        //TODO: Use package for pass variable to js 
-        //datetable
-        <?php
-        $col = null;
-        $filters = null;
-        //if enable drag reorder and add column $loop  must be equals to 1
-        $loop = 0;
-        $responsive = true;
-        $className = null;
-        $orderField = 0;
+@php
+    $col = [];
+    $filters = null;
+    $loop = 0;
+    $responsive = true;
+    $className = null;
+    $orderField = 0;
 
 
-        foreach ($model->getIndexFields() as $field):
-            $name = $field->name;
-            $key = $model->getTable() . '.' . $field->name;
-            $render = null;
-            $searchable = 'true';
+    foreach ($model->getIndexFields() as $field):
+        $name = $field->name;
+        $key = $model->getTable() . '.' . $field->name;
+        $render = null;
+        $searchable = false;
 
-            if ($field->type == 'oneToMany'):     //relationship must have datatable field for show in datatable
-//                $relationModel = get_class($model->{$field->relationName}()->getModel());
-//                $dataModel = new  $relationModel;
-                $dataField = $field->relationName;
-                $name = $key = $field->relationName . '.' . $field->relationKey;
-
-            endif;
-            //for many to many datatable $field->datatable must be array and have two index ,first is name and second is data
-            if ($field->type == 'relationM'):
-
-                $relationModel = get_class($model->model->{$field->relation[0]}()->getModel());
-                $dataModel = new  $relationModel;
-                $dataField = $field->relation[1];
-
-                if (in_array($dataField, $dataModel->translatedAttributes)):
-                    $name = $field->relation[0] . '[ , ].translations[].' . $field->relation[1];
-                    $key = $field->relation[0] . '.translations.' . $field->relation[1];
-                else:
-                    $name = $field->relation[0] . '[ , ].' . $field->relation[1];
-                    $key = $field->relation[0] . '.' . $field->relation[1];
-                endif;
+        if ($field->type == 'oneToMany'):     //relationship must have datatable field for show in datatable
+            $dataField = $field->relationName;
+            $name = $key = $field->relationName . '.' . $field->relationKey;
+        endif;
 
 
-                    endif;
-                    if($field->type == 'position'):
-                        $className = ",className:'position'";
-                        $orderField = $loop;
-                    endif;
+        //for many to many datatable $field->datatable must be array and have two index ,first is name and second is data
+        if ($field->type == 'manyToMany'):
+            $relationModel = get_class($model->model->{$field->relation[0]}()->getModel());
+            $dataModel = new  $relationModel;
+            $dataField = $field->relation[1];
+            $name = $field->relation[0] . '[ , ].' . $field->relation[1];
+            $key = $field->relation[0] . '.' . $field->relation[1];
+        endif;
 
-                    //add searchable item
-                    if(isset($field->searchable))
-                    {
-                        if ($field->searchable == false || $field->searchable == 'false') {
-                            $searchable = 'false';
-                        }
-                    }
-            $col .= "{ data:`$name`, name: `$key` $className, defaultContent: '' $render, searchable: $searchable},";
+        if($field->type == 'position'):
+            $className = ",className:'position'";
+            $orderField = $loop;
+        endif;
 
+        //add searchable item
+        if(isset($field->searchable))
+        {
+            if ($field->searchable == false || $field->searchable == 'false') {
+                $searchable = 'false';
+            }
+        }
 
-            //filters
-            //translated fields can not filter
-//                        if(strpos($field->visible, 'f') !== false){
-//                            if($field->type == 'relation' || $field->type == 'relationM'){
-//
-//                                $relationModel =  get_class($model->model->{$field->relation[0]}()->getModel());
-//                                $dataModel = new  $relationModel;
-//                                $dataField = $field->relation[1];
-//
-//                                //check relation model field not translated
-//                                if(in_array($dataField, $dataModel->translatedAttributes) == false){
-//                                    $filters .= $loop.':'.json_encode($dataModel::has(Str::plural($model->name))->select($dataField)->distinct($dataField)->pluck($dataField)).', ';
-//                                }else{
-//                                    $filters .= $loop.':'.json_encode($dataModel::has(Str::plural($model->name))->select('*')->get()->pluck($dataField)).', ';
-//                                        if($field->type == 'relationM'){
-//                                            $filters .= $loop.':["disabled in many to many translation"], ';
-//                                        }
-//
-//                                }
-//                            }else{
-//                                if( in_array($field->name, $model->model->translatedAttributes) == false){
-//                                    $filters .= $loop.':'.json_encode($model->model::select($field->name)->distinct($field->name)->pluck($field->name)).', ';
-//                                }else{
-//                                   $filters .= $loop.':'.json_encode($model->model::select('*')->get()->pluck($field->name)).', ';
-//                                }
-//                            }
-//                         }
-            $loop++;
-        endforeach;
+        array_push($col, [
+         'data'=>$name,
+         'name'=> $key,
+         'defaultContent'=> '',
+         'searchable' => $searchable
+        ]);
 
 
-        ?>
+        //filters
+/*       if($field->filter){
+           if($field->type == 'oneToMany' || $field->type == 'manyToMany'){
+               $relationModel =  get_class($model->model->{$field->relation[0]}()->getModel());
+               $dataModel = new  $relationModel;
+               $dataField = $field->relation[1];
 
-        var col = [{!! $col !!}];
-        var filters = {{!! $filters !!}};     // it must something like this         var filters = { 5:["travelogue","article","news"] };
-        var dataRoute = "{{route('admin.'.$model->getScaffoldName().'.data')}}";
-        var trashRoute = "{{route('admin.'.$model->getScaffoldName().'.trashData')}}";
-        let table = new datatable('#table', col, "{{$model->getScaffoldName()}}");
+               $filters .= $loop.':'.json_encode($dataModel::has(Str::plural($model->name))->select('*')->get()->pluck($dataField)).', ';
+               if($field->type == 'manyToMany'){
+                   $filters .= $loop.':["disabled in many to many translation"], ';
+               }
+           }else{
+                  $filters .= $loop.':'.json_encode($model->model::select('*')->get()->pluck($field->name)).', ';
+           }
+       }*/
 
-        @if(isset($trash))
-        table.create([{{$orderField}}, "desc"], filters, trashRoute, [true]);    //([column for filter, 'desc or ace'], 'filters data','route')
-        @else
-        table.create([{{$orderField}}, "desc"], filters, dataRoute, [true]);    //([column for filter, 'desc or ace'], 'filters data','route')
-        @endif
-        // table.reorder();
-    </script>
+        $loop++;
 
-@endpush
+
+
+    endforeach;
+
+    $data = [
+        'moduleName' => $model->moduleName,
+        'col'        => $col,
+        'filters'     => '',
+        'orderField' => 0,
+        'dataRoute'  => route('admin.' . $model->moduleName . '.data'),
+        'trashRoute' => route('admin.' . $model->moduleName . '.trashData'),
+    ];
+@endphp
+
+<script type="application/json" id="service-container">
+    {!! json_encode($data) !!}
+</script>

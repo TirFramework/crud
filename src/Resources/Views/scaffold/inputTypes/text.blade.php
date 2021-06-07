@@ -1,7 +1,6 @@
 @php
-$model = null;
 if( isset($item->{$field->name}) ){
-    $model = $item->{$field->name};
+    $item->{$field->name};
 }
 $id = $field->name;
 $class = 'form-control';
@@ -21,12 +20,13 @@ if($errors->has($field->name)){
     <div class="form-group">
         {!!  Form::text($field->name,null,$options)  !!}
 
-            <span class="invalid-feedback" role="alert">
+        <span class="invalid-feedback" role="alert">
                 @error($field->name)
                 <strong>{{ $message }}</strong>
                 @enderror
             </span>
-            <label for="{{$field->name}}" class="control-label text-right">@lang("$crud->locale".$field->display)</label>
+        <label for="{{$field->name}}"
+               class="control-label text-right">@lang($model->getLocalization().$field->display)</label>
     </div>
 
 </div>

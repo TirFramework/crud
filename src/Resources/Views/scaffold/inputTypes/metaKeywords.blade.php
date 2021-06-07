@@ -4,14 +4,14 @@ $fieldName = $field->name;
 // If this file load in create page, we don't have $item. so we set or null operator
 $fieldData = arrayReplaceKey($item->meta->meta_keywords ?? []);
 
-$options = ['class'=>'select2 metaKeywords input-lg dropdown-toggle form-control', $field->validation ?? null ];
-if(isset($field->multiple)):
-    if( $field->multiple == true):
+$options = ['class' => 'select2 metaKeywords input-lg dropdown-toggle form-control', $field->validation ?? null];
+if (isset($field->multiple)):
+    if ($field->multiple == true):
         $options['multiple'] = 'multiple';
-        $fieldName = $field->name.'[]';
+        $fieldName = $field->name . '[]';
     endif;
 else:
-    $options ['placeholder'] = trans('crud::panel.select').' '.trans("$crud->name::panel.$field->display");
+    $options ['placeholder'] = trans('core::panel.select') . ' ' . trans("$crud->name::panel.$field->display");
 endif;
 
 ?>

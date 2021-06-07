@@ -2,17 +2,17 @@
 
 namespace Tir\Crud\Controllers;
 
-use Tir\Crud\Events\DestroyEvent;
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
+use Tir\Crud\Events\DestroyEvent;
 
 trait DestroyTrait
 {
 
     /**
      *  This function destroy an item
-     * @return \Illuminate\Support\Facades\View index
+     * @return View index
      */
     public function destroy($id)
     {
@@ -20,9 +20,9 @@ trait DestroyTrait
         $item = $this->findForDestroy($id);
 
         $item->delete();
-        $message = trans('crud::message.item-deleted',['item'=>trans("message.item.$this->name")]); //translate message
+        $message = trans('core::message.item-deleted', ['item' => trans("message.item.$this->name")]); //translate message
         Session::flash('message', $message);
-        return Redirect::to(route("$this->name.index"));  
+        return Redirect::to(route("$this->name.index"));
     }
     
 
@@ -32,11 +32,11 @@ trait DestroyTrait
 
 
         if ($item->restore()) {
-            $message = trans('crud::message.item-restored', ['item'=>trans("message.item.$this->name")]); //translate message
+            $message = trans('core::message.item-restored', ['item' => trans("message.item.$this->name")]); //translate message
             Session::flash('message', $message);
             return Redirect::back();
         } else {
-            $message = trans('crud::message.problem'); //translate message
+            $message = trans('core::message.problem'); //translate message
             Session::flash('error', $message);
             return Redirect::back();
         }

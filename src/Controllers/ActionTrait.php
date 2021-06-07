@@ -53,8 +53,8 @@ trait ActionTrait
                     $error++;
                 }
             }
-            $message = trans('crud::message.item-multi-updated', ['item' => trans("message.item.$this->name"), 'count' => $successful]) . ' ' .
-            trans('crud::message.item-multi-updated-error',  ['item' => trans("message.item.$this->name"), 'count' => $error]); //translate message
+            $message = trans('core::message.item-multi-updated', ['item' => trans("message.item.$this->name"), 'count' => $successful]) . ' ' .
+                trans('core::message.item-multi-updated-error', ['item' => trans("message.item.$this->name"), 'count' => $error]); //translate message
             Session::flash('message', "$message");
             return response()->json();
         }
@@ -64,7 +64,7 @@ trait ActionTrait
     {
         $successful = 0;
         $error = 0;
-        if($this->checkPermission('edit')){
+        if ($this->checkPermission('edit')) {
             foreach ($ids as $id) {
                 $item = $this->model::findOrFail($id);
                 $item->status = 'unpublished';
@@ -74,8 +74,8 @@ trait ActionTrait
                     $error++;
                 }
             }
-            $message = trans('crud::message.item-multi-updated', ['item' => trans("message.item.$this->name"), 'count' => $successful]) . ' ' .
-            trans('crud::message.item-multi-updated-error',  ['item' => trans("message.item.$this->name"), 'count' => $error]); //translate message
+            $message = trans('core::message.item-multi-updated', ['item' => trans("message.item.$this->name"), 'count' => $successful]) . ' ' .
+                trans('core::message.item-multi-updated-error', ['item' => trans("message.item.$this->name"), 'count' => $error]); //translate message
             Session::flash('message', "$message");
             return response()->json();
         }
@@ -85,7 +85,7 @@ trait ActionTrait
     {
         $successful = 0;
         $error = 0;
-        if($this->checkPermission('delete')){
+        if ($this->checkPermission('delete')) {
 
             foreach ($ids as $id) {
                 $item = $this->model::withTrashed()->findOrFail($id);
@@ -95,8 +95,8 @@ trait ActionTrait
                     $error++;
                 }
             }
-            $message = trans('crud::message.item-multi-restored', ['item' => trans("message.item.$this->name"), 'count' => $successful]) . ' ' .
-                trans('crud::message.item-multi-restored-error',  ['item' => trans("message.item.$this->name"), 'count' => $error]); //translate message
+            $message = trans('core::message.item-multi-restored', ['item' => trans("message.item.$this->name"), 'count' => $successful]) . ' ' .
+                trans('core::message.item-multi-restored-error', ['item' => trans("message.item.$this->name"), 'count' => $error]); //translate message
             Session::flash('message', "$message");
             return response()->json();
         }
@@ -105,7 +105,7 @@ trait ActionTrait
     {
         $successful = 0;
         $error = 0;
-        if($this->checkPermission('destroy')){
+        if ($this->checkPermission('destroy')) {
 
             foreach ($ids as $id) {
                 $item = $this->model::findOrFail($id);
@@ -115,8 +115,8 @@ trait ActionTrait
                     $error++;
                 }
             }
-            $message = trans('crud::message.item-multi-deleted', ['item' => trans("message.item.$this->name"), 'count' => $successful]) . ' ' .
-                trans('crud::message.item-multi-deleted-error',  ['item' => trans("message.item.$this->name"), 'count' => $error]); //translate message
+            $message = trans('core::message.item-multi-deleted', ['item' => trans("message.item.$this->name"), 'count' => $successful]) . ' ' .
+                trans('core::message.item-multi-deleted-error', ['item' => trans("message.item.$this->name"), 'count' => $error]); //translate message
             Session::flash('message', "$message");
             return response()->json();
         }
@@ -125,7 +125,7 @@ trait ActionTrait
     {
         $successful = 0;
         $error = 0;
-        if($this->checkPermission('forceDestroy')){
+        if ($this->checkPermission('forceDestroy')) {
 
             foreach ($ids as $id) {
                 $item = $this->model::withTrashed()->findOrFail($id);
@@ -135,8 +135,8 @@ trait ActionTrait
                     $error++;
                 }
             }
-            $message = trans('crud::message.item-multi-deleted', ['item' => trans("message.item.$this->name"), 'count' => $successful]) . ' ' .
-                trans('crud::message.item-multi-deleted-error',  ['item' => trans("message.item.$this->name"), 'count' => $error]); //translate message
+            $message = trans('core::message.item-multi-deleted', ['item' => trans("message.item.$this->name"), 'count' => $successful]) . ' ' .
+                trans('core::message.item-multi-deleted-error', ['item' => trans("message.item.$this->name"), 'count' => $error]); //translate message
             Session::flash('message', "$message");
             return response()->json();
         }

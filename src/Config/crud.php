@@ -7,5 +7,5 @@ return [
 
     'front-template' => 'storefront',
 
-    'localization' => false
+    'localization' => true
     ];

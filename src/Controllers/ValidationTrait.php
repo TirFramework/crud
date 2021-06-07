@@ -19,30 +19,29 @@ trait ValidationTrait
     /**
      * Run validator on request
      * @param Request $request
-     * @param $validation
+     * @param array $validationRules
      * @return array
      * @throws ValidationException
      */
-    public function storeValidation(Request $request, $validation): array
+    public function storeValidation(Request $request, array $validationRules): array
     {
-        $validation = $this->replaceItemId($validation);
-        return Validator::make($request->all(), $validation)->validate();
+        $validationRules = $this->replaceItemId($validationRules);
+        return Validator::make($request->all(), $validationRules)->validate();
     }
 
-    private function replaceItemId($validation, $item = null)
+    private function replaceItemId(array $validationRules, $item = null)
     {
         $itemId = isset($item) ? $item->getKey : '';
-        array_walk_recursive($validation, function (&$validation) use ($itemId) {
-            $validation = str_replace('{{itemId}}', $itemId, $validation);
+        array_walk_recursive($validationRules, function (&$validationRules) use ($itemId) {
+            $validationRules = str_replace('{{itemId}}', $itemId, $validationRules);
         });
-        return $validation;
+        return $validationRules;
     }
 
-    public function updateValidation(request $request, $validation, $item)
+    public function updateValidation(request $request, array $validationRules, $item)
     {
-
-        $validation = $this->replaceItemId($validation, $item);
-        return Validator::make($request->all(), $validation)->validate();
+        $validationRules = $this->replaceItemId($validationRules, $item);
+        return Validator::make($request->all(), $validationRules)->validate();
 
     }
 }

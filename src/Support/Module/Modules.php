@@ -19,6 +19,7 @@ class Modules
 
     public static function register(Module $module)
     {
+        static::init();
         array_push(Modules::$list, $module);
     }
 

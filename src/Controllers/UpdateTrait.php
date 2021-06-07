@@ -3,6 +3,7 @@
 namespace Tir\Crud\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Tir\Crud\Events\UpdateEvent;
@@ -18,78 +19,33 @@ trait UpdateTrait
      */
     public function update(Request $request, int $id)
     {
-
-        $item = $this->updateFind($id);
-        $this->updateValidation($request, $this->crud->validation, $item);
-        $request = $this->updateRequestManipulation($request);
-        $this->updateCrud($request, $item);
-        $this->updateAdditional($request, $item);
+        $item = $this->model->findOrFail($id);
+        $this->updateValidation($request, $this->model->getValidationRules(), $item);
+        $this->updateCrud($request, $id, $item);
         return $this->updateReturn($request, $item);
     }
 
-
-    /**
-     * This function find an object model and if permission == owner return only owner item
-     * @return object model
-     */
-    public function updateFind($id)
-    {
-        $item = $this->crud->model->findOrFail($id);
-//        if ($this->permission == 'owner') {
-//            $item = $item->OnlyOwner();
-//        }
-        return $item;
-    }
-
-    /**
-     * This function for manipulation on request data
-     * @param Request $request
-     * @return Request
-     */
-    public function updateRequestManipulation(request $request)
-    {
-        return $request;
-    }
 
     /**
      * This function update crud and relations
      * @param Request $request
      * @param $item
      */
-    public function updateCrud(Request $request, $item)
+    public function updateCrud(Request $request, $id, $item)
     {
 
-        //update item
-        $item->update($request->all());
-        //update relation
-        foreach ($this->crud->editFields as $group) {
-            if ((strpos($group->visible, 'e') !== false)) {
-                foreach ($group->tabs as $tab) {
-                    if ((strpos($tab->visible, 'e') !== false)) {
-                        foreach ($tab->fields as $field) {
-                            if ((strpos($field->visible, 'e') !== false) && $field->type == 'relationM') {
-                                $data = $request->input($field->name);
-                                $item->{$field->relation[0]}()->sync($data);
-                            }
-                        }
-                    }
-                 }
-            }
-        }
-    }
+
+        return DB::transaction(function () use ($request, $item) { // Start the transaction
 
 
-    /**
-     * This method run saveAdditional function again and if we want different functionality in update,
-     * we can override this function in update action
-     * @param Request $request
-     * @param $item
-     * @return mixed
-     */
-    public function updateAdditional(Request $request, $item)
-    {
-        return $this->saveAdditional($request, $item);
+            $item->update($request->all());
+
+            $this->updateRelations($request, $item);
+
+            return $item;
+        });
     }
+
 
     /**
      * This function redirect to view
@@ -102,13 +58,25 @@ trait UpdateTrait
      */
     public function updateReturn(request $request, $item)
     {
-        $url = ($request->input('save_close') ? route("$this->name.index") : route("$this->name.edit", [$this->name => $item->getKey()]));
-        $message = trans('crud::message.item-updated', ['item' => trans("message.item.$this->name")]); //translate message
+        $name = $this->model->moduleName;
+
+        $url = ($request->input('save_close') ? route("admin.$name.index") : route("admin.$name.edit", [$name => $item->getKey()]));
+        $message = trans('core::message.item-updated', ['item' => trans("message.item.$name")]); //translate message
         Session::flash('message', $message);
-        if($request->input('save_close')){
-            return Redirect::to(route("$this->name.index"));
-        }else{
-            return Redirect::to(route("$this->name.edit",$item->getKey()))->with('tab', $request->input('tab'));
+        if ($request->input('save_close')) {
+            return Redirect::to(route("admin.$name.index"));
+        } else {
+            return Redirect::to(route("admin.$name.edit", $item->getKey()))->with('tab', $request->input('tab'));
+        }
+    }
+
+    private function updateRelations(Request $request, $item)
+    {
+        foreach ($this->model->getEditFields() as $field) {
+            if ($field->type == 'manyToMany') {
+                $data = $request->input($field->name);
+                $item->{$field->relation[0]}()->sync($data);
+            }
         }
     }
 

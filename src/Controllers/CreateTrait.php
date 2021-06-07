@@ -18,7 +18,7 @@ trait CreateTrait
 
     public function createCrud()
     {
-        return View::first([$this->crud->name.'::admin.create', "crud::scaffold.create"])->with('crud', $this->crud);
+        return View::first([$this->model->moduleName . '::admin.create', "core::scaffold.create"])->with('model', $this->model);
     }
 
 

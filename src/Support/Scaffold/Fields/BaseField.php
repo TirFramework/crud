@@ -3,7 +3,7 @@
 namespace Tir\Crud\Support\Scaffold\Fields;
 
 
-abstract Class BaseField
+abstract class BaseField
 {
 
     protected string $type;
@@ -12,6 +12,7 @@ abstract Class BaseField
     protected string $display;
     protected string $placeholder;
     protected bool $disable;
+    protected bool $filter;
     protected string $defaultValue;
     protected bool $showOnIndex = true;
     protected bool $showOnDetail = true;
@@ -44,7 +45,7 @@ abstract Class BaseField
      */
     public function display(string $value): static
     {
-        $this->display = ucwords(str_replace('_',' ', $value));
+        $this->display = ucwords(str_replace('_', ' ', $value));
         return $this;
     }
 

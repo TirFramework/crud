@@ -165,7 +165,6 @@ final class Crud
         foreach (Crud::init()->fields as $field) {
             Crud::init()->validationRules[$field->name] = $field->roles;
         }
-
     }
 
 

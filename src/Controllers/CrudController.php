@@ -4,29 +4,27 @@ namespace Tir\Crud\Controllers;
 
 use Illuminate\Routing\Controller as BaseController;
 use Tir\Authorization\access;
-use Tir\Crud\Support\Scaffold\Crud;
 
-class CrudController extends BaseController
+abstract class CrudController extends BaseController
 {
     use IndexTrait, CreateTrait, DataTrait, StoreTrait, EditTrait, UpdateTrait;
 
-//    protected mixed $scaffold;
-//    protected object $crud;
-
-    protected $model;
-    protected $scaffoldName;
+    protected object|string $model;
     protected array $relations = [];
+
+    protected abstract function setModel(): string;
 
     public function __construct()
     {
-//        $this->setCrud();
+        $this->middleware('acl');
+        $this->modelInit();
 
     }
 
-    private function setCrud(): void
+    private function modelInit(): void
     {
-        Crud::setScaffold($this->scaffold);
-        $this->crud = Crud::get();
+        $model = $this->setModel();
+        $this->model = new $model;
     }
 
     protected function checkAccess($module, $action): string

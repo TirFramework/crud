@@ -58,19 +58,19 @@
                             <a id-template="{{$index}}-xxx"
                                id="{{$index}}-{{$loop->index}}"
 
-                                data-input="{{$index}}_input-{{$loop->index}}"
-                                data-input-template="{{$index}}_input-xxx"
-                                data-preview="{{$index}}_holder-{{$loop->index}}"
-                                data-preview-template="{{$index}}_holder-xxx"
-                                 class="image-btn btn btn-primary">
-                                <i class="fas fa-image"></i> {{trans('crud::panel.choose')}}
+                               data-input="{{$index}}_input-{{$loop->index}}"
+                               data-input-template="{{$index}}_input-xxx"
+                               data-preview="{{$index}}_holder-{{$loop->index}}"
+                               data-preview-template="{{$index}}_holder-xxx"
+                               class="image-btn btn btn-primary">
+                                <i class="fas fa-image"></i> {{trans('core::panel.choose')}}
                             </a>
                                 
                             {!! Form::text($fieldName, $image or null ,['class' => 'form-control','id'=>$index.'_input-'.$loop->index, 'id-template'=>$index.'_input-xxx',   'name-template'=>$field->name.'[xxx]', 'placeholder'=> trans("$crud->name::panel.$field->name")])!!}
                         </span>
 
                     </div>
-                    {{--<img id="{{$index}}_holder" @isset($image) src="{{url('/').'/'.$image}}" @endisset class="image-holder">--}}
+                {{--<img id="{{$index}}_holder" @isset($image) src="{{url('/').'/'.$image}}" @endisset class="image-holder">--}}
 
             </div>
         </div>

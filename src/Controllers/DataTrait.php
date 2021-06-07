@@ -16,15 +16,13 @@ trait DataTrait
      */
     public function data(): object
     {
-        $model = new $this->model;
-        $this->scaffoldName = $model->getScaffoldName();
-        $relations = $this->getRelationFields($model);
-        $items = $this->dataQuery($model, $relations);
-        return $this->dataTable($model, $items);
+        $relations = $this->getRelationFields($this->model);
+        $items = $this->dataQuery($relations);
+        return $this->dataTable($items);
     }
 
 
-    public function getRelationFields($model)
+    public function getRelationFields($model): array
     {
         $relations = [];
         foreach ($model->getIndexFields() as $field) {
@@ -40,12 +38,9 @@ trait DataTrait
     /**
      * This function return a eloquent select with relation ship
      */
-    public function dataQuery($model, $relation): object
+    public function dataQuery($relation): object
     {
-        $items = $model->select($model->getTable() . '.*')->with($relation);
-        if ($this->checkAccess($this->scaffoldName, 'index') == 'owner') {
-            $items = $items->OnlyOwner();
-        }
+        $items = $this->model->select($this->model->getTable() . '.*')->with($relation);
         return $items;
     }
 
@@ -54,22 +49,23 @@ trait DataTrait
      *
      * @throws \Exception
      */
-    public function dataTable($model, $items): JsonResponse
+    public function dataTable($items): JsonResponse
     {
         return Datatables::eloquent($items)
             ->addColumn('action', function ($item) {
                 $viewBtn = $DeleteBtn = $editBtn = null;
-                if ($this->checkAccess($this->scaffoldName, 'index') != 'deny') {
-                    $viewBtn = '<a href="' . route('admin.' . $this->scaffoldName . '.show', $item->getKey()) . '" class="fa-md text-success"><i title="' . trans('panel.view') . '" class="far fa-eye"></i></a>';
+                if ($this->checkAccess($this->model->getModuleName(), 'index') != 'deny') {
+                    $viewBtn = '<a href="' . route('admin.' . $this->model->getModuleName() . '.show', $item->getKey()) . '" class="fa-md text-success"><i title="' . trans('panel.view') . '" class="far fa-eye"></i></a>';
                 }
-                if ($this->checkAccess($this->scaffoldName, 'edit') != 'deny') {
-                    $editBtn = '<a href="' . route('admin.' . $this->scaffoldName . '.edit', $item->getKey()) . '" class="fa-md text-info"><i title="' . trans('panel.edit') . '" class="fas fa-pencil-alt"></i></a>';
+                if ($this->checkAccess($this->model->getModuleName(), 'edit') != 'deny') {
+                    $editBtn = '<a href="' . route('admin.' . $this->model->getModuleName() . '.edit', $item->getKey()) . '" class="fa-md text-info"><i title="' . trans('panel.edit') . '" class="fas fa-pencil-alt"></i></a>';
                 }
-                if ($this->checkAccess($this->scaffoldName, 'destroy') != 'deny') {
-                    $DeleteBtn = '<button onclick=' . '"deleteRow(' . "'" . route('admin.' . $this->scaffoldName . '.destroy', $item->getKey()) . "'" . ')" class="fa-md text-danger"> <i title="' . trans('panel.delete') . '" class="fas fa-trash"></i></button>';
+                if ($this->checkAccess($this->model->getModuleName(), 'destroy') != 'deny') {
+                    $DeleteBtn = '<button onclick=' . '"deleteRow(' . "'" . route('admin.' . $this->model->getModuleName() . '.destroy', $item->getKey()) . "'" . ')" class="fa-md text-danger"> <i title="' . trans('panel.delete') . '" class="fas fa-trash"></i></button>';
                 }
                 return $viewBtn . ' ' . $editBtn . ' ' . $DeleteBtn;
-            })->addColumns($this->addColumns())
+            })->addColumn('data', $this->tableData($items))
+            ->addColumns($this->addColumns())
             ->make(true);
     }
 
@@ -82,6 +78,88 @@ trait DataTrait
         return [];
     }
 
+    private function tableData($items)
+    {
+
+        $col = null;
+        $filters = null;
+
+        //if enable drag reorder and add column $loop  must be equals to 1
+        $loop = 0;
+        $responsive = true;
+        $className = null;
+        $orderField = 0;
+        foreach ($this->model->getIndexFields() as $field) {
+            $name = $field->name;
+            $key = $this->model->getTable() . '.' . $field->name;
+            $render = null;
+            $searchable = 'true';
+
+            if ($field->type == 'oneToMany'):     //relationship must have datatable field for show in datatable
+                $name = $key = $field->relationName . '.' . $field->relationKey;
+            endif;
+
+            //for many to many datatable $field->datatable must be array and have two index ,first is name and second is data
+            if ($field->type == 'manyToMany'):
+
+                $relationModel = get_class($this->model->{$field->relation[0]}()->getModel());
+                $dataModel = new  $relationModel;
+                $dataField = $field->relation[1];
+                $name = $field->relation[0] . '[ , ].' . $field->relation[1];
+                $key = $field->relation[0] . '.' . $field->relation[1];
+            endif;
+
+            if ($field->type == 'position'):
+                $className = ",className:'position'";
+                $orderField = $loop;
+            endif;
+
+            //add searchable item
+            if (isset($field->searchable)) {
+                if ($field->searchable == false || $field->searchable == 'false') {
+                    $searchable = 'false';
+                }
+            }
+            $col .= "{ data:`$name`, name: `$key` $className, defaultContent: '' $render, searchable: $searchable},";
+
+
+            //filters
+            //translated fields can not filter
+//                        if(strpos($field->visible, 'f') !== false){
+//                            if($field->type == 'relation' || $field->type == 'relationM'){
+//
+//                                $relationModel =  get_class($model->model->{$field->relation[0]}()->getModel());
+//                                $dataModel = new  $relationModel;
+//                                $dataField = $field->relation[1];
+//
+//                                //check relation model field not translated
+//                                if(in_array($dataField, $dataModel->translatedAttributes) == false){
+//                                    $filters .= $loop.':'.json_encode($dataModel::has(Str::plural($model->name))->select($dataField)->distinct($dataField)->pluck($dataField)).', ';
+//                                }else{
+//                                    $filters .= $loop.':'.json_encode($dataModel::has(Str::plural($model->name))->select('*')->get()->pluck($dataField)).', ';
+//                                        if($field->type == 'relationM'){
+//                                            $filters .= $loop.':["disabled in many to many translation"], ';
+//                                        }
+//
+//                                }
+//                            }else{
+//                                if( in_array($field->name, $model->model->translatedAttributes) == false){
+//                                    $filters .= $loop.':'.json_encode($model->model::select($field->name)->distinct($field->name)->pluck($field->name)).', ';
+//                                }else{
+//                                   $filters .= $loop.':'.json_encode($model->model::select('*')->get()->pluck($field->name)).', ';
+//                                }
+//                            }
+//                         }
+            $loop++;
+        }
+        $data = [
+            'col'        => $col,
+            'filter'     => '',
+            'dataRoute'  => route('admin.' . $this->model->moduleName . '.data'),
+            'trashRoute' => route('admin.' . $this->model->moduleName . '.trashData'),
+        ];
+        return $data;
+    }
 
     /**
      * return datatable object
@@ -90,8 +168,8 @@ trait DataTrait
      */
     public function trashData(): object
     {
-        $this->getRelationFields();
-        $items = $this->dataQuery()->onlyTrashed();
+        $relations = $this->getRelationFields($this->model);
+        $items = $this->dataQuery($relations)->onlyTrashed();
         return $this->trashDataTable($items);
     }
 
@@ -105,12 +183,12 @@ trait DataTrait
             ->addColumn('action', function ($item) {
                 $DeleteBtn = $restoreBtn = null;
 
-                if ($this->checkAccess('destroy')) {
-                    $restoreBtn = '<a href="' . route($this->crud->name . '.restore', $item->getKey()) . '" class="fa-md text-success"><i title="' . trans('panel.restore') . '" class="fas fa-recycle"></i></a>';
+                if ($this->checkAccess($this->model->getModuleName(), 'destroy')) {
+                    $restoreBtn = '<a href="' . route($this->model->getModuleName() . '.restore', $item->getKey()) . '" class="fa-md text-success"><i title="' . trans('panel.restore') . '" class="fas fa-recycle"></i></a>';
 
                 }
-                if ($this->checkAccess('forceDestroy')) {
-                    $DeleteBtn = '<button onclick=' . '"deleteRow(' . "'" . route($this->crud->name . '.forceDestroy', $item->getKey()) . "'" . ')" class="fa-md text-danger"> <i title="' . trans('panel.delete') . '" class="fas fa-trash"></i></button>';
+                if ($this->checkAccess($this->model->getModuleName(), 'forceDestroy')) {
+                    $DeleteBtn = '<button onclick=' . '"deleteRow(' . "'" . route($this->model->getModuleName() . '.forceDestroy', $item->getKey()) . "'" . ')" class="fa-md text-danger"> <i title="' . trans('panel.delete') . '" class="fas fa-trash"></i></button>';
                 }
                 return $restoreBtn . ' ' . $DeleteBtn;
             })->addColumns($this->addColumns())

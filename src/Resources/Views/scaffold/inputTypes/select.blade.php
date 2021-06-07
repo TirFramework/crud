@@ -1,13 +1,13 @@
 <?php
 $fieldName = $field->name;
-$options = ['class'=>'select2 input-lg dropdown-toggle form-control', $field->validation ?? null ];
-if(isset($field->multiple)):
-    if( $field->multiple == true):
+$options = ['class' => 'select2 input-lg dropdown-toggle form-control', $field->validation ?? null];
+if (isset($field->multiple)):
+    if ($field->multiple == true):
         $options['multiple'] = 'multiple';
-        $fieldName = $field->name.'[]';
+        $fieldName = $field->name . '[]';
     endif;
 else:
-    $options ['placeholder'] = trans('crud::panel.select').' '.trans("$crud->name::panel.$field->display");
+    $options ['placeholder'] = trans('core::panel.select') . ' ' . trans("$crud->name::panel.$field->display");
 endif;
 
 ?>

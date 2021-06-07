@@ -11,7 +11,6 @@ class Module
 
     public bool $status;
 
-    private Module $obj;
 
     public function __construct()
     {
@@ -22,37 +21,37 @@ class Module
     {
         $this->permissions = [
             [
-                'index' => trans('crud::panel.index'),
-                'allow' => trans('crud::panel.allow'),
-                'owner' => trans('crud::panel.owner'),
-                'deny'  => trans('crud::panel.deny')
+                'index' => trans('core::panel.index'),
+                'allow' => trans('core::panel.allow'),
+                'owner' => trans('core::panel.owner'),
+                'deny'  => trans('core::panel.deny')
             ],
 
             [
-                'create' => trans('crud::panel.create'),
-                'allow'  => trans('crud::panel.allow'),
-                'deny'   => trans('crud::panel.deny')
+                'create' => trans('core::panel.create'),
+                'allow'  => trans('core::panel.allow'),
+                'deny'   => trans('core::panel.deny')
             ],
 
 
             [
-                'edit'  => trans('crud::panel.edit'),
-                'allow' => trans('crud::panel.allow'),
-                'owner' => trans('crud::panel.owner'),
-                'deny'  => trans('crud::panel.deny')
+                'edit'  => trans('core::panel.edit'),
+                'allow' => trans('core::panel.allow'),
+                'owner' => trans('core::panel.owner'),
+                'deny'  => trans('core::panel.deny')
             ],
 
             [
-                'delete' => trans('crud::panel.delete-restore'),
-                'allow'  => trans('crud::panel.allow'),
-                'owner'  => trans('crud::panel.owner'),
-                'deny'   => trans('crud::panel.deny')
+                'delete' => trans('core::panel.delete-restore'),
+                'allow'  => trans('core::panel.allow'),
+                'owner'  => trans('core::panel.owner'),
+                'deny'   => trans('core::panel.deny')
             ],
             [
-                'fullDelete' => trans('crud::panel.full-delete'),
-                'allow'      => trans('crud::panel.allow'),
-                'owner'      => trans('crud::panel.owner'),
-                'deny'       => trans('crud::panel.deny')
+                'fullDelete' => trans('core::panel.full-delete'),
+                'allow'      => trans('core::panel.allow'),
+                'owner'      => trans('core::panel.owner'),
+                'deny'       => trans('core::panel.deny')
             ]
         ];
     }

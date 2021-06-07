@@ -6,39 +6,36 @@
 @php
     use Illuminate\Support\Arr
 @endphp
+@section('title', trans('core::panel.edit').' '.trans("$model->moduleName::panel.$model->moduleName") )
 
-@section('title', trans('crud::panel.edit').' '.trans("$crud->name::panel.$crud->name") )
-
-@section('page-heading'){{trans('crud::panel.edit').' '.trans("$crud->name::panel.$crud->name")}} @endsection
+@section('page-heading'){{trans('core::panel.edit').' '.trans("$model->moduleName::panel.$model->moduleName")}} @endsection
 
 @section('content')
 
-
-    {!! Form::model($item, ['route'=>["admin.$crud->name.update",$item->getKey()],'method' => 'put',
+    {!! Form::model($model, ['route'=>["admin.$model->moduleName.update",$model->getKey()],'method' => 'put',
             'class'=>'form-horizontal ', 'enctype'=>'multipart/form-data']) !!}
 
     <div class="card card-default">
         <div class="card-header d-flex align-items-center">
-
-            @if(view()->exists("$crud->name::admin.inputTypes.update"))
-                @include("$crud->name::admin.inputTypes.update",['crud'=>$crud])
-            @elseif (view()->exists("admin.$crud->name.inputTypes.update"))
-                @include("admin.$crud->name.inputTypes.update",['crud'=>$crud])
+            @if(view()->exists("$model->moduleName::admin.inputTypes.update"))
+                @include("$model->moduleName::admin.inputTypes.update",['model'=>$model])
+            @elseif (view()->exists("admin.$model->moduleName.inputTypes.update"))
+                @include("admin.$model->moduleName.inputTypes.update",['model'=>$model])
             @else
-                @include("crud::scaffold.inputTypes.update",['crud'=>$crud])
+                @include("core::scaffold.inputTypes.update",['model'=>$model])
             @endif
         </div>
         <div class="card-body">
             <div class="tab-content">
                 <div class="row">
-                    @foreach($crud->editFields as $field)
+                    @foreach($model->getEditFields() as $field)
                         {{--check local folder have input or no--}}
-                        @if(view()->exists("admin.$crud->name.inputTypes.$field->type"))
-                            @include("admin.$crud->name.inputTypes.$field->type",['field'=>$field,'crud'=>$crud])
-                        @elseif (view()->exists("$crud->name::admin.inputTypes.$field->type"))
-                            @include("$crud->name::admin.inputTypes.$field->type",['field'=>$field,'crud'=>$crud])
+                        @if(view()->exists("admin.$model->moduleName.inputTypes.$field->type"))
+                            @include("admin.$model->moduleName.inputTypes.$field->type",['field'=>$field])
+                        @elseif (view()->exists("$model->moduleName::admin.inputTypes.$field->type"))
+                            @include("$model->moduleName::admin.inputTypes.$field->type",['field'=>$field])
                         @else
-                            @include("crud::scaffold.inputTypes.$field->type",['field'=>$field,'crud'=>$crud, 'item'=>$item])
+                            @include("core::scaffold.inputTypes.$field->type",['field'=>$field,'item'=>$model])
                         @endif
                     @endforeach
                 </div>

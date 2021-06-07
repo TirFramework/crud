@@ -19,23 +19,13 @@ trait StoreTrait
      * @param Request $request
      * @return JsonResponse|RedirectResponse
      */
-    public function store(Request $request): JsonResponse|RedirectResponse
+    public function store(Request $request)
     {
         $this->storeValidation($request, $this->crud->validationRules);
         $item = $this->storeCrud($request);
         return $this->storeReturn($request, $item);
     }
 
-
-    /**
-     * This function for manipulation on request data
-     * @param Request $request
-     * @return Request
-     */
-    public function storeRequestManipulation(Request $request): Request
-    {
-        return $request;
-    }
 
     /**
      * This function store crud and relations
@@ -69,12 +59,12 @@ trait StoreTrait
     public function storeReturn(Request $request, object $item): RedirectResponse
     {
 
-        $message = trans('crud::message.item-created', ['item' => trans("message.item.$this->crud->name")]); //translate message
+        $message = trans('core::message.item-created', ['item' => trans("message.item.$this->model->getModuleName()")]); //translate message
         Session::flash('message', $message);
         if ($request->input('save_close')) {
-            return Redirect::to(route("$this->crud->name.index"));
+            return Redirect::to(route("$this->model->getModuleName().index"));
         } elseif ($request->input('save_edit')) {
-            return Redirect::to(route("$this->crud->name.edit", $item->getKey()));
+            return Redirect::to(route("$this->model->getModuleName().edit", $item->getKey()));
         } else {
             return Redirect::back();
         }

@@ -4,9 +4,9 @@ namespace Tir\Crud;
 
 
 use Illuminate\Support\ServiceProvider;
+use Tir\Crud\Support\Module\AdminMenu;
 use Tir\Crud\Support\Module\Modules;
 use Tir\Crud\Support\Resource\ResourceRegistrar;
-use Tir\Crud\Support\Scaffold\Crud;
 
 class CrudServiceProvider extends ServiceProvider
 {
@@ -21,12 +21,14 @@ class CrudServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(
             __DIR__ . '/Config/crud.php', 'crud'
         );
+        $this->loadTranslationsFrom(__DIR__ . '/Resources/Lang/', 'core');
+
 
         $this->registerNewRouteResource();
 
-        $this->registerCrudSingleton();
-
         $this->registerModulesSingleton();
+
+        $this->adminMenu();
     }
 
     /**
@@ -36,12 +38,12 @@ class CrudServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->loadRoutesFrom(__DIR__.'/Routes/web.php');
-        $this->loadViewsFrom(__DIR__.'/Resources/Views', 'crud');
-        $this->loadTranslationsFrom(__DIR__.'/Resources/Lang/', 'crud');
+        $this->loadRoutesFrom(__DIR__ . '/Routes/web.php');
+        $this->loadViewsFrom(__DIR__ . '/Resources/Views', 'core');
         $this->publishes([
-            __DIR__.'/config/crud.php' => config_path('crud.php'),
+            __DIR__ . '/config/crud.php' => config_path('crud.php'),
         ]);
+
 
     }
 
@@ -63,14 +65,16 @@ class CrudServiceProvider extends ServiceProvider
     /**
      * Register a singleton container
      */
-    private function registerCrudSingleton()
-    {
-        Crud::init();
-    }
 
     private function registerModulesSingleton()
     {
         Modules::init();
     }
 
+    private function adminMenu()
+    {
+        $this->app->singleton('AdminMenu', function ($app) {
+            return new AdminMenu;
+        });
+    }
 }

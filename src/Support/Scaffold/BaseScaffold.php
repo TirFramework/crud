@@ -2,18 +2,25 @@
 
 namespace Tir\Crud\Support\Scaffold;
 
+use Illuminate\Support\Arr;
+use Tir\Crud\Scopes\OwnerScope;
 
-abstract Class BaseScaffold
+trait BaseScaffold
 {
 
-    protected abstract function setName();
-    protected abstract function setModel();
-    protected abstract function setFields();
+    //Scaffolding
 
-    private array $fieldsArray;
-    private array $fields = [];
-    private string $name;
-    private string $model;
+    private array $indexFields = [];
+    private array $editFields = [];
+
+    protected abstract function setModuleName(): string;
+
+    protected abstract function setFields(): array;
+
+//    private object $fields;
+    private $fields = [];
+    public string $moduleName;
+    protected array $validationRules = [];
 
 
     /**
@@ -23,72 +30,61 @@ abstract Class BaseScaffold
      */
     public bool $localization;
 
-    /**
-     * The attribute specify the route name of scaffold.
-     * @var string
-     */
-    public string $routeName;
-
     function __construct()
     {
-        $this->name = $this->setName();
-        $this->model = $this->setModel();
-        $this->fieldsArray = $this->setFields();
+//        parent::__construct();
+
+        $this->moduleName = $this->setModuleName();
+
 
         $this->addFieldsToScaffold();
-        $this->setRouteName();
         $this->setLocalization();
+        $this->setValidationRules();
     }
 
 
+    protected static function boot()
+    {
+        parent::boot();
+        static::addGlobalScope(new OwnerScope);
+    }
+
     private function addFieldsToScaffold(): void
     {
-        foreach ($this->fieldsArray as $input){
+        foreach ($this->setFields() as $input) {
             array_push($this->fields, $input->get());
         }
     }
 
 
-    private function setLocalization():void {
-        if(!isset($this->localization))
-        {
+    private function setLocalization(): void
+    {
+        if (!isset($this->localization)) {
             $this->localization = config('crud.localization');
         }
 
     }
 
-    private function setRouteName():string
+    private function setValidationRules()
     {
-        if(! isset($this->routeName))
-        {
-            return $this->routeName = $this->name;
+        foreach ($this->getFields() as $field) {
+            $this->validationRules[$field->name] = $field->roles;
         }
     }
 
-
-
-
-
-
-
-    final function getFields():array {
+    final function getFields(): array
+    {
         return json_decode(json_encode($this->fields), false);
     }
 
-    final function getName():string
+    final function getModuleName(): string
     {
-        return $this->name;
+        return $this->moduleName;
     }
 
-    final function getModel():string
+    final function getModel(): string
     {
         return $this->model;
-    }
-
-    final function getTable():string
-    {
-        $model = new $this->model;
-        return $model->getTable();
     }
 
     final function getRouteName(): string
@@ -96,15 +92,35 @@ abstract Class BaseScaffold
         return $this->routeName;
     }
 
-    final function getLocalization():string
+    final function getValidationRules()
     {
-        return $this->localization;
+        return $this->validationRules;
     }
 
-    final function getLocale():string
+    final function getLocalization(): string
     {
-        return $this->localization ? $this->name.'::panel.' : '';
+        return $this->localization ? $this->moduleName . '::panel.' : '';
     }
 
 
+    final function getIndexFields(): array
+    {
+        return Arr::where($this->getFields(), function ($value) {
+            return $value->showOnIndex;
+        });
+    }
+
+    final function getEditFields(): array
+    {
+        return Arr::where($this->getFields(), function ($value) {
+            return $value->showOnEditing;
+        });
+    }
+
+    final function getCreateFields(): array
+    {
+        return Arr::where($this->getFields(), function ($value) {
+            return $value->showOnCreating;
+        });
+    }
 }
