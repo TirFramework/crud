@@ -1,5 +1,9 @@
 <div class="field">
 
-    {{$message}}
+    {{ $slot }}
+
+    <x-slot name="title">
+        Server Error
+    </x-slot>
 
 </div>
