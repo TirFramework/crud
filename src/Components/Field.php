@@ -10,27 +10,37 @@ class Field extends Component
     /**
      * The alert type.
      *
-     * @var string
+     * @var object
      */
-    public $type;
+    public $field;
 
     /**
-     * The alert message.
+     * The alert type.
      *
-     * @var string
+     * @var object
+     */
+    public $item;
+
+    /**
+     * The alert type.
+     *
+     * @var object
      */
     public $message;
+
 
     /**
      * Create the component instance.
      *
      * @param string $type
-     * @param string $message
      * @return void
      */
-    public function __construct($type, $message)
+    public function __construct($field, $item, $message)
     {
-        $this->type = $type;
+        $this->field = $field;
+
+        $this->item = $item;
+
         $this->message = $message;
     }
 
