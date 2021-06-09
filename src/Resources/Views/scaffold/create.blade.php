@@ -25,8 +25,6 @@
                     @else
                         @include("core::scaffold.inputTypes.save",['model'=>$model])
                     @endif
-
-
                 </div>
                 <div class="card-body">
                     <div class="row">
