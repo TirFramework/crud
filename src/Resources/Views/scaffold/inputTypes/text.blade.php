@@ -1,5 +1,5 @@
-<x-field type="error" :message="$field->name">
-    in test ro begir
+<x-field :field="$field" :item="$model" :message="$message ?? null" >
+	{!!  Form::text( $field->name, null, $field->option ?? null )  !!}
 </x-field>
 
 
