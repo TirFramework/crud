@@ -21,7 +21,7 @@ trait StoreTrait
      */
     public function store(Request $request)
     {
-        $this->storeValidation($request, $this->crud->validationRules);
+        $this->storeValidation($request, $this->model->validationRules);
         $item = $this->storeCrud($request);
         return $this->storeReturn($request, $item);
     }
@@ -32,12 +32,12 @@ trait StoreTrait
      * @param Request $request
      * @return mixed
      */
-    public function storeCrud(Request $request): mixed
+    public function storeCrud(Request $request)
     {
 
         return DB::transaction(function () use ($request) { // Start the transaction
             // Store model
-            $item = $this->crud->model->create($request->all());
+            $item = $this->model->create($request->all());
 
             //Store relations
             $this->storeRelations($request, $item);
@@ -72,7 +72,7 @@ trait StoreTrait
 
     private function storeRelations(Request $request, $item)
     {
-        foreach ($this->crud->createFields as $field) {
+        foreach ($this->item->createFields as $field) {
             if ($field->type == 'manyToMany') {
                 $data = $request->input($field->name);
                 $item->{$field->relation[0]}()->sync($data);

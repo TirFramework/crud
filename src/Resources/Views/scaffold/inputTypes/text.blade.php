@@ -1,5 +1,5 @@
 <x-field type="error" :message="$field->name">
-        {!!  Form::text($field->name,null,null)  !!}
+    in test ro begir
 </x-field>
 
 
