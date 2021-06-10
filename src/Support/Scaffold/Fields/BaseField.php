@@ -20,6 +20,8 @@ abstract class BaseField
     protected bool $showOnEditing = true;
     protected bool $sortable;
     protected $roles = '';
+    protected $creationRules = '';
+    protected $editingRules = '';
 
     /**
      * Add name attribute to input
@@ -252,7 +254,13 @@ abstract class BaseField
 
     public function creationRules(...$role): BaseField
     {
-        $this->roles = $role;
+        $this->creationRules = $role;
+        return $this;
+    }
+
+    public function editingRules(...$role): BaseField
+    {
+        $this->editingRules = $role;
         return $this;
     }
 

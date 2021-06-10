@@ -2,7 +2,6 @@
 
 namespace Tir\Crud\Controllers;
 
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -10,20 +9,21 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 
 /**
- * @property object $crud
+ * @property object $model
  */
 trait StoreTrait
 {
     /**
      * This function called from route. run an event and run createCrud functions
      * @param Request $request
-     * @return JsonResponse|RedirectResponse
+     * @return RedirectResponse
      */
     public function store(Request $request)
     {
-        $this->storeValidation($request, $this->model->validationRules);
-        $item = $this->storeCrud($request);
-        return $this->storeReturn($request, $item);
+
+        $this->storeValidation($request, $this->model->getCreationRules());
+        $this->storeCrud($request);
+        return $this->storeReturn($request);
     }
 
 
@@ -37,12 +37,13 @@ trait StoreTrait
 
         return DB::transaction(function () use ($request) { // Start the transaction
             // Store model
-            $item = $this->model->create($request->all());
+            $this->model->fill($request->all());
+            $this->model->save();
 
             //Store relations
-            $this->storeRelations($request, $item);
+            $this->storeRelations($request);
 
-            return $item;
+            return $this->model;
         });
     }
 
@@ -56,26 +57,26 @@ trait StoreTrait
      * @param Object $item
      * @return RedirectResponse
      */
-    public function storeReturn(Request $request, object $item): RedirectResponse
+    public function storeReturn(Request $request)
     {
-
-        $message = trans('core::message.item-created', ['item' => trans("message.item.$this->model->getModuleName()")]); //translate message
+        $moduleName = $this->model->moduleName;
+        $message = trans('core::message.item-created', ['item' => trans("message.item.$moduleName")]); //translate message
         Session::flash('message', $message);
         if ($request->input('save_close')) {
-            return Redirect::to(route("$this->model->getModuleName().index"));
+            return Redirect::to(route("admin.$moduleName.index"));
         } elseif ($request->input('save_edit')) {
-            return Redirect::to(route("$this->model->getModuleName().edit", $item->getKey()));
+            return Redirect::to(route("admin.$moduleName.edit", $this->model->getKey()));
         } else {
             return Redirect::back();
         }
     }
 
-    private function storeRelations(Request $request, $item)
+    private function storeRelations(Request $request)
     {
-        foreach ($this->item->createFields as $field) {
+        foreach ($this->model->getCreateFields() as $field) {
             if ($field->type == 'manyToMany') {
                 $data = $request->input($field->name);
-                $item->{$field->relation[0]}()->sync($data);
+                $this->model->{$field->relation[0]}()->sync($data);
             }
         }
     }

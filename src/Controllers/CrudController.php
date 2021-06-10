@@ -16,7 +16,7 @@ abstract class CrudController extends BaseController
 
     public function __construct()
     {
-        $this->middleware('acl');
+        //$this->middleware('acl');
         $this->modelInit();
 
     }
@@ -24,7 +24,8 @@ abstract class CrudController extends BaseController
     private function modelInit(): void
     {
         $model = $this->setModel();
-        $this->item = new $model;
+        $this->model = new $model;
+        $this->model->scaffold();
     }
 
     protected function checkAccess($module, $action): string

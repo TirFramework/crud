@@ -20,7 +20,9 @@ trait UpdateTrait
     public function update(Request $request, int $id)
     {
         $item = $this->model->findOrFail($id);
-        $this->updateValidation($request, $this->model->getValidationRules(), $item);
+        $item->scaffold();
+        $this->updateValidation($request, $item->getEditingRules());
+
         $this->updateCrud($request, $id, $item);
         return $this->updateReturn($request, $item);
     }
@@ -72,7 +74,7 @@ trait UpdateTrait
 
     private function updateRelations(Request $request, $item)
     {
-        foreach ($this->model->getEditFields() as $field) {
+        foreach ($item->getEditFields() as $field) {
             if ($field->type == 'manyToMany') {
                 $data = $request->input($field->name);
                 $item->{$field->relation[0]}()->sync($data);

@@ -20,7 +20,9 @@ trait BaseScaffold
 //    private object $fields;
     private $fields = [];
     public string $moduleName;
-    protected array $validationRules = [];
+    protected array $rules = [];
+    protected array $creationRules = [];
+    protected array $editingRules = [];
 
 
     /**
@@ -34,12 +36,16 @@ trait BaseScaffold
     {
 //        parent::__construct();
 
+
+    }
+
+    public function scaffold()
+    {
         $this->moduleName = $this->setModuleName();
-
-
         $this->addFieldsToScaffold();
         $this->setLocalization();
-        $this->setValidationRules();
+        $this->setRules();
+        $this->setCreationRules();
     }
 
 
@@ -65,10 +71,17 @@ trait BaseScaffold
 
     }
 
-    private function setValidationRules()
+    private function setRules()
     {
         foreach ($this->getFields() as $field) {
-            $this->validationRules[$field->name] = $field->roles;
+            $this->rules[$field->name] = $field->roles;
+        }
+    }
+
+    private function setCreationRules()
+    {
+        foreach ($this->getFields() as $field) {
+            $this->creationRules[$field->name] = $field->creationRules;
         }
     }
 
@@ -92,10 +105,17 @@ trait BaseScaffold
         return $this->routeName;
     }
 
-    final function getValidationRules()
+    final function getCreationRules()
     {
-        return $this->validationRules;
+        return $this->rules + $this->creationRules;
+
     }
+
+    final function getEditingRules()
+    {
+        return $this->rules + $this->editingRules;
+    }
+
 
     final function getLocalization(): string
     {

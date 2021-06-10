@@ -2,7 +2,6 @@
 @section('navbar')
     {{--navbar add here--}}
 @endsection
-
 @php
     use Illuminate\Support\Arr
 @endphp
@@ -30,12 +29,10 @@
                 <div class="row">
                     @foreach($model->getEditFields() as $field)
                         {{--check local folder have input or no--}}
-                        @if(view()->exists("admin.$model->moduleName.inputTypes.$field->type"))
-                            @include("admin.$model->moduleName.inputTypes.$field->type",['field'=>$field])
-                        @elseif (view()->exists("$model->moduleName::admin.inputTypes.$field->type"))
-                            @include("$model->moduleName::admin.inputTypes.$field->type",['field'=>$field])
+                        @if (view()->exists("$model->moduleName::admin.inputTypes.$field->type"))
+                            @include("$model->moduleName::admin.inputTypes.$field->type",['field'=>$field, 'model'=>$model])
                         @else
-                            @include("core::scaffold.inputTypes.$field->type",['field'=>$field,'item'=>$model])
+                            @include("core::scaffold.inputTypes.$field->type",['field'=>$field, 'model'=>$model])
                         @endif
                     @endforeach
                 </div>

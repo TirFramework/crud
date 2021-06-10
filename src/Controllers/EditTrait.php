@@ -14,8 +14,9 @@ trait EditTrait
      */
     public function edit($id)
     {
-        $item = $this->model->findOrFail($id);
-        return View::first([$item->moduleName . "::admin.edit", "core::scaffold.edit"])->with(['model' => $item]);
+        $model = $this->model->findOrFail($id);
+        $model->scaffold();
+        return View::first([$this->model->moduleName . "::admin.edit", "core::scaffold.edit"])->with(['model' => $model]);
     }
 
 
