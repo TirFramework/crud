@@ -42,16 +42,16 @@ class Module
             ],
 
             [
-                'delete' => trans('core::panel.delete-restore'),
-                'allow'  => trans('core::panel.allow'),
-                'owner'  => trans('core::panel.owner'),
-                'deny'   => trans('core::panel.deny')
+                'destroy' => trans('core::panel.delete-restore'),
+                'allow'   => trans('core::panel.allow'),
+                'owner'   => trans('core::panel.owner'),
+                'deny'    => trans('core::panel.deny')
             ],
             [
-                'fullDelete' => trans('core::panel.full-delete'),
-                'allow'      => trans('core::panel.allow'),
-                'owner'      => trans('core::panel.owner'),
-                'deny'       => trans('core::panel.deny')
+                'fullDestroy' => trans('core::panel.full-delete'),
+                'allow'       => trans('core::panel.allow'),
+                'owner'       => trans('core::panel.owner'),
+                'deny'        => trans('core::panel.deny')
             ]
         ];
     }
