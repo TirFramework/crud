@@ -52,13 +52,13 @@
     $responsive = true;
     $className = null;
     $orderField = 0;
+    $searchable = true;
 
 
     foreach ($model->getIndexFields() as $field):
         $name = $field->name;
         $key = $model->getTable() . '.' . $field->name;
         $render = null;
-        $searchable = false;
 
         if ($field->type == 'oneToMany'):     //relationship must have datatable field for show in datatable
             $dataField = $field->relationName;
@@ -81,12 +81,10 @@
         endif;
 
         //add searchable item
-        if(isset($field->searchable))
-        {
-            if ($field->searchable == false || $field->searchable == 'false') {
-                $searchable = 'false';
-            }
+        if ($field->searchable === false) {
+            $searchable = 'false';
         }
+
 
         array_push($col, [
          'data'=>$name,
@@ -125,7 +123,7 @@
         'orderField' => 0,
         'dataRoute'  => route('admin.' . $model->moduleName . '.data'),
         'trashRoute' => route('admin.' . $model->moduleName . '.trashData'),
-    ];
+    ]
 @endphp
 
 <script type="application/json" id="service-container">

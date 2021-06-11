@@ -1,5 +1,7 @@
-<x-field :field="$field" :item="$model" :message="$message ?? null" >
-	{!!  Form::text( $field->name, null, $field->option ?? null )  !!}
+<x-field :field="$field" :item="$model" :message="$message ?? null">
+    {{--    @dump($field)--}}
+    @php $option = (array) $field->options @endphp
+    {!!  Form::text( $field->name, null, $option ?? null )  !!}
 </x-field>
 
 

@@ -10,8 +10,12 @@ abstract class BaseField
     protected string $name;
     protected string $visible;
     protected string $display;
-    protected string $placeholder;
-    protected bool $disable;
+    protected string $placeholder = '';
+    protected string $id = '';
+    protected string $class = '';
+    protected int $col = 12;
+    protected string $disable = '';
+    protected string $readonly = '';
     protected bool $filter;
     protected string $defaultValue;
     protected bool $showOnIndex = true;
@@ -19,9 +23,11 @@ abstract class BaseField
     protected bool $showOnCreating = true;
     protected bool $showOnEditing = true;
     protected bool $sortable;
+    protected bool $searchable = true;
     protected $roles = '';
     protected $creationRules = '';
     protected $editingRules = '';
+    protected array $options = [];
 
     /**
      * Add name attribute to input
@@ -33,7 +39,7 @@ abstract class BaseField
     public static function make(string $name): BaseField
     {
         $obj = new static;
-        $obj->name = $name;
+        $obj->name = $obj->id = $obj->class = $name;
         $obj->display($name);
         return $obj;
     }
@@ -59,7 +65,7 @@ abstract class BaseField
      */
     public function class(string $name): BaseField
     {
-        $this->class = $name;
+        $this->class = $this->class . ' ' . $name;
         return $this;
     }
 
@@ -93,10 +99,31 @@ abstract class BaseField
      * @param bool $option
      * @return $this
      */
-    public function disable(bool $option): BaseField
+    public function disable(bool $option = true): BaseField
     {
-        $this->disable = $option;
+        if ($option) {
+            $this->disable = 'disabled';
+        }
         return $this;
+    }
+
+    public function readonly(bool $option = true): BaseField
+    {
+        if ($option) {
+            $this->readonly = 'readonly';
+        }
+        return $this;
+    }
+
+    public function options($options = [])
+    {
+        $this->options = [
+                'id'          => $this->id,
+                'class'       => $this->class,
+                'placeholder' => $this->placeholder,
+                $this->disable,
+                $this->readonly
+            ] + $options;
     }
 
 
@@ -245,6 +272,16 @@ abstract class BaseField
         return $this;
     }
 
+    /**
+     * @param bool $check
+     * @return $this
+     */
+    public function searchable(bool $check = true): BaseField
+    {
+        $this->searchable = $check;
+        return $this;
+    }
+
 
     public function rules(...$role): BaseField
     {
@@ -269,6 +306,7 @@ abstract class BaseField
      */
     public function get(): array
     {
+        $this->options();
         return get_object_vars($this);
     }
 
