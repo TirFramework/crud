@@ -32,8 +32,9 @@ class Field extends Component
     /**
      * Create the component instance.
      *
-     * @param string $type
-     * @return void
+     * @param $field
+     * @param $item
+     * @param $message
      */
     public function __construct($field, $item, $message)
     {
@@ -47,7 +48,7 @@ class Field extends Component
     /**
      * Get the view / contents that represent the component.
      *
-     * @return View|\Closure|string
+     * @return View
      */
     public function render()
     {

@@ -51,16 +51,20 @@ trait DataTrait
      */
     public function dataTable($items): JsonResponse
     {
+
+        $permission = $this->getDataPermission();
+
+
         return Datatables::eloquent($items)
-            ->addColumn('action', function ($item) {
+            ->addColumn('action', function ($item) use ($permission) {
                 $viewBtn = $DeleteBtn = $editBtn = null;
-                if ($this->checkAccess($this->model->getModuleName(), 'index') != 'deny') {
+                if ($permission['index'] != 'deny') {
                     $viewBtn = '<a href="' . route('admin.' . $this->model->getModuleName() . '.show', $item->getKey()) . '" class="fa-md text-success"><i title="' . trans('panel.view') . '" class="far fa-eye"></i></a>';
                 }
-                if ($this->checkAccess($this->model->getModuleName(), 'edit') != 'deny') {
+                if ($permission['edit']) {
                     $editBtn = '<a href="' . route('admin.' . $this->model->getModuleName() . '.edit', $item->getKey()) . '" class="fa-md text-info"><i title="' . trans('panel.edit') . '" class="fas fa-pencil-alt"></i></a>';
                 }
-                if ($this->checkAccess($this->model->getModuleName(), 'destroy') != 'deny') {
+                if ($permission['destroy']) {
                     $DeleteBtn = '<button onclick=' . '"deleteRow(' . "'" . route('admin.' . $this->model->getModuleName() . '.destroy', $item->getKey()) . "'" . ')" class="fa-md text-danger"> <i title="' . trans('panel.delete') . '" class="fas fa-trash"></i></button>';
                 }
                 return $viewBtn . ' ' . $editBtn . ' ' . $DeleteBtn;
@@ -68,6 +72,7 @@ trait DataTrait
             ->addColumns($this->addColumns())
             ->make(true);
     }
+
 
     /**
      * Add extra column to datatable
@@ -160,6 +165,7 @@ trait DataTrait
         ];
         return $data;
     }
+
 
     /**
      * return datatable object

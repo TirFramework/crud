@@ -31,9 +31,10 @@ abstract class CrudController extends BaseController
     protected function checkAccess($module, $action): string
     {
         if (class_exists(access::class)) {
-            return access::check($module, $action);
+            if (access::check($module, $action) != 'deny') {
+                return true;
+            }
         }
-        return 'allow';
     }
 
     protected function executeAccess($module, $action): string
@@ -42,6 +43,16 @@ abstract class CrudController extends BaseController
             return access::execute($module, $action);
         }
         return 'allow';
+    }
+
+
+    protected function getDataPermission(): array
+    {
+        $permission['index'] = $this->checkAccess($this->model->getModuleName(), 'index');
+        $permission['edit'] = $this->checkAccess($this->model->getModuleName(), 'edit');
+        $permission['destroy'] = $this->checkAccess($this->model->getModuleName(), 'destroy');
+
+        return $permission;
     }
 
 
