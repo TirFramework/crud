@@ -9,8 +9,7 @@ abstract class CrudController extends BaseController
 {
     use IndexTrait, CreateTrait, DataTrait, StoreTrait, EditTrait, UpdateTrait;
 
-    protected $item;
-    protected array $relations = [];
+//    protected array $relations = [];
 
     protected abstract function setModel(): string;
 
