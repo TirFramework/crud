@@ -2,41 +2,29 @@
 
 namespace Tir\Crud\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Response;
 use Tir\Crud\Events\UpdateEvent;
 
 trait UpdateTrait
 {
     use ValidationTrait;
 
-    /**
-     * @param Request $request
-     * @param int $id
-     * @return Redirect
-     */
-    public function update(Request $request, int $id)
+    public function update(Request $request, int $id): JsonResponse
     {
         $item = $this->model->findOrFail($id);
         $item->scaffold();
-        $this->updateValidation($request, $item->getEditingRules());
 
         $this->updateCrud($request, $id, $item);
-        return $this->updateReturn($request, $item);
+        return $this->updateResponse($request, $item);
     }
 
 
-    /**
-     * This function update crud and relations
-     * @param Request $request
-     * @param $item
-     */
-    public function updateCrud(Request $request, $id, $item)
+    private function updateCrud(Request $request, $id, $item)
     {
-
-
         return DB::transaction(function () use ($request, $item) { // Start the transaction
 
 
@@ -49,29 +37,6 @@ trait UpdateTrait
     }
 
 
-    /**
-     * This function redirect to view
-     * if user clicked save&close button function redirected user to index page
-     * if user clicked on save button function redirected user to previous page
-     *
-     * @param Request $request
-     * @param Object $item
-     * @return redirect to url
-     */
-    public function updateReturn(request $request, $item)
-    {
-        $name = $this->model->moduleName;
-
-        $url = ($request->input('save_close') ? route("admin.$name.index") : route("admin.$name.edit", [$name => $item->getKey()]));
-        $message = trans('core::message.item-updated', ['item' => trans("message.item.$name")]); //translate message
-        Session::flash('message', $message);
-        if ($request->input('save_close')) {
-            return Redirect::to(route("admin.$name.index"));
-        } else {
-            return Redirect::to(route("admin.$name.edit", $item->getKey()))->with('tab', $request->input('tab'));
-        }
-    }
-
     private function updateRelations(Request $request, $item)
     {
         foreach ($item->getEditFields() as $field) {
@@ -80,6 +45,28 @@ trait UpdateTrait
                 $item->{$field->relation[0]}()->sync($data);
             }
         }
+    }
+
+
+    private function updateResponse(Request $request, $item): JsonResponse
+    {
+        $moduleName = $this->model->getModuleName();
+
+        $message = trans('core::message.item-updated', ['item' => trans("message.item.$moduleName")]); //translate message
+
+        $redirectTo = null;
+
+        if ($request->input('save_close')) {
+            $redirectTo = Redirect::to(route("admin.$moduleName.index"));
+        }
+
+        return Response::Json(
+            [
+                'redirectTo' => $redirectTo,
+                'message'    => $message,
+            ]
+            , 200);
+
     }
 
 }

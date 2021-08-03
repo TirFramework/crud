@@ -12,14 +12,14 @@ trait IndexTrait
     {
 
         $col = [];
-        $filters = null;
-
 
         foreach ($this->model->getIndexFields() as $index => $field) {
             $col[$index] = [
                 'title'     => $field->display,
                 'dataIndex' => $field->name,
                 'sorter'    => $field->sortable,
+                'filters'   => [],
+
             ];
         }
 
@@ -30,6 +30,6 @@ trait IndexTrait
             'trashRoute' => route('admin.' . $this->model->moduleName . '.trashData'),
         ];
 
-        return Response::json($data);
+        return Response::json($data, '200');
     }
 }

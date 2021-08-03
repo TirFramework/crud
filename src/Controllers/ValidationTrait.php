@@ -4,34 +4,62 @@
 namespace Tir\Crud\Controllers;
 
 
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
+use Route;
 
 trait ValidationTrait
 {
-    /**
-     * @param Request $request
-     * @param $item
-     */
 
-
-    /**
-     * Run validator on request
-     * @param Request $request
-     * @param array $validationRules
-     * @return array
-     * @throws ValidationException
-     */
-    public function storeValidation(Request $request, array $validationRules): array
+    public function __construct()
     {
-        return Validator::make($request->all(), $validationRules)->validate();
+        parent::__cunstruct();
+        $this->validation();
+
     }
 
 
-    public function updateValidation(request $request, array $validationRules): array
+    private function validation()
     {
-        return Validator::make($request->all(), $validationRules)->validate();
+        if (Request::method() == 'POST') {
+            $this->storeValidation();
+        }
+
+        if (Request::method() == 'PUT') {
+            $this->updateValidation();
+        }
+    }
+
+    public function storeValidation()
+    {
+        $validator = Validator::make(Request::all(), $this->model->getEditingRules());
+        if ($validator->fails()) {
+            abort(Response::Json([
+                'error'   => 'validation_error',
+                'message' => $validator->errors(),
+            ], 422));
+        }
+
+    }
+
+
+    public function updateValidation()
+    {
+        //get route(url) parameter {id}
+        $id = request()->route()->parameter($this->model->getModuleName());
+
+        $model = $this->model->findOrFail($id);
+        $model->scaffold();
+        $validator = Validator::make(Request::all(), $model->getUpdateRules());
+
+        if ($validator->fails()) {
+            abort(Response::Json([
+                'error'   => 'validation_error',
+                'message' => $validator->errors(),
+            ], 422));
+        }
+
 
     }
 }

@@ -26,7 +26,7 @@ abstract class BaseField
     protected bool $searchable = true;
     protected $roles = '';
     protected $creationRules = '';
-    protected $editingRules = '';
+    protected $updateRules = '';
     protected array $options = [];
 
     /**
@@ -295,9 +295,9 @@ abstract class BaseField
         return $this;
     }
 
-    public function editingRules(...$role): BaseField
+    public function updateRules(...$role): BaseField
     {
-        $this->editingRules = $role;
+        $this->updateRules = $role;
         return $this;
     }
 

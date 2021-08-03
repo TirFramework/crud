@@ -2,7 +2,6 @@
 
 namespace Tir\Crud\Controllers;
 
-use Illuminate\Support\Facades\View;
 use Tir\Crud\Events\EditEvent;
 
 trait EditTrait
@@ -16,7 +15,8 @@ trait EditTrait
     {
         $model = $this->model->findOrFail($id);
         $model->scaffold();
-        return View::first([$this->model->moduleName . "::admin.edit", "core::scaffold.edit"])->with(['model' => $model]);
+        return $model->getEditFields();
+
     }
 
 

@@ -22,15 +22,13 @@ trait BaseScaffold
     public string $moduleName;
     protected array $rules = [];
     protected array $creationRules = [];
-    protected array $editingRules = [];
+    protected array $updateRules = [];
 
 
-    /**
-     * The attribute can on / off localization for this scaffold
-     *
-     * @var bool
-     */
-    public bool $localization;
+    public function setLocale(): bool
+    {
+        return false;
+    }
 
     function __construct()
     {
@@ -43,9 +41,9 @@ trait BaseScaffold
     {
         $this->moduleName = $this->setModuleName();
         $this->addFieldsToScaffold();
-        $this->setLocalization();
         $this->setRules();
-        $this->setCreationRules();
+//        $this->setCreationRules();
+//        $this->setUpdateRules();
     }
 
 
@@ -62,15 +60,6 @@ trait BaseScaffold
         }
     }
 
-
-    private function setLocalization(): void
-    {
-        if (!isset($this->localization)) {
-            $this->localization = config('crud.localization');
-        }
-
-    }
-
     private function setRules()
     {
         foreach ($this->getFields() as $field) {
@@ -81,7 +70,17 @@ trait BaseScaffold
     private function setCreationRules()
     {
         foreach ($this->getFields() as $field) {
-            $this->creationRules[$field->name] = $field->creationRules;
+            if (isset($field->creationRules))
+                $this->creationRules[$field->name] = $field->creationRules;
+        }
+    }
+
+
+    final function setUpdateRules()
+    {
+        foreach ($this->getFields() as $field) {
+            if (isset($field->updateRules))
+                $this->rules[$field->name] = $field->updateRules;
         }
     }
 
@@ -107,19 +106,22 @@ trait BaseScaffold
 
     final function getCreationRules()
     {
-        return $this->rules + $this->creationRules;
+        foreach ($this->getFields() as $field) {
+            if ($field->createRules)
+                $this->rules[$field->name] = $field->createRules;
+        }
+        return $this->rules;
 
     }
 
-    final function getEditingRules()
+    final function getUpdateRules()
     {
-        return $this->rules + $this->editingRules;
-    }
+        foreach ($this->getFields() as $field) {
+            if ($field->updateRules)
+                $this->rules[$field->name] = $field->updateRules;
+        }
+        return $this->rules;
 
-
-    final function getLocalization(): string
-    {
-        return $this->localization ? $this->moduleName . '::panel.' : '';
     }
 
 
