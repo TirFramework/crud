@@ -107,8 +107,8 @@ trait BaseScaffold
     final function getCreationRules()
     {
         foreach ($this->getFields() as $field) {
-            if ($field->createRules)
-                $this->rules[$field->name] = $field->createRules;
+            if ($field->creationRules)
+                $this->rules[$field->name] = $field->creationRules;
         }
         return $this->rules;
 

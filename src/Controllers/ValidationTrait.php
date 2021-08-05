@@ -33,7 +33,7 @@ trait ValidationTrait
 
     public function storeValidation()
     {
-        $validator = Validator::make(Request::all(), $this->model->getEditingRules());
+        $validator = Validator::make(Request::all(), $this->model->getCreationRules());
         if ($validator->fails()) {
             abort(Response::Json([
                 'error'   => 'validation_error',
