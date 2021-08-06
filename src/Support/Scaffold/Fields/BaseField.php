@@ -8,6 +8,7 @@ abstract class BaseField
 
     protected string $type;
     protected string $name;
+    protected $value;
     protected string $visible;
     protected string $display;
     protected string $placeholder = '';
@@ -203,7 +204,7 @@ abstract class BaseField
      * @param bool $callback
      * @return $this
      */
-    public function hideWhenEditing($callback = true): BaseField
+    public function hideWhenEditing(bool $callback = true): BaseField
     {
         $this->showOnEditing = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : !$callback;

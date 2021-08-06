@@ -42,8 +42,7 @@ trait BaseScaffold
         $this->moduleName = $this->setModuleName();
         $this->addFieldsToScaffold();
         $this->setRules();
-//        $this->setCreationRules();
-//        $this->setUpdateRules();
+
     }
 
 
@@ -73,6 +72,17 @@ trait BaseScaffold
             if (isset($field->creationRules))
                 $this->creationRules[$field->name] = $field->creationRules;
         }
+    }
+
+
+    private function setValue($fields)
+    {
+        foreach ($fields as $field) {
+            //This file is a trait and we will use it in model so $this = model
+            $field->value = $this->{$field->name};
+        }
+        return $fields;
+
     }
 
 
@@ -134,10 +144,14 @@ trait BaseScaffold
 
     final function getEditFields(): array
     {
-        return Arr::where($this->getFields(), function ($value) {
+        $fields = Arr::where($this->getFields(), function ($value) {
             return $value->showOnEditing;
         });
+
+        return $this->setValue($fields);
+
     }
+
 
     final function getCreateFields(): array
     {

@@ -15,7 +15,7 @@ trait EditTrait
     {
         $model = $this->model->findOrFail($id);
         $model->scaffold();
-        return $model->getEditFields();
+        return $this->model->getEditFields();
 
     }
 
