@@ -160,7 +160,7 @@ abstract class BaseField
     }
 
 
-    public function showOnEditing($callback = true): BaseField
+    public function showOnEditing(bool $callback = true): BaseField
     {
         $this->showOnEditing = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : $callback;
@@ -168,7 +168,7 @@ abstract class BaseField
     }
 
 
-    public function showOnDetail($callback = true): BaseField
+    public function showOnDetail(bool $callback = true): BaseField
     {
         $this->showOnEditing = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : $callback;
@@ -192,7 +192,7 @@ abstract class BaseField
      * @param bool $callback
      * @return $this
      */
-    public function hideWhenCreating($callback = true): BaseField
+    public function hideWhenCreating(bool $callback = true): BaseField
     {
         $this->showOnCreating = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : !$callback;
@@ -201,10 +201,10 @@ abstract class BaseField
 
 
     /**
-     * @param bool $callback
+     * @param bool|callable $callback
      * @return $this
      */
-    public function hideWhenEditing(bool $callback = true): BaseField
+    public function hideWhenEditing($callback = true): BaseField
     {
         $this->showOnEditing = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : !$callback;

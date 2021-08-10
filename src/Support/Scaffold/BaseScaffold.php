@@ -137,26 +137,32 @@ trait BaseScaffold
 
     final function getIndexFields(): array
     {
-        return Arr::where($this->getFields(), function ($value) {
-            return $value->showOnIndex;
-        });
+        $fields = [];
+        foreach ($this->getFields() as $field){
+            if($field->showOnIndex)
+                array_push($fields, $field);
+        }
+        return $fields;
     }
 
     final function getEditFields(): array
     {
-        $fields = Arr::where($this->getFields(), function ($value) {
-            return $value->showOnEditing;
-        });
-
+        $fields = [];
+        foreach ($this->getFields() as $field){
+            if($field->showOnEditing)
+                array_push($fields, $field);
+        }
         return $this->setValue($fields);
-
     }
 
 
     final function getCreateFields(): array
     {
-        return Arr::where($this->getFields(), function ($value) {
-            return $value->showOnCreating;
-        });
+        $fields = [];
+        foreach ($this->getFields() as $field){
+            if($field->showOnCreating)
+                array_push($fields, $field);
+        }
+        return $fields;
     }
 }
