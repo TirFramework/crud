@@ -5,6 +5,7 @@ namespace Tir\Crud;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Tir\Crud\Providers\CrudSeedServiceProvider;
 use Tir\Crud\Support\Middleware\AddUserIdToRequestsMiddleware;
 use Tir\Crud\Support\Module\AdminMenu;
 use Tir\Crud\Support\Module\Modules;
@@ -29,6 +30,9 @@ class CrudServiceProvider extends ServiceProvider
         $this->registerNewRouteResource();
 
         $this->registerModulesSingleton();
+
+        $this->app->register(CrudSeedServiceProvider::class);
+
 
         $this->adminMenu();
     }

@@ -3,6 +3,7 @@
 
 namespace Tir\Crud\Providers;
 
+use Closure;
 use Illuminate\Console\Events\CommandFinished;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Event;
@@ -10,19 +11,26 @@ use Illuminate\Support\Facades\Request;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Tir\Crud\Support\Module\Modules;
 
-class SeedServiceProvider extends ServiceProvider
+class CrudSeedServiceProvider extends ServiceProvider
 {
-    protected $seeds_path = '/../Database/Seeders';
+    protected array $seeders = [];
 
+    public function setSeeders(){
+
+    }
 
     /**
      * Bootstrap services.
      *
      * @return void
      */
+
+
     public function boot()
     {
+
         if ($this->app->runningInConsole()) {
             if ($this->isConsoleCommandContains(['db:seed', '--seed'], ['--class', 'help', '-h'])) {
                 $this->addSeedsAfterConsoleCommandFinished();
@@ -63,7 +71,7 @@ class SeedServiceProvider extends ServiceProvider
             // Accept command in console only,
             // exclude all commands from Artisan::call() method.
             if ($event->output instanceof ConsoleOutput) {
-                $this->addSeedsFrom(__DIR__ . $this->seeds_path);
+                $this->addSeedsFrom($this->seeders);
             }
         });
     }
@@ -71,23 +79,19 @@ class SeedServiceProvider extends ServiceProvider
     /**
      * Register seeds.
      *
-     * @param string $seeds_path
+     * @param array $seeders
      * @return void
      */
-    protected function addSeedsFrom($seeds_path)
+    protected function addSeedsFrom(array $seeders)
     {
-        $file_names = glob($seeds_path . '/*.php');
-        foreach ($file_names as $filename) {
-            $classes = $this->getClassesFromFile($filename);
-            foreach ($classes as $class) {
-                echo "\033[1;33mSeeding:\033[0m {$class}\n";
+            foreach ($seeders as $seeder) {
+                echo "\033[1;33mSeeding:\033[0m {$seeder}\n";
                 $startTime = microtime(true);
-                Artisan::call('db:seed', ['--class' => $class, '--force' => '']);
+                Artisan::call('db:seed', ['--class' => $seeder, '--force' => '']);
                 $runTime = round(microtime(true) - $startTime, 2);
-                echo "\033[0;32mSeeded:\033[0m {$class} ({$runTime} seconds)\n";
+                echo "\033[0;32mSeeded:\033[0m {$seeder} ({$runTime} seconds)\n";
             }
         }
-    }
 
     /**
      * Get full class names declared in the specified file.
