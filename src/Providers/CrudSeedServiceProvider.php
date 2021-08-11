@@ -3,7 +3,6 @@
 
 namespace Tir\Crud\Providers;
 
-use Closure;
 use Illuminate\Console\Events\CommandFinished;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Event;
@@ -11,13 +10,13 @@ use Illuminate\Support\Facades\Request;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Symfony\Component\Console\Output\ConsoleOutput;
-use Tir\Crud\Support\Module\Modules;
 
 class CrudSeedServiceProvider extends ServiceProvider
 {
     protected array $seeders = [];
 
-    public function setSeeders(){
+    public function setSeeders()
+    {
 
     }
 
@@ -84,50 +83,12 @@ class CrudSeedServiceProvider extends ServiceProvider
      */
     protected function addSeedsFrom(array $seeders)
     {
-            foreach ($seeders as $seeder) {
-                echo "\033[1;33mSeeding:\033[0m {$seeder}\n";
-                $startTime = microtime(true);
-                Artisan::call('db:seed', ['--class' => $seeder, '--force' => '']);
-                $runTime = round(microtime(true) - $startTime, 2);
-                echo "\033[0;32mSeeded:\033[0m {$seeder} ({$runTime} seconds)\n";
-            }
+        foreach ($seeders as $seeder) {
+            echo "\033[1;33mSeeding:\033[0m {$seeder}\n";
+            $startTime = microtime(true);
+            Artisan::call('db:seed', ['--class' => $seeder, '--force' => '']);
+            $runTime = round(microtime(true) - $startTime, 2);
+            echo "\033[0;32mSeeded:\033[0m {$seeder} ({$runTime} seconds)\n";
         }
-
-    /**
-     * Get full class names declared in the specified file.
-     *
-     * @param string $filename
-     * @return array an array of class names.
-     */
-    private function getClassesFromFile(string $filename): array
-    {
-        // Get namespace of class (if vary)
-        $namespace = "";
-        $lines = file($filename);
-        $namespaceLines = preg_grep('/^namespace /', $lines);
-        if (is_array($namespaceLines)) {
-            $namespaceLine = array_shift($namespaceLines);
-            $match = array();
-            preg_match('/^namespace (.*);$/', $namespaceLine, $match);
-            $namespace = array_pop($match);
-        }
-
-        // Get name of all class has in the file.
-        $classes = array();
-        $php_code = file_get_contents($filename);
-        $tokens = token_get_all($php_code);
-        $count = count($tokens);
-        for ($i = 2; $i < $count; $i++) {
-            if ($tokens[$i - 2][0] == T_CLASS && $tokens[$i - 1][0] == T_WHITESPACE && $tokens[$i][0] == T_STRING) {
-                $class_name = $tokens[$i][1];
-                if ($namespace !== "") {
-                    $classes[] = $namespace . "\\$class_name";
-                } else {
-                    $classes[] = $class_name;
-                }
-            }
-        }
-
-        return $classes;
     }
 }

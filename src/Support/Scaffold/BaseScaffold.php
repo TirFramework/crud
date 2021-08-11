@@ -25,15 +25,10 @@ trait BaseScaffold
     protected array $updateRules = [];
 
 
-    public function setLocale(): bool
-    {
-        return false;
-    }
 
     function __construct()
     {
 //        parent::__construct();
-
 
     }
 
@@ -74,15 +69,23 @@ trait BaseScaffold
         }
     }
 
-
-    private function setValue($fields)
+    private function setValue($field)
     {
-        foreach ($fields as $field) {
-            //This file is a trait and we will use it in model so $this = model
-            $field->value = $this->{$field->name};
-        }
-        return $fields;
+        //This file is a trait and we will use it in model so $this = model
+        $field->value = $this->{$field->name};
+        return $field;
 
+    }
+
+    private function setDataRoute($field)
+    {
+        if(isset($field->relation)){
+           $model =  get_class($this->{$field->relation->name}()->getModel());
+            $model = new $model();
+            $model->scaffold();
+            $field->dataUrl = route('admin.' . $model->getModuleName().'.select',['field'=>$field->relation->field]);
+        }
+        return $field;
     }
 
 
@@ -134,7 +137,6 @@ trait BaseScaffold
 
     }
 
-
     final function getIndexFields(): array
     {
         $fields = [];
@@ -150,9 +152,11 @@ trait BaseScaffold
         $fields = [];
         foreach ($this->getFields() as $field){
             if($field->showOnEditing)
+                $field = $this->setValue($field);
+                $field = $this->setDataRoute($field);
                 array_push($fields, $field);
         }
-        return $this->setValue($fields);
+        return $fields ;
     }
 
 
@@ -161,6 +165,7 @@ trait BaseScaffold
         $fields = [];
         foreach ($this->getFields() as $field){
             if($field->showOnCreating)
+                $field = $this->setDataRoute($field);
                 array_push($fields, $field);
         }
         return $fields;

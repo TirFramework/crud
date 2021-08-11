@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Response;
 trait IndexTrait
 {
 
-    public function index(): JsonResponse
+    public function index()
     {
 
         $col = [];

@@ -8,6 +8,8 @@ class Select extends BaseField
     protected string $type = 'select';
     protected array $data;
     protected bool $multiple;
+    protected array $relation;
+
     /**
      * This function get data for select box
      *
@@ -29,6 +31,12 @@ class Select extends BaseField
     public function multiple(bool $check): Select
     {
         $this->multiple = $check;
+        return $this;
+    }
+
+    public function relation(string $relationName, string $field): Select
+    {
+        $this->relation = ['name' =>$relationName, 'field'=>$field];
         return $this;
     }
 

@@ -1,8 +1,7 @@
 <?php
 
-namespace Tir\Crud\Support\Scaffold\Inputs;
+namespace Tir\Crud\Support\Scaffold\Fields;
 
-use Tir\Crud\Support\Scaffold\Fields\BaseField;
 
 class Blank extends BaseField
 {
