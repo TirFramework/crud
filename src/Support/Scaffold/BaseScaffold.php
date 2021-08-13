@@ -3,6 +3,7 @@
 namespace Tir\Crud\Support\Scaffold;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 use Tir\Crud\Scopes\OwnerScope;
 
 trait BaseScaffold
@@ -26,11 +27,11 @@ trait BaseScaffold
 
 
 
-    function __construct()
-    {
-//        parent::__construct();
-
-    }
+//    function __construct()
+//    {
+////        parent::__construct();
+//
+//    }
 
     public function scaffold()
     {
@@ -41,11 +42,15 @@ trait BaseScaffold
     }
 
 
-    protected static function boot()
+    public static function boot()
     {
         parent::boot();
-        static::addGlobalScope(new OwnerScope);
+        self::creating(function($model){
+            $model->user_id = auth()->id();
+        });
+//        static::addGlobalScope(new OwnerScope);
     }
+
 
     private function addFieldsToScaffold(): void
     {

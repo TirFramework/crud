@@ -44,7 +44,7 @@ class Select extends BaseField
 
     public function get($model = null): array
     {
-        if($this->relation){
+        if(isset($this->relation)){
             $this->setDataRoute($model);
         }
         return parent::get($model);
