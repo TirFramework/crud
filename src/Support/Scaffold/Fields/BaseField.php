@@ -302,13 +302,23 @@ abstract class BaseField
         return $this;
     }
 
-    /**
-     * @return array
-     */
-    public function get(): array
+    public function get($model = null): array
     {
+        if($model){
+            $this->setValue($model);
+        }
         $this->options();
         return get_object_vars($this);
     }
+
+
+
+
+    private function setValue($model)
+    {
+        $this->value = $model->{$this->name};
+    }
+
+
 
 }

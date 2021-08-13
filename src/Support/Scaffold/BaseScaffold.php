@@ -50,7 +50,7 @@ trait BaseScaffold
     private function addFieldsToScaffold(): void
     {
         foreach ($this->setFields() as $input) {
-            array_push($this->fields, $input->get());
+            array_push($this->fields, $input->get($this));
         }
     }
 
@@ -67,25 +67,6 @@ trait BaseScaffold
             if (isset($field->creationRules))
                 $this->creationRules[$field->name] = $field->creationRules;
         }
-    }
-
-    private function setValue($field)
-    {
-        //This file is a trait and we will use it in model so $this = model
-        $field->value = $this->{$field->name};
-        return $field;
-
-    }
-
-    private function setDataRoute($field)
-    {
-        if(isset($field->relation)){
-           $model =  get_class($this->{$field->relation->name}()->getModel());
-            $model = new $model();
-            $model->scaffold();
-            $field->dataUrl = route('admin.' . $model->getModuleName().'.select',['field'=>$field->relation->field]);
-        }
-        return $field;
     }
 
 
@@ -140,9 +121,10 @@ trait BaseScaffold
     final function getIndexFields(): array
     {
         $fields = [];
-        foreach ($this->getFields() as $field){
-            if($field->showOnIndex)
+        foreach ($this->getFields() as $field) {
+            if ($field->showOnIndex) {
                 array_push($fields, $field);
+            }
         }
         return $fields;
     }
@@ -151,11 +133,11 @@ trait BaseScaffold
     {
         $fields = [];
         foreach ($this->getFields() as $field){
-            if($field->showOnEditing)
-                $field = $this->setValue($field);
-                $field = $this->setDataRoute($field);
+            if ($field->showOnEditing){
                 array_push($fields, $field);
+            }
         }
+
         return $fields ;
     }
 
@@ -163,11 +145,12 @@ trait BaseScaffold
     final function getCreateFields(): array
     {
         $fields = [];
-        foreach ($this->getFields() as $field){
-            if($field->showOnCreating)
-                $field = $this->setDataRoute($field);
+        foreach ($this->getFields() as $field) {
+            if ($field->showOnCreating) {
                 array_push($fields, $field);
+            }
         }
+
         return $fields;
     }
 }

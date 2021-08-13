@@ -22,6 +22,7 @@ class Select extends BaseField
         return $this;
     }
 
+
     /**
      * Add multiple option to select box
      *
@@ -40,6 +41,23 @@ class Select extends BaseField
         return $this;
     }
 
+
+    public function get($model = null): array
+    {
+        if($this->relation){
+            $this->setDataRoute($model);
+        }
+        return parent::get($model);
+    }
+
+
+    private function setDataRoute($model)
+    {
+        $dataModel =  get_class($model->{$this->relation['name']}()->getModel());
+        $dataModel = new $dataModel();
+        $dataModel->scaffold();
+        $this->dataUrl = route('admin.' . $dataModel->getModuleName().'.select',['field'=>$this->relation['field']]);
+    }
 
 
 }
