@@ -39,8 +39,8 @@ trait UpdateTrait
 
     private function updateRelations(Request $request, $item)
     {
-        foreach ($item->getEditFields() as $field) {
-            if ($field->type == 'manyToMany') {
+        foreach ($this->model->getCreateFields() as $field) {
+            if (isset($field->relation) && isset($field->multiple)) {
                 $data = $request->input($field->name);
                 $item->{$field->relation[0]}()->sync($data);
             }
