@@ -15,8 +15,8 @@ trait StoreTrait
 {
     public function store(Request $request): JsonResponse
     {
-        $this->storeCrud($request);
-        return $this->storeResponse($request);
+        $item = $this->storeCrud($request);
+        return $this->storeResponse($item);
     }
 
 
@@ -41,20 +41,14 @@ trait StoreTrait
     }
 
 
-    private function storeResponse(Request $request): JsonResponse
+    private function storeResponse($item): JsonResponse
     {
         $moduleName = $this->model->getModuleName();
         $message = trans('core::message.item-created', ['item' => trans("message.item.$moduleName")]); //translate message
 
-        $redirectTo = null;
-
-        if ($request->input('save_close')) {
-            $redirectTo = route("admin.$moduleName.index");
-        }
-
         return Response::Json(
             [
-                'redirectTo' => $redirectTo,
+                'id' => $item->id,
                 'message'    => $message,
             ]
             , 200);

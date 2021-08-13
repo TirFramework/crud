@@ -48,21 +48,14 @@ trait UpdateTrait
     }
 
 
-    private function updateResponse(Request $request, $item): JsonResponse
+    private function updateResponse($item): JsonResponse
     {
         $moduleName = $this->model->getModuleName();
-
         $message = trans('core::message.item-updated', ['item' => trans("message.item.$moduleName")]); //translate message
-
-        $redirectTo = null;
-
-        if ($request->input('save_close')) {
-            $redirectTo = Redirect::to(route("admin.$moduleName.index"));
-        }
 
         return Response::Json(
             [
-                'redirectTo' => $redirectTo,
+                'id' =>         $item->id,
                 'message'    => $message,
             ]
             , 200);
