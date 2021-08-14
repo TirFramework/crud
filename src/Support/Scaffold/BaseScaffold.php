@@ -62,7 +62,7 @@ trait BaseScaffold
     private function setRules()
     {
         foreach ($this->getFields() as $field) {
-            $this->rules[$field->name] = $field->roles;
+            $this->rules[$field->name] = $field->rules;
         }
     }
 
