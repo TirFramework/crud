@@ -19,7 +19,7 @@ trait UpdateTrait
         $item->scaffold();
 
         $this->updateCrud($request, $id, $item);
-        return $this->updateResponse($request, $item);
+        return $this->updateResponse($item);
     }
 
 
@@ -42,7 +42,7 @@ trait UpdateTrait
         foreach ($this->model->getCreateFields() as $field) {
             if (isset($field->relation) && isset($field->multiple)) {
                 $data = $request->input($field->name);
-                $item->{$field->relation[0]}()->sync($data);
+                $item->{$field->relation->name}()->sync($data);
             }
         }
     }

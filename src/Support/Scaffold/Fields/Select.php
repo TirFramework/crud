@@ -29,15 +29,15 @@ class Select extends BaseField
      * @param bool $check
      * @return $this
      */
-    public function multiple(bool $check): Select
+    public function multiple(bool $check = true): Select
     {
         $this->multiple = $check;
         return $this;
     }
 
-    public function relation(string $relationName, string $field): Select
+    public function relation(string $name, string $field): Select
     {
-        $this->relation = ['name' =>$relationName, 'field'=>$field];
+        $this->relation = ['name' =>$name, 'field'=>$field];
         return $this;
     }
 

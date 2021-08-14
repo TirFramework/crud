@@ -23,8 +23,8 @@ trait DataTrait
     {
         $relations = [];
         foreach ($model->getIndexFields() as $field) {
-            if ($field->type == 'oneToMany') {
-                array_push($relations, $field->relationName);
+            if (isset($field->relation)) {
+                array_push($relations, $field->relation->name);
             }
         }
 

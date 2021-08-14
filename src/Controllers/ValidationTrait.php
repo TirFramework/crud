@@ -52,7 +52,6 @@ trait ValidationTrait
         $model = $this->model->findOrFail($id);
         $model->scaffold();
         $validator = Validator::make(Request::all(), $model->getUpdateRules());
-
         if ($validator->fails()) {
             abort(Response::Json([
                 'error'   => 'validation_error',
