@@ -55,7 +55,6 @@ class Select extends BaseField
     {
         $dataModel =  get_class($model->{$this->relation['name']}()->getModel());
         $dataModel = new $dataModel();
-        $dataModel->scaffold();
         $this->dataUrl = route('admin.' . $dataModel->getModuleName().'.select',['field'=>$this->relation['field']]);
     }
 

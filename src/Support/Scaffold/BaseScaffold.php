@@ -90,7 +90,7 @@ trait BaseScaffold
 
     final function getModuleName(): string
     {
-        return $this->moduleName;
+        return $this->setModuleName();
     }
 
     final function getModel(): string
