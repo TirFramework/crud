@@ -60,7 +60,7 @@ trait StoreTrait
         foreach ($this->model->getCreateFields() as $field) {
             if (isset($field->relation) && isset($field->multiple)) {
                 $data = $request->input($field->name);
-                $this->model->{$field->relation[0]}()->sync($data);
+                $this->model->{$field->relation->relationName}()->sync($data);
             }
         }
     }
