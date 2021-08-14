@@ -52,7 +52,7 @@ trait SelectTrait
     private function selectCrud(Request $request)
     {
         $field = $request['field'];
-        return  $this->model::select('id' ,"$field as field")->where($field,'LIKE', '%'.$request['search'].'%')->orderBy('text')->get();
+        return  $this->model::select('id as value' ,"$field as text")->where($field,'LIKE', '%'.$request['search'].'%')->orderBy('text')->get();
 
     }
 
