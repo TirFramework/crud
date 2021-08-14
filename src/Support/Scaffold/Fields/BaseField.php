@@ -272,21 +272,21 @@ abstract class BaseField
     }
 
 
-    public function rules(...$rule): BaseField
+    public function rules(...$rules): BaseField
     {
-        $this->rules = $rule;
+        $this->rules = $rules;
         return $this;
     }
 
-    public function creationRules(...$role): BaseField
+    public function creationRules(...$rules): BaseField
     {
-        $this->creationRules = $role;
+        $this->creationRules = $rules;
         return $this;
     }
 
-    public function updateRules(...$role): BaseField
+    public function updateRules(...$rules): BaseField
     {
-        $this->updateRules = $role;
+        $this->updateRules = $rules;
         return $this;
     }
 
