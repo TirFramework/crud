@@ -15,8 +15,8 @@ abstract class BaseField
     protected string $id = '';
     protected string $class = '';
     protected int $col = 12;
-    protected string $disable = '';
-    protected string $readonly = '';
+    protected bool $disable =false;
+    protected bool $readonly = false;
     protected bool $filter;
     protected string $defaultValue;
     protected bool $showOnIndex = true;
@@ -102,29 +102,19 @@ abstract class BaseField
      */
     public function disable(bool $option = true): BaseField
     {
-        if ($option) {
-            $this->disable = 'disabled';
-        }
+        $this->disable = $option;
         return $this;
     }
 
     public function readonly(bool $option = true): BaseField
     {
-        if ($option) {
-            $this->readonly = 'readonly';
-        }
+        $this->readonly = $option;
         return $this;
     }
 
     public function options($options = [])
     {
-        $this->options = [
-                'id'          => $this->id,
-                'class'       => $this->class,
-                'placeholder' => $this->placeholder,
-                $this->disable,
-                $this->readonly
-            ] + $options;
+        $this->options = $options;
     }
 
 
@@ -139,7 +129,6 @@ abstract class BaseField
         $this->defaultValue = $value;
         return $this;
     }
-
 
     /**
      * @return $this
@@ -225,7 +214,6 @@ abstract class BaseField
 
     public function hideFromAll($callback = true): BaseField
     {
-
         $this->showOnCreating =
         $this->showOnEditing =
         $this->showOnIndex =
@@ -304,21 +292,17 @@ abstract class BaseField
 
     public function get($model = null): array
     {
-        if($model){
+        if ($model) {
             $this->setValue($model);
         }
-        $this->options();
         return get_object_vars($this);
     }
-
-
 
 
     private function setValue($model)
     {
         $this->value = $model->{$this->name};
     }
-
 
 
 }
