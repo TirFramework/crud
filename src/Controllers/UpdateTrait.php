@@ -55,8 +55,9 @@ trait UpdateTrait
 
         return Response::Json(
             [
-                'id' =>         $item->id,
-                'message'    => $message,
+                'id'      => $item->id,
+                'updated' => true,
+                'message' => $message,
             ]
             , 200);
 
