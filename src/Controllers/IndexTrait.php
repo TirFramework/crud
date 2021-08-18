@@ -18,9 +18,10 @@ trait IndexTrait
                 'title'     => $field->display,
                 'dataIndex' => $field->name,
                 'sorter'    => $field->sortable,
-                'filters'   => [],
-
             ];
+            if(count($field->filter)){
+                $col[$index]['filter'] = $field->filter;
+            }
         }
 
 

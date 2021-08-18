@@ -13,7 +13,6 @@ trait DataTrait
     {
         $relations = $this->getRelationFields($this->model);
         $items = $this->dataQuery($relations);
-
         return Response::Json($items->paginate(), '200');
 
     }

@@ -17,7 +17,6 @@ abstract class BaseField
     protected int $col = 12;
     protected bool $disable =false;
     protected bool $readonly = false;
-    protected bool $filter;
     protected string $defaultValue;
     protected bool $showOnIndex = true;
     protected bool $showOnDetail = true;
@@ -29,6 +28,7 @@ abstract class BaseField
     protected $creationRules = '';
     protected $updateRules = '';
     protected array $options = [];
+    protected array $filter = [];
 
     /**
      * Add name attribute to input
@@ -287,6 +287,12 @@ abstract class BaseField
     public function updateRules(...$rules): BaseField
     {
         $this->updateRules = $rules;
+        return $this;
+    }
+
+    public function filter($items = []): BaseField
+    {
+        $this->filter = $items;
         return $this;
     }
 

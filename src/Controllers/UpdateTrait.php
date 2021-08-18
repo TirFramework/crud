@@ -52,7 +52,6 @@ trait UpdateTrait
     {
         $moduleName = $this->model->getModuleName();
         $message = trans('core::message.item-updated', ['item' => trans("message.item.$moduleName")]); //translate message
-
         return Response::Json(
             [
                 'id'      => $item->id,

@@ -41,7 +41,14 @@ class Select extends BaseField
         return $this;
     }
 
-
+    public function filter($items = []): BaseField
+    {
+        $this->filter = $this->data;
+        if (count($items)) {
+            $this->filter = $items;
+        }
+        return $this;
+    }
     public function get($model = null): array
     {
         if(isset($this->relation)){
@@ -49,6 +56,8 @@ class Select extends BaseField
         }
         return parent::get($model);
     }
+
+
 
 
     private function setDataRoute($model)
