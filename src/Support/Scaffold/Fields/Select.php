@@ -9,6 +9,7 @@ class Select extends BaseField
     protected array $data;
     protected bool $multiple;
     protected array $relation;
+    protected string $dataUrl;
 
     /**
      * This function get data for select box
@@ -35,24 +36,36 @@ class Select extends BaseField
         return $this;
     }
 
-    public function relation(string $name, string $field): Select
+    public function relation(string $name, string $field, string $primaryKey = 'id'): Select
     {
-        $this->relation = ['name' =>$name, 'field'=>$field];
+        $this->relation = ['name' =>$name, 'field'=>$field, 'key'=>$primaryKey];
         return $this;
     }
 
     public function filter($items = []): BaseField
     {
-        $this->filter = $this->data;
+        $this->filterable = true;
+
         if (count($items)) {
             $this->filter = $items;
+            return $this;
         }
+
+        if(isset($this->data))
+        {
+            $this->filter = $this->data;
+            return $this;
+        }
+
         return $this;
+
+
     }
     public function get($model = null): array
     {
         if(isset($this->relation)){
             $this->setDataRoute($model);
+            $this->setDataFilter($model);
         }
         return parent::get($model);
     }
@@ -65,6 +78,29 @@ class Select extends BaseField
         $dataModel =  get_class($model->{$this->relation['name']}()->getModel());
         $dataModel = new $dataModel();
         $this->dataUrl = route('admin.' . $dataModel->getModuleName().'.select',['field'=>$this->relation['field']]);
+    }
+
+    private function setDataFilter($model)
+    {
+        if(!$this->filterable)
+            return;
+
+        if(count($this->filter))
+            return;
+
+        if(isset($this->relation))
+        {
+            $filterModel = $model->first()->{$this->relation['name']}()->distinct()->get()->map(function ($value){
+                return [
+                    'text'  => $value->{$this->relation['field']},
+                    'value' => $value->{$this->relation['key']},
+                ];
+            })->toArray();
+
+            $this->filter = $filterModel;
+
+        }
+
     }
 
 

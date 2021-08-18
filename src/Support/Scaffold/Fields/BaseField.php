@@ -29,6 +29,7 @@ abstract class BaseField
     protected $updateRules = '';
     protected array $options = [];
     protected array $filter = [];
+    protected bool $filterable = false;
 
     /**
      * Add name attribute to input
@@ -292,6 +293,7 @@ abstract class BaseField
 
     public function filter($items = []): BaseField
     {
+        $this->filterable = true;
         $this->filter = $items;
         return $this;
     }
