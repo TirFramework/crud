@@ -36,9 +36,30 @@ trait DataTrait
      */
     public function dataQuery($relation): object
     {
-        return $this->model->select($this->model->getTable() . '.*')->with($relation);
+        $query = $this->model->select($this->model->getTable() . '.*')->with($relation);
+        $query = $this->applyFilters($query);
+        return $query;
     }
 
+    private function applyFilters($query){
+        $filters = request()->all();
+        foreach ($filters as $filter => $value)
+        {
+            if($this->isFilter($filter)){
+                $query->where($filter,$value);
+            }
+        }
+        return $query;
+
+    }
+
+    private function isFilter($filter): bool
+    {
+        if($filter == 'api_token'){
+            return false;
+        }
+        return true;
+    }
 
 }
 

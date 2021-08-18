@@ -72,7 +72,6 @@ class Select extends BaseField
 
 
 
-
     private function setDataRoute($model)
     {
         $dataModel =  get_class($model->{$this->relation['name']}()->getModel());
