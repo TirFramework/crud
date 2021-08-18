@@ -20,7 +20,7 @@ trait IndexTrait
                 'sorter'    => $field->sortable,
             ];
             if(count($field->filter)){
-                $col[$index]['filter'] = $field->filter;
+                $col[$index]['filters'] = $field->filter;
             }
         }
 
