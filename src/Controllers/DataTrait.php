@@ -2,8 +2,10 @@
 
 namespace Tir\Crud\Controllers;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Response;
+use Tir\Blog\Entities\Post;
 
 
 trait DataTrait
@@ -41,25 +43,51 @@ trait DataTrait
         return $query;
     }
 
-    private function applyFilters($query){
-        $filters = request()->all();
-        foreach ($filters as $filter => $value)
-        {
-            if($this->isFilter($filter)){
-                $query->where($filter,$value);
-            }
+    private function applyFilters($query)
+    {
+        $filters = $this->getFilter();
+        foreach ($filters['original'] as $key => $value) {
+            return $query->where($key, $value);
+        }
+
+        foreach ($filters['relational'] as $filter){
+            $query->whereHas($filter['relation'], function (Builder  $q)use($filter){
+                $q->whereIn($filter['primaryKey'], $filter['value']);
+            });
         }
         return $query;
 
     }
 
-    private function isFilter($filter): bool
+
+    private function getFilter():array
     {
-        if($filter == 'api_token'){
-            return false;
+        $req = request()->all();
+        $filters =['original'=>[],'relational'=>[]];
+
+        foreach ($this->model->getFilterableFields() as $filter) {
+            if (array_key_exists($filter->name, $req)) {
+
+                //if filter is manyToMany relation
+                if(isset($filter->relation) && isset($filter->multiple))
+                {
+                    //get table name from relation
+                    $table = $this->model->{$filter->relation->name}()->getRelated()->getTable();
+
+                    //get primary key from relation
+                    $primaryKey = $this->model->{$filter->relation->name}()->getRelated()->getKeyName();
+
+                    $primaryKey = $table . '.' . $primaryKey;
+
+                    array_push($filters['relational'], ['relation' =>  $filter->relation->name,  'value'=>[$req[$filter->name]], 'primaryKey'=>$primaryKey]);
+                }else{
+                    $filters['original'][$filter->name] = $req[$filter->name];
+                }
+            }
         }
-        return true;
+        return $filters;
     }
 
 }
+
 
