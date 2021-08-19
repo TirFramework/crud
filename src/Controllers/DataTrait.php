@@ -47,7 +47,7 @@ trait DataTrait
     {
         $filters = $this->getFilter();
         foreach ($filters['original'] as $key => $value) {
-            return $query->where($key, $value);
+            $query->whereIn($key, $value);
         }
 
         foreach ($filters['relational'] as $filter){
@@ -62,29 +62,28 @@ trait DataTrait
 
     private function getFilter():array
     {
-        $req = request()->all();
+        $req = json_decode(request()->input('filters'));
         $filters =['original'=>[],'relational'=>[]];
-
-        foreach ($this->model->getFilterableFields() as $filter) {
-            if (array_key_exists($filter->name, $req)) {
+        foreach ($req as $filter => $value) {
+            $field = $this->model->getFieldByName($filter);
 
                 //if filter is manyToMany relation
-                if(isset($filter->relation) && isset($filter->multiple))
+                if(isset($field->relation) && isset($field->multiple))
                 {
                     //get table name from relation
-                    $table = $this->model->{$filter->relation->name}()->getRelated()->getTable();
+                    $table = $this->model->{$field->relation->name}()->getRelated()->getTable();
 
                     //get primary key from relation
-                    $primaryKey = $this->model->{$filter->relation->name}()->getRelated()->getKeyName();
+                    $primaryKey = $this->model->{$field->relation->name}()->getRelated()->getKeyName();
 
                     $primaryKey = $table . '.' . $primaryKey;
 
-                    array_push($filters['relational'], ['relation' =>  $filter->relation->name,  'value'=>[$req[$filter->name]], 'primaryKey'=>$primaryKey]);
+                    array_push($filters['relational'], ['relation' =>  $field->relation->name,  'value'=>$value, 'primaryKey'=>$primaryKey]);
                 }else{
-                    $filters['original'][$filter->name] = $req[$filter->name];
+                    $filters['original'][$field->name] = $req->{$field->name};
                 }
             }
-        }
+
         return $filters;
     }
 

@@ -159,15 +159,12 @@ trait BaseScaffold
         return $fields;
     }
 
-    final function getFilterableFields(): array
+    final function getFieldByName($name)
     {
-        $fields = [];
         foreach ($this->getIndexFields() as $field) {
-            if($field->filterable){
-                array_push($fields, $field);
+            if($field->name == $name){
+                return $field;
             }
         }
-
-        return $fields;
     }
 }
