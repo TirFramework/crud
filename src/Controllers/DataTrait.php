@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Response;
 use Tir\Blog\Entities\Post;
+use function PHPUnit\Framework\isEmpty;
 
 
 trait DataTrait
@@ -45,7 +46,15 @@ trait DataTrait
 
     private function applyFilters($query)
     {
-        $filters = $this->getFilter();
+        $req = json_decode(request()->input('filters'));
+        if($req == null){
+            return $query;
+        }
+
+        $filters = $this->getFilter($req);
+
+
+
         foreach ($filters['original'] as $key => $value) {
             $query->whereIn($key, $value);
         }
@@ -60,10 +69,14 @@ trait DataTrait
     }
 
 
-    private function getFilter():array
+    private function getFilter($req):array
     {
-        $req = json_decode(request()->input('filters'));
+
         $filters =['original'=>[],'relational'=>[]];
+
+        $original = [];
+        $relational = [];
+
         foreach ($req as $filter => $value) {
             $field = $this->model->getFieldByName($filter);
 
@@ -78,11 +91,14 @@ trait DataTrait
 
                     $primaryKey = $table . '.' . $primaryKey;
 
-                    array_push($filters['relational'], ['relation' =>  $field->relation->name,  'value'=>$value, 'primaryKey'=>$primaryKey]);
+                    array_push($relational, ['relation' =>  $field->relation->name,  'value'=>$value, 'primaryKey'=>$primaryKey]);
                 }else{
-                    $filters['original'][$field->name] = $req->{$field->name};
+                    $original[$field->name] = $req->{$field->name};
                 }
             }
+
+        $filters['original'] = $original;
+        $filters['relational'] = $relational;
 
         return $filters;
     }
