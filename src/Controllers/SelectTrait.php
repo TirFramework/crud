@@ -2,17 +2,15 @@
 
 namespace Tir\Crud\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
 
 
 trait SelectTrait
 {
 
-        /**
-     * This function select model and get data for relation select boxes in views
-     *  if permission == owner return only owner item
-     * @return eloquent
-     */
+
 //    public function selectCrud($request)
 //    {
 //        //TODO : add comment and refactor this section
@@ -44,16 +42,39 @@ trait SelectTrait
 //        return $json;
 //    }
 
-    public function select(request $request)
+    public function select(request $request): JsonResponse
     {
-        return $this->selectCrud($request);
+        $items = [];
+        if(isset($request['id']))
+        {
+            $items =  $this->find($request['id'], $request['field']);
+            return Response::Json($items, 200);
+
+        }
+
+        if(isset($request['field']))
+        {
+            $items = $this->search($request['field'], $request['search']);
+            return Response::Json($items, 200);
+
+        }
+        return Response::Json($items, 404);
+
     }
 
-    private function selectCrud(Request $request)
+    private function search($field, $search)
     {
-        $field = $request['field'];
-        return  $this->model::select('id as value' ,"$field as text")->where($field,'LIKE', '%'.$request['search'].'%')->orderBy('text')->get();
+        $keyName = $this->model->getKeyName();
+        return  $this->model::select($keyName.' as value' ,"$field as text")->where($field,'LIKE', '%'.$search.'%')->orderBy('text')->get();
 
     }
+
+    private function find($id, $field){
+        $keyName = $this->model->getKeyName();
+        return $this->model->select($keyName.' as value' ,"$field as text")->find($id);
+
+    }
+
+
 
 }
