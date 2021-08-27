@@ -16,7 +16,7 @@ trait IndexTrait
         foreach ($this->model->getIndexFields() as $index => $field) {
             $col[$index] = [
                 'title'     => $field->display,
-                'dataIndex' => $field->name,
+                'dataIndex' => $this->getName($field),
                 'sorter'    => $field->sortable,
             ];
             if(count($field->filter)){
@@ -32,5 +32,14 @@ trait IndexTrait
         ];
 
         return Response::json($data, '200');
+    }
+
+    private function getName($field)
+    {
+        if(isset($field->relation)){
+            return $field->relation->name;
+        }else{
+            return $field->name;
+        }
     }
 }
