@@ -71,7 +71,7 @@ trait SelectTrait
 
     private function find($id, $field){
         $keyName = $this->model->getKeyName();
-        $id = json_decode($id);
+        $id  = explode(',',$id);
         return $this->model->select($keyName.' as value' ,"$field as text")->whereIn($keyName,$id)->get();
 
     }
