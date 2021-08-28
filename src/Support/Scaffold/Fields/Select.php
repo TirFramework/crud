@@ -7,7 +7,7 @@ class Select extends BaseField
 {
     protected string $type = 'select';
     protected array $data;
-    protected bool $multiple;
+    protected bool $multiple = false;
     protected array $relation;
     protected string $dataUrl;
 
@@ -105,5 +105,42 @@ class Select extends BaseField
 
     }
 
+    private function setRelationalValue($model)
+    {
+        $value = [];
+
+        if(isset($model->{$this->relation['name']})){
+
+            if($this->multiple){
+                $value = $model->{$this->relation['name']}->map(function ($value) {
+                    return [
+                        'text'  => $value->{$this->relation['field']},
+                        'value' => $value->{$this->relation['key']},
+                    ];
+                })->toArray();
+            }else{
+                $value = [
+                    'text'  => $model->{$this->relation['name']}->{$this->relation['field']},
+                    'value' => $model->{$this->relation['key']}
+                ];
+            }
+
+        }
+
+        return $value;
+    }
+
+    protected function setValue($model)
+    {
+        if ($this->checkModelHasData($model)) {
+            $this->value = $model->{$this->name};
+
+            if(isset($this->relation)){
+                $this->value = $this->setRelationalValue($model);
+            }
+        }
+
+
+    }
 
 }

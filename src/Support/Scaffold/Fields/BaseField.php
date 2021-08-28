@@ -300,17 +300,27 @@ abstract class BaseField
 
     public function get($model = null): array
     {
-        if ($model) {
-            $this->setValue($model);
-        }
+        $this->setValue($model);
         return get_object_vars($this);
     }
 
 
-    private function setValue($model)
+    protected function setValue($model)
     {
-        $this->value = $model->{$this->name};
+        if($this->checkModelHasData($model)){
+            $this->value = $model->{$this->name};
+        }
     }
 
+
+
+    protected function checkModelHasData($model): bool
+    {
+        $data = $model->first();
+        if (isset($data)) {
+            return true;
+        }
+        return false;
+    }
 
 }

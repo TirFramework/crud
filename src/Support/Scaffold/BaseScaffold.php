@@ -27,12 +27,6 @@ trait BaseScaffold
 
 
 
-//    function __construct()
-//    {
-////        parent::__construct();
-//
-//    }
-
     public function scaffold()
     {
         $this->moduleName = $this->setModuleName();
