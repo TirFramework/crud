@@ -7,7 +7,6 @@ class Select extends BaseField
 {
     protected string $type = 'select';
     protected array $data;
-    protected bool $multiple = false;
     protected array $relation;
     protected string $dataUrl;
 

@@ -10,14 +10,13 @@ trait IndexTrait
 
     public function index()
     {
-
         $col = [];
-
         foreach ($this->model->getIndexFields() as $index => $field) {
             $col[$index] = [
                 'title'     => $field->display,
                 'dataIndex' => $this->getName($field),
                 'sorter'    => $field->sortable,
+                'fieldName' => $field->name,
             ];
             if(count($field->filter)){
                 $col[$index]['filters'] = $field->filter;

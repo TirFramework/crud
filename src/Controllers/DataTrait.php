@@ -27,7 +27,8 @@ trait DataTrait
         $relations = [];
         foreach ($model->getIndexFields() as $field) {
             if (isset($field->relation)) {
-                array_push($relations, $field->relation->name);
+                $relation = $field->relation->name . ':' . $field->relation->key . ',' . $field->relation->field . ' as text';
+                array_push($relations, $relation);
             }
         }
 

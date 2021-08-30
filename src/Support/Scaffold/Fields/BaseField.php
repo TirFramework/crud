@@ -30,6 +30,8 @@ abstract class BaseField
     protected array $options = [];
     protected array $filter = [];
     protected bool $filterable = false;
+    protected bool $multiple = false;
+
 
     /**
      * Add name attribute to input

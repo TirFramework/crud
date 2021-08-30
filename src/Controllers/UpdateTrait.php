@@ -40,7 +40,7 @@ trait UpdateTrait
     private function updateRelations(Request $request, $item)
     {
         foreach ($this->model->getCreateFields() as $field) {
-            if (isset($field->relation) && isset($field->multiple)) {
+            if (isset($field->relation) && $field->multiple) {
                 $data = $request->input($field->name);
                 $item->{$field->relation->name}()->sync($data);
             }
