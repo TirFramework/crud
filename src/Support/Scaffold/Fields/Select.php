@@ -57,7 +57,6 @@ class Select extends BaseField
 
         return $this;
 
-
     }
 
     public function get($model = null): array
@@ -86,20 +85,14 @@ class Select extends BaseField
             return;
 
         if (isset($this->relation)) {
-            $filterModel = $model->first();
+            $filterModel = new $model;
 
-            //The filter model should have a record to get relation from model.
-            if (isset($filterModel)) {
-                $filterModel = $filterModel->{$this->relation['name']}()->distinct()->get()->map(function ($value) {
-                    return [
-                        'text'  => $value->{$this->relation['field']},
-                        'value' => $value->{$this->relation['key']},
-                    ];
-                })->toArray();
-                $this->filter = $filterModel;
-            }
+            $filterModel = $filterModel->{$this->relation['name']}()->getModel();
 
-
+            $this->filter = $filterModel::select(
+                $this->relation['field'].' as text',
+                $this->relation['key'].' as value',
+            )->get()->toArray();
         }
 
     }
