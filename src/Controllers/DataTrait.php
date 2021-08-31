@@ -5,8 +5,6 @@ namespace Tir\Crud\Controllers;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Response;
-use Tir\Blog\Entities\Post;
-use function PHPUnit\Framework\isEmpty;
 
 
 trait DataTrait

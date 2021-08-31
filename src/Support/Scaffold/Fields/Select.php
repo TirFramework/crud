@@ -105,16 +105,10 @@ class Select extends BaseField
 
             if($this->multiple){
                 $value = $model->{$this->relation['name']}->map(function ($value) {
-                    return [
-                        'text'  => $value->{$this->relation['field']},
-                        'value' => $value->{$this->relation['key']},
-                    ];
+                    return $value->{$this->relation['key']};
                 })->toArray();
             }else{
-                $value = [
-                    'text'  => $model->{$this->relation['name']}->{$this->relation['field']},
-                    'value' => $model->{$this->relation['key']}
-                ];
+                $value = $model->{$this->relation['key']};
             }
 
         }

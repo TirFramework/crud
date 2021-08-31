@@ -65,14 +65,14 @@ trait SelectTrait
     private function search($field, $search)
     {
         $keyName = $this->model->getKeyName();
-        return  $this->model::select($keyName.' as value' ,"$field as text")->where($field,'LIKE', '%'.$search.'%')->orderBy('text')->paginate();
+        return  $this->model::select($keyName.' as value' ,"$field as label")->where($field,'LIKE', '%'.$search.'%')->orderBy('label')->paginate();
 
     }
 
     private function find($id, $field){
         $keyName = $this->model->getKeyName();
         $id  = explode(',',$id);
-        return $this->model->select($keyName.' as value' ,"$field as text")->whereIn($keyName,$id)->get();
+        return $this->model->select($keyName.' as value' ,"$field as label")->whereIn($keyName,$id)->get();
 
     }
 
