@@ -65,7 +65,7 @@ trait SelectTrait
     private function search($field, $search)
     {
         $keyName = $this->model->getKeyName();
-        return  $this->model::select($keyName.' as value' ,"$field as label")->where($field,'LIKE', '%'.$search.'%')->orderBy('label')->paginate();
+        return  $this->model::select($keyName.' as value' ,"$field as label")->where($field,'LIKE', '%'.$search.'%')->orderBy('label')->get();
 
     }
 
