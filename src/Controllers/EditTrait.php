@@ -13,9 +13,9 @@ trait EditTrait
      */
     public function edit($id)
     {
-        $model = $this->model->findOrFail($id);
-        $model->scaffold();
-        return $model->getEditFields();
+        $dataModel = $this->model->findOrFail($id);
+        $dataModel->scaffold($dataModel);
+        return $dataModel->getEditFields();
 
     }
 

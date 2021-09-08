@@ -300,7 +300,7 @@ abstract class BaseField
         return $this;
     }
 
-    public function get($dataModel = null): array
+    public function get($dataModel): array
     {
         if(isset($dataModel)){
             $this->setValue($dataModel);

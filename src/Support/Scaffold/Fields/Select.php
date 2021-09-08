@@ -59,13 +59,13 @@ class Select extends BaseField
 
     }
 
-    public function get($model = null): array
+    public function get($dataModel): array
     {
         if (isset($this->relation)) {
-            $this->setDataRoute($model);
-            $this->setDataFilter($model);
+            $this->setDataRoute($dataModel);
+            $this->setDataFilter($dataModel);
         }
-        return parent::get($model);
+        return parent::get($dataModel);
     }
 
 
@@ -76,7 +76,7 @@ class Select extends BaseField
         $this->dataUrl = route('admin.' . $dataModel->getModuleName() . '.select', ['field' => $this->relation['field']]);
     }
 
-    private function setDataFilter($model)
+    private function setDataFilter($filterModel)
     {
         if (!$this->filterable)
             return;
@@ -85,7 +85,6 @@ class Select extends BaseField
             return;
 
         if (isset($this->relation)) {
-            $filterModel = new $model;
 
             $filterModel = $filterModel->{$this->relation['name']}()->getModel();
 

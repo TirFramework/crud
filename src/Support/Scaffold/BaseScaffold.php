@@ -5,6 +5,7 @@ namespace Tir\Crud\Support\Scaffold;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Tir\Crud\Scopes\OwnerScope;
+use function PHPUnit\Framework\isEmpty;
 
 trait BaseScaffold
 {
@@ -29,6 +30,9 @@ trait BaseScaffold
 
     public function scaffold($dataModel = null)
     {
+        if($dataModel == null){
+            $dataModel = new $this;
+        }
         $this->moduleName = $this->setModuleName();
         $this->addFieldsToScaffold($dataModel);
         $this->setRules();
