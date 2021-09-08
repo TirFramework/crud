@@ -99,34 +99,19 @@ class Select extends BaseField
 
     private function setRelationalValue($model)
     {
-        $value = [];
-
-        if(isset($model->{$this->relation['name']})){
-
-            if($this->multiple){
-                $value = $model->{$this->relation['name']}->map(function ($value) {
-                    return $value->{$this->relation['key']};
-                })->toArray();
-            }else{
-                $value = $model->{$this->relation['key']};
-            }
-
-        }
-
-        return $value;
+        return $model->{$this->relation['name']}->map(function ($value) {
+            return $value->{$this->relation['key']};
+        })->toArray();
     }
 
     protected function setValue($model)
     {
-        if ($this->checkModelHasData($model)) {
-            $this->value = $model->{$this->name};
+        $this->value = $model->{$this->name};
 
-            if(isset($this->relation)){
-                $this->value = $this->setRelationalValue($model);
-            }
+        if(isset($this->relation) && $this->multiple){
+            $this->value = $this->setRelationalValue($model);
         }
-
-
     }
+
 
 }

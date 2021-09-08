@@ -27,10 +27,10 @@ trait BaseScaffold
 
 
 
-    public function scaffold()
+    public function scaffold($dataModel = null)
     {
         $this->moduleName = $this->setModuleName();
-        $this->addFieldsToScaffold();
+        $this->addFieldsToScaffold($dataModel);
         $this->setRules();
 
     }
@@ -46,11 +46,13 @@ trait BaseScaffold
     }
 
 
-    private function addFieldsToScaffold(): void
+    private function addFieldsToScaffold($dataModel): void
     {
+
         foreach ($this->setFields() as $input) {
-            array_push($this->fields, $input->get($this));
+            array_push($this->fields, $input->get($dataModel));
         }
+
     }
 
     private function setRules()
