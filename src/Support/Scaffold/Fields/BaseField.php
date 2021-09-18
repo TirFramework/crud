@@ -8,6 +8,7 @@ abstract class BaseField
 
     protected string $type;
     protected string $name;
+    protected string $valueType = 'string';
     protected $value;
     protected string $visible;
     protected string $display;

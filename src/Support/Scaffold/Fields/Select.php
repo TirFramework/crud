@@ -9,6 +9,7 @@ class Select extends BaseField
     protected array $data;
     protected array $relation;
     protected string $dataUrl;
+    protected string $valueType = 'string';
 
     /**
      * This function get data for select box
@@ -64,6 +65,10 @@ class Select extends BaseField
         if (isset($this->relation)) {
             $this->setDataRoute($dataModel);
             $this->setDataFilter($dataModel);
+            $this->valueType = 'object';
+        }
+        if ($this->multiple) {
+            $this->valueType = 'array';
         }
         return parent::get($dataModel);
     }

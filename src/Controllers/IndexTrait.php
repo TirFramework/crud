@@ -17,6 +17,7 @@ trait IndexTrait
                 'dataIndex' => $this->getName($field),
                 'sorter'    => $field->sortable,
                 'fieldName' => $field->name,
+                'valueType' => $field->valueType,
             ];
             if(count($field->filter)){
                 $col[$index]['filters'] = $field->filter;
