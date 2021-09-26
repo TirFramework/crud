@@ -5,6 +5,7 @@ namespace Tir\Crud\Controllers;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Arr;
 
 
 trait DataTrait

@@ -15,9 +15,10 @@ trait IndexTrait
             $col[$index] = [
                 'title'     => $field->display,
                 'dataIndex' => $this->getName($field),
-                'sorter'    => $field->sortable,
+                // 'sorter'    => $field->sortable,
                 'fieldName' => $field->name,
                 'valueType' => $field->valueType,
+                'comment'   => $field->comment,
             ];
             if(count($field->filter)){
                 $col[$index]['filters'] = $field->filter;
