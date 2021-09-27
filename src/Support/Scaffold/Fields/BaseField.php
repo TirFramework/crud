@@ -32,6 +32,7 @@ abstract class BaseField
     protected array $filter = [];
     protected bool $filterable = false;
     protected bool $multiple = false;
+    protected array $comment = [];
 
 
     /**
@@ -95,6 +96,21 @@ abstract class BaseField
     public function placeholder(string $text): BaseField
     {
         $this->placeholder = $text;
+        return $this;
+    }
+
+    /**
+     * Add comment for help
+     *
+     * @param string $text
+     * @return $this
+     */
+    public function comment(string $content, string $title = ''): BaseField
+    {
+        $this->comment = [
+            'title' => $title,
+            'content' => $content,
+        ];
         return $this;
     }
 
