@@ -14,6 +14,7 @@ abstract class CrudController extends BaseController
     public function __construct()
     {
 //        $this->middleware('acl');
+        $this->middleware('setLocale');
         $this->request();
         $this->modelInit();
         $this->validation();
