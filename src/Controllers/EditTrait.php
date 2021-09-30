@@ -11,7 +11,7 @@ trait EditTrait
      *
      * @param int $id
      */
-    public function edit($id)
+    public function edit($locale, $id)
     {
         $dataModel = $this->model->findOrFail($id);
         $dataModel->scaffold($dataModel);
