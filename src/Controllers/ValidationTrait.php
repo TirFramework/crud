@@ -48,7 +48,6 @@ trait ValidationTrait
     {
         //get route(url) parameter {id}
         $id = request()->route()->parameter($this->model->getModuleName());
-
         $model = $this->model->findOrFail($id);
         $model->scaffold();
         $validator = Validator::make(Request::all(), $model->getUpdateRules());

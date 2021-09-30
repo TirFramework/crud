@@ -27,7 +27,6 @@ trait UpdateTrait
     {
         return DB::transaction(function () use ($request, $item) { // Start the transaction
 
-
             $item->update($request->all());
 
             $this->updateRelations($request, $item);
