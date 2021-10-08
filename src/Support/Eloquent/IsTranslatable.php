@@ -13,11 +13,13 @@ trait IsTranslatable
         self::creating(function($model){
             $model->locale = request()->input('locale');
         });
+        
 
     }
 
     public function newQuery() {
-        return parent::newQuery()->where('locale', request()->input('locale'));
+        $locale = request()->input('locale');
+        return parent::newQuery()->where('locale', $locale);
     }
 
 }
