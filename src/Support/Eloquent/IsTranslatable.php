@@ -9,14 +9,15 @@ trait IsTranslatable
     public static function boot()
     {
         parent::boot();
+        
         self::creating(function($model){
-            $model->locale = App::currentLocale();
+            $model->locale = request()->input('locale');
         });
 
     }
 
     public function newQuery() {
-        return parent::newQuery()->where('locale', App::currentLocale());
+        return parent::newQuery()->where('locale', request()->input('locale'));
     }
 
 }
