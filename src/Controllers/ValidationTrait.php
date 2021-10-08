@@ -26,7 +26,7 @@ trait ValidationTrait
             $this->storeValidation();
         }
 
-        if (Request::method() == 'PUT') {
+        if (Request::method() == 'PUT' || Request::method() == 'PATCH') {
             $this->updateValidation();
         }
     }
@@ -48,7 +48,7 @@ trait ValidationTrait
     {
         //get route(url) parameter {id}
         $id = request()->route()->parameter($this->model->getModuleName());
-        $model = $this->model->findOrFail($id);
+        $model = $this->model->findOrNew($id);
         $model->scaffold();
         $validator = Validator::make(Request::all(), $model->getUpdateRules());
         if ($validator->fails()) {
