@@ -5,9 +5,7 @@ namespace Tir\Crud\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Response;
-use Tir\Crud\Events\UpdateEvent;
 
 trait UpdateTrait
 {
