@@ -6,7 +6,7 @@ use Illuminate\Routing\Controller as BaseController;
 
 abstract class CrudController extends BaseController
 {
-    use IndexTrait, DataTrait, CreateTrait, StoreTrait, EditTrait, UpdateTrait, ValidationTrait, SelectTrait;
+    use IndexTrait, DataTrait, CreateTrait, StoreTrait, EditTrait, UpdateTrait, ValidationTrait, SelectTrait, DestroyTrait;
 
     protected abstract function setModel(): string;
 
