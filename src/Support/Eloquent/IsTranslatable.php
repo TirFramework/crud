@@ -19,7 +19,12 @@ trait IsTranslatable
 
     public function newQuery() {
         $locale = request()->input('locale');
-        return parent::newQuery()->where('locale', $locale);
+        if(isset($locale)){
+            return parent::newQuery()->where('locale', $locale);
+        }else{
+            return parent::newQuery()->where('locale', App::currentLocale());
+        }
+
     }
 
 }
