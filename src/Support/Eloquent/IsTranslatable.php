@@ -3,6 +3,7 @@
 namespace Tir\Crud\Support\Eloquent;
 
 use Illuminate\Support\Facades\App;
+use Illuminate\Database\Eloquent\Builder;
 
 trait IsTranslatable
 {
@@ -13,17 +14,19 @@ trait IsTranslatable
         self::creating(function($model){
             $model->locale = request()->input('locale');
         });
-        
 
-    }
-
-    public function newQuery() {
-        $locale = request()->input('locale');
-        if(isset($locale)){
-            return parent::newQuery()->where('locale', $locale);
-        }else{
-            return parent::newQuery()->where('locale', App::currentLocale());
-        }
+        static::addGlobalScope('locale', function (Builder $builder) {
+            $locale = request()->input('locale');
+            if(isset($locale)){
+                if( $locale !== 'all'){
+                    $builder->where('locale', $locale);
+                } else {
+                    $builder;
+                }
+            }else{
+                $builder->where('locale', App::currentLocale());
+            }
+        });
 
     }
 
