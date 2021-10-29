@@ -15,6 +15,7 @@ abstract class BaseField
     protected string $placeholder = '';
     protected string $id = '';
     protected string $class = '';
+    protected string $group = 'all';
     protected int $col = 12;
     protected bool $disable =false;
     protected bool $readonly = false;
@@ -72,6 +73,18 @@ abstract class BaseField
     public function class(string $name): BaseField
     {
         $this->class = $this->class . ' ' . $name;
+        return $this;
+    }
+    
+    /**
+     * Add display group to input
+     *
+     * @param string $name
+     * @return $this
+     */
+    public function group(string $name): BaseField
+    {
+        $this->group = $name;
         return $this;
     }
 
