@@ -272,7 +272,7 @@ abstract class BaseField
 
     public function onlyOnEditing(): BaseField
     {
-        $this->showOnCreating = $this->showOnEditing = $this->showOnDetail = false;
+        $this->showOnCreating = $this->showOnIndex = $this->showOnDetail = false;
         $this->showOnEditing = true;
         return $this;
     }

@@ -15,7 +15,7 @@ trait DataTrait
     {
         $relations = $this->getRelationFields($this->model);
         $items = $this->dataQuery($relations);
-        $paginatedItems = $items->paginate(request()->input('result'));
+        $paginatedItems = $items->orderBy('created_at','DESC')->paginate(request()->input('result'));
         return Response::Json($paginatedItems, '200');
 
     }
