@@ -48,24 +48,20 @@ trait DataTrait
 
     public function applySearch($query)
     {
-        $req = json_decode(request()->input('search'));
+        $req = request()->input('search');
         if($req == null){
             return $query;
         }
         $searchableFields = $this->model->getSearchableFields();
 
         foreach($searchableFields as $field){
-            $query->orWhere($req, $field);
+            $query->orWhere($field->name,'like', "%$req%");
         }
 
         return $query;
+    
     }
 
-
-    public function getSearchableColumn(Type $var = null)
-    {
-        # code...
-    }
 
     private function applyFilters($query)
     {
