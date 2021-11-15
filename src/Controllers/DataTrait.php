@@ -42,7 +42,29 @@ trait DataTrait
     {
         $query = $this->model->select($this->model->getTable() . '.*')->with($relation);
         $query = $this->applyFilters($query);
+        $query = $this->applySearch($query);
         return $query;
+    }
+
+    public function applySearch($query)
+    {
+        $req = json_decode(request()->input('search'));
+        if($req == null){
+            return $query;
+        }
+        $searchableFields = $this->model->getSearchableFields();
+
+        foreach($searchableFields as $field){
+            $query->orWhere($req, $field);
+        }
+
+        return $query;
+    }
+
+
+    public function getSearchableColumn(Type $var = null)
+    {
+        # code...
     }
 
     private function applyFilters($query)

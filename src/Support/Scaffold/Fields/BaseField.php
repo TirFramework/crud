@@ -25,7 +25,7 @@ abstract class BaseField
     protected bool $showOnCreating = true;
     protected bool $showOnEditing = true;
     protected bool $sortable = true;
-    protected bool $searchable = true;
+    protected bool $searchable = false;
     protected $rules = '';
     protected $creationRules = '';
     protected $updateRules = '';

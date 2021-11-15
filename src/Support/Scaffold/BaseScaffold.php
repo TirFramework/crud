@@ -167,4 +167,18 @@ trait BaseScaffold
             }
         }
     }
+
+
+    final function getSearchableFields()
+    {
+        $fields = [];
+        foreach ($this->getIndexFields() as $field) {
+            if ($field->searchable) {
+                array_push($fields, $field);
+            }
+        }
+
+        return $fields;
+
+    }
 }
