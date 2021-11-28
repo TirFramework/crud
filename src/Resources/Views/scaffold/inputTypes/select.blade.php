@@ -1,22 +1,23 @@
 <?php
 $fieldName = $field->name;
-$options = ['class'=>'select2 input-lg dropdown-toggle form-control', $field->validation ?? null ];
-if(isset($field->multiple)):
-    if( $field->multiple == true):
+$options = ['class' => 'select2 input-lg dropdown-toggle form-control', $field->validation ?? null];
+if (isset($field->multiple)):
+    if ($field->multiple == true):
         $options['multiple'] = 'multiple';
-        $fieldName = $field->name.'[]';
+        $fieldName = $field->name . '[]';
     endif;
 else:
-    $options ['placeholder'] = trans('crud::panel.select').' '.trans("$crud->name::panel.$field->display");
+    $options ['placeholder'] = trans('core::panel.select') . ' ' . trans("$model->moduleName::panel.$field->display");
 endif;
 
 ?>
 
 <div class="{{  $field->col ?? 'col-12 col-md-12' }}">
     <div class="form-group">
-            {!! Form::select($fieldName, $field->data, null,$options)!!}
+        {!! Form::select($fieldName, $field->data, null,$options)!!}
 
-        <label for="{{$field->name}}" class="control-label text-right">@lang("$crud->name::panel.$field->display")</label>
+        <label for="{{$field->name}}"
+               class="control-label text-right">@lang("$model->moduleName::panel.$field->display")</label>
     </div>
 </div>
 

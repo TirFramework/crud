@@ -10,14 +10,15 @@ $clearName = preg_replace('/[\[\]]/i', '_' , $field->name);
     <div class="form-group">
         <div class="input-group">
             <span class="input-group-btn">
-                <a id="{{$clearName}}" data-input="{{$clearName}}_input" data-preview="{{$clearName}}_holder" class="image-btn btn btn-primary">
-                    <i class="fas fa-image"></i> {{trans('crud::panel.choose')}}
+                <a id="{{$clearName}}" data-input="{{$clearName}}_input" data-preview="{{$clearName}}_holder"
+                   class="image-btn btn btn-primary">
+                    <i class="fas fa-image"></i> {{trans('core::panel.choose')}}
                 </a>
             </span>
             {!! Form::text($field->name,null,['class' => 'form-control','id'=>$clearName.'_input', 'placeholder'=> trans("$crud->name::panel.$field->name")])!!}
         </div>
         {!! Form::label("$field->name", trans("$crud->name::panel.$field->display"), ['class' => 'control-label uploder-label']) !!}
-{{--        <img id="{{$clearName}}_holder" @isset($image) src="{{url('/').'/'.$image}}" @endisset class="image-holder">--}}
+        {{--        <img id="{{$clearName}}_holder" @isset($image) src="{{url('/').'/'.$image}}" @endisset class="image-holder">--}}
 
         <div class="image-holder" id="{{$clearName}}_holder">
             @isset($item->{$name})

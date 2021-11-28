@@ -1,141 +1,127 @@
 <?php
 
 namespace Tir\Crud\Controllers;
-use Yajra\DataTables\Facades\DataTables;
+
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Arr;
 
 
 trait DataTrait
 {
-    /**
-     * This function initial and search in fields they mush show in index page,
-     *  if filed->visible contain "i" character and field->relation had been true,
-     * push field name into $field->relations array for update crud relations.
-     * @return void
-     */
-    public function dataInitialFields()
+
+    public function data(): JsonResponse
     {
-        //add translation relation
-        if(count($this->model->translatedAttributes) > 0 ){
-            array_push($this->relations, 'translations');
-        }
+        $relations = $this->getRelationFields($this->model);
+        $items = $this->dataQuery($relations);
+        $paginatedItems = $items->orderBy('created_at','DESC')->paginate(request()->input('result'));
+        return Response::Json($paginatedItems, '200');
+
+    }
 
 
-        foreach ($this->fields as $group){
-            foreach ($group->tabs as $tab){
-                foreach ($tab->fields as $field) {
-                    if ((strpos($field->visible, 'i') !== false)) {
-                        if (isset($field->relation)) {
-                            //get model form relation
-                            $relationModel =  get_class($this->model->{$field->relation[0]}()->getModel());
-                            $relationModel = new $relationModel;
-                            if(count($relationModel->translatedAttributes) > 0 ){
-                                array_push($this->relations, $field->relation[0].'.translations');
-                            }else{
-                                array_push($this->relations, $field->relation[0]);
-                            }
-                        }
-                    }
-                }
+    public function getRelationFields($model): array
+    {
+        $relations = [];
+        foreach ($model->getIndexFields() as $field) {
+            if (isset($field->relation)) {
+                $relation = $field->relation->name . ':' . $field->relation->key . ',' . $field->relation->field . ' as text';
+                array_push($relations, $relation);
             }
         }
+
+        return $relations;
     }
 
 
     /**
      * This function return a eloquent select with relation ship
-     * @return eloquent
      */
-    public function dataQuery()
+    public function dataQuery($relation): object
     {
+        $query = $this->model->select($this->model->getTable() . '.*')->with($relation);
+        $query = $this->applyFilters($query);
+        $query = $this->applySearch($query);
+        return $query;
+    }
 
-        $items = $this->model::select($this->table.'.*')->with($this->relations);
-        if($this->permission == 'owner'){
-            $items = $items->OnlyOwner();
+    public function applySearch($query)
+    {
+        $req = request()->input('search');
+        if($req == null){
+            return $query;
+        }
+        $searchableFields = $this->model->getSearchableFields();
+
+        foreach($searchableFields as $field){
+            $query->orWhere($field->name,'like', "%$req%");
         }
 
-        return $items;
+        return $query;
+    
     }
 
 
-    /**
-     * This function return Datatables with add columsn
-     * @param object $items
-     * @return  \Yajra\DataTables\Facades\DataTables
-     */
-    public function dataTable($items)
+    private function applyFilters($query)
     {
-        return Datatables::eloquent($items)
-            ->addColumn('action', function ($item) {
-                $viewBtn = $DeleteBtn = $editBtn=null;
-                // if($this->checkPermission('show')){
-                //     $viewBtn = '<a href="'.route( $this->name.'.show',$item->getKey()). '" class="fa-md text-success"><i title="' . trans('panel.view') . '" class="far fa-eye"></i></a>';
-                // }
-                if($this->checkPermission('edit')){
-                    $editBtn = '<a href="'.route( $this->name.'.edit',$item->getKey()). '" class="fa-md text-info"><i title="' . trans('panel.edit') . '" class="fas fa-pencil-alt"></i></a>';
+        $req = json_decode(request()->input('filters'));
+        if($req == null){
+            return $query;
+        }
+
+        $filters = $this->getFilter($req);
+
+
+
+        foreach ($filters['original'] as $key => $value) {
+            $query->whereIn($key, $value);
+        }
+
+        foreach ($filters['relational'] as $filter){
+            $query->whereHas($filter['relation'], function (Builder  $q)use($filter){
+                $q->whereIn($filter['primaryKey'], $filter['value']);
+            });
+        }
+        return $query;
+
+    }
+
+
+    private function getFilter($req):array
+    {
+
+        $filters =['original'=>[],'relational'=>[]];
+
+        $original = [];
+        $relational = [];
+
+        foreach ($req as $filter => $value) {
+            $field = $this->model->getFieldByName($filter);
+
+                //if filter is manyToMany relation
+                if(isset($field->relation) && isset($field->multiple))
+                {
+                    //get table name from relation
+                    $table = $this->model->{$field->relation->name}()->getRelated()->getTable();
+
+                    //get primary key from relation
+                    $primaryKey = $this->model->{$field->relation->name}()->getRelated()->getKeyName();
+
+                    $primaryKey = $table . '.' . $primaryKey;
+
+                    array_push($relational, ['relation' =>  $field->relation->name,  'value'=>$value, 'primaryKey'=>$primaryKey]);
+                }else{
+                    $original[$field->name] = $req->{$field->name};
                 }
-                if($this->checkPermission('destroy')){
-                    $DeleteBtn = '<button onclick=' . '"deleteRow(' . "'" . route($this->name . '.destroy', $item->getKey()) . "'" . ')" class="fa-md text-danger"> <i title="' . trans('panel.delete') . '" class="fas fa-trash"></i></button>';
-                }
-                return $viewBtn.' '.$editBtn.' '.$DeleteBtn;
-            })->addColumns($this->addColumns())
-            ->make(true);
-    }
+            }
 
-    /**
-     * Add extra column to datatable
-     * @return array
-     */
-    public function addColumns()
-    {
-        return [];
-    }
+        $filters['original'] = $original;
+        $filters['relational'] = $relational;
 
-    /**
-     * return datatable object
-     * @return object
-     */
-    public function data()
-    {
-        $this->dataInitialFields();
-        $items = $this->dataQuery();
-        return $this->dataTable($items);
-    }
-
-
-
-        /**
-     * return datatable object
-     * @return object
-     */
-    public function trashData()
-    {
-        $this->dataInitialFields();
-        $items = $this->dataQuery()->onlyTrashed();
-        return $this->trashDataTable($items);
-    }
-
-    /**
-     * This function return Datatables with add columsn
-     * @param object $items
-     */
-    public function trashDataTable($items)
-    {
-        return Datatables::eloquent($items)
-            ->addColumn('action', function ($item) {
-                $DeleteBtn = $restoreBtn=null;
-
-                if($this->checkPermission('destroy')){
-                    $restoreBtn = '<a href="'.route( $this->name.'.restore',$item->getKey()). '" class="fa-md text-success"><i title="' . trans('panel.restore') . '" class="fas fa-recycle"></i></a>';
-
-//                    $restoreBtn = '<a href="'.route( $this->name.'.restore',$item->getKey()).'" class="btn btn-sm btn-success"><i class="fas fa-repeat"></i> <span class="hidden"></span></a>';
-                }
-                if($this->checkPermission('forceDestroy')){
-                    $DeleteBtn = '<button onclick=' . '"deleteRow(' . "'" . route($this->name . '.forceDestroy', $item->getKey()) . "'" . ')" class="fa-md text-danger"> <i title="' . trans('panel.delete') . '" class="fas fa-trash"></i></button>';
-                }
-                return $restoreBtn.' '.$DeleteBtn;
-            })->addColumns($this->addColumns())
-            ->make(true);
+        return $filters;
     }
 
 }
+
 

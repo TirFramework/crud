@@ -2,51 +2,80 @@
 
 namespace Tir\Crud\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
 
 
 trait SelectTrait
 {
 
-        /**
-     * This function select model and get data for relation select boxes in views
-     *  if permission == owner return only owner item
-     * @return eloquent
-     */
-    public function selectCrud($request)
+
+//    public function selectCrud($request)
+//    {
+//        //TODO : add comment and refactor this section
+//        $key = $request['key'];
+//        $loadMore = 1;
+//        $offset = $request['page'] * 20;
+//
+//        if(in_array($key,$this->model->translatedAttributes)){
+//            $items = $this->model::select('id')->whereTranslationLike($key, '%'.$request['search'].'%')->paginate(10)->toArray();
+//            $data = str_replace('name','text',json_encode($items['data']));
+//        }else{
+//            $items = $this->model::select('id' ,"$key as text")->where($key,'LIKE', '%'.$request['search'].'%')->orderBy('text')->paginate(10)->toArray();
+//            $data = json_encode($items['data']);
+//        }
+//
+//        if(!$items['next_page_url']){
+//            $loadMore = 0;
+//        }
+//        if($this->permission == 'owner'){
+//            $items = $items->OnlyOwner();
+//        }
+//        $json = '{
+//                    "results": '
+//                    .$data.
+//                    ', "pagination": {
+//                        "more": '.$loadMore.
+//                    '}
+//                }';
+//        return $json;
+//    }
+
+    public function select(request $request): JsonResponse
     {
-        //TODO : add comment and refactor this section
-        $key = $request['key'];
-        $loadMore = 1;
-        $offset = $request['page'] * 20;
+        $items = [];
+        if(isset($request['id']))
+        {
+            $items =  $this->find($request['id'], $request['field']);
+            return Response::Json($items, 200);
 
-        if(in_array($key,$this->model->translatedAttributes)){
-            $items = $this->model::select('id')->whereTranslationLike($key, '%'.$request['search'].'%')->paginate(10)->toArray();
-            $data = str_replace('name','text',json_encode($items['data']));
-        }else{
-            $items = $this->model::select('id' ,"$key as text")->where($key,'LIKE', '%'.$request['search'].'%')->orderBy('text')->paginate(10)->toArray();
-            $data = json_encode($items['data']);
         }
 
-        if(!$items['next_page_url']){
-            $loadMore = 0;
+        if(isset($request['field']))
+        {
+            $items = $this->search($request['field'], $request['search']);
+            return Response::Json($items, 200);
+
         }
-        if($this->permission == 'owner'){
-            $items = $items->OnlyOwner();
-        }
-        $json = '{
-                    "results": ' 
-                    .$data.
-                    ', "pagination": {
-                        "more": '.$loadMore.
-                    '}
-                }';
-        return $json;
+        return Response::Json($items, 404);
+
     }
 
-    public function select(request $request)
+    private function search($field, $search)
     {
-        return $this->selectCrud($request);
+        $keyName = $this->model->getKeyName();
+        return  $this->model::select($keyName.' as value' ,"$field as label")->where($field,'LIKE', '%'.$search.'%')->orderBy('label')->get();
+
     }
+
+    private function find($id, $field){
+        $keyName = $this->model->getKeyName();
+        $id  = explode(',',$id);
+        return $this->model->select($keyName.' as value' ,"$field as label")->whereIn($keyName,$id)->get();
+
+    }
+
+
 
 }

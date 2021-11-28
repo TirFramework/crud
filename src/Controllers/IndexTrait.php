@@ -2,22 +2,45 @@
 
 namespace Tir\Crud\Controllers;
 
-use Tir\Crud\Events\IndexEvent;
-use Illuminate\Support\Facades\View;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Response;
 
 trait IndexTrait
 {
-    /**
-     *  This function return and pass crud value to the index view.
-     * @return \Illuminate\Support\Facades\View index
-     */
+
     public function index()
     {
+        $col = [];
+        foreach ($this->model->getIndexFields() as $index => $field) {
+            $col[$index] = [
+                'title'     => $field->display,
+                'dataIndex' => $this->getName($field),
+                // 'sorter'    => $field->sortable,
+                'fieldName' => $field->name,
+                'valueType' => $field->valueType,
+                'comment'   => $field->comment,
+            ];
+            if(count($field->filter)){
+                $col[$index]['filters'] = $field->filter;
+            }
+        }
 
-//        dd($this->crud);
-        //here we can add some functionality with other packages or in application
-        //event(new IndexEvent($this->name));
-        return View::first(["$this->name::admin.index", "crud::scaffold.index"])->with('crud', $this->crud);
+
+        $data = [
+            'cols'       => $col,
+            'dataRoute'  => route('admin.' . $this->model->moduleName . '.data'),
+            'trashRoute' => route('admin.' . $this->model->moduleName . '.trashData'),
+        ];
+
+        return Response::json($data, '200');
     }
 
+    private function getName($field)
+    {
+        if(isset($field->relation)){
+            return $field->relation->name;
+        }else{
+            return $field->name;
+        }
+    }
 }

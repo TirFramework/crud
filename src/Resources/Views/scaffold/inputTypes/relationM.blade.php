@@ -31,21 +31,21 @@
 
 @push('scripts')
     <script>
-    $("#select-{{$id}}").select2({
-        placeholder: "{{trans('crud::panel.select').' '.trans("$crud->name::panel.$field->display")}}",
-        dir: $('body').attr('dir'),
-        allowClear: true,
-        ajax: {
-            url: "/admin/{{$model::$routeName}}/select/?key={{$key}}",
-            dataType: 'json',
-            data: function (params) {
-                var query = {
-                    search: params.term,
-                    page: params.page || 0
+        $("#select-{{$id}}").select2({
+            placeholder: "{{trans('core::panel.select').' '.trans("$crud->name::panel.$field->display")}}",
+            dir: $('body').attr('dir'),
+            allowClear: true,
+            ajax: {
+                url: "/admin/{{$model::$routeName}}/select/?key={{$key}}",
+                dataType: 'json',
+                data: function (params) {
+                    var query = {
+                        search: params.term,
+                        page: params.page || 0
+                    }
+                    return query;
                 }
-                return query;
             }
-        }
-    });
-</script>
+        });
+    </script>
 @endpush

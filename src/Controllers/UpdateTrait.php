@@ -2,125 +2,61 @@
 
 namespace Tir\Crud\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Tir\Crud\Events\UpdateEvent;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Response;
 
 trait UpdateTrait
 {
-    /**
-     * @param Request $request
-     * @param int $id
-     * @return Redirect
-     */
-    public function update(Request $request, int $id)
-    {
-        event(new UpdateEvent($this->name));
+    use ValidationTrait;
 
-        $item = $this->updateFind($id);
-        $this->updateValidation($request, $item);
-        $request = $this->updateRequestManipulation($request);
-        $this->updateCrud($request, $item);
-        $this->updateAdditional($request, $item);
-        return $this->updateReturn($request, $item);
+    public function update(Request $request, int $id): JsonResponse
+    {
+        $item = $this->model->findOrFail($id);
+        $item->scaffold();
+
+        $this->updateCrud($request, $id, $item);
+        return $this->updateResponse($item);
     }
 
 
-    /**
-     * This function find an object model and if permission == owner return only owner item
-     * @return object model
-     */
-    public function updateFind($id)
+    private function updateCrud(Request $request, $id, $item)
     {
-        $item = $this->model::findOrFail($id);
-        if ($this->permission == 'owner') {
-            $item = $item->OnlyOwner();
-        }
-        return $item;
+        return DB::transaction(function () use ($request, $item) { // Start the transaction
+
+            $item->update($request->all());
+
+            $this->updateRelations($request, $item);
+
+            return $item;
+        });
     }
 
-    /**
-     * @param Request $request
-     * @param $item
-     */
-    public function updateValidation(request $request, $item)
+
+    private function updateRelations(Request $request, $item)
     {
-        $validation = $item->getValidation();
-         Validator::make($request->all(), $validation)->validate();
-
-    }
-
-    /**
-     * This function for manipulation on request data
-     * @param Request $request
-     * @return Request
-     */
-    public function updateRequestManipulation(request $request)
-    {
-        return $request;
-    }
-
-    /**
-     * This function update crud and relations
-     * @param Request $request
-     * @param $item
-     */
-    public function updateCrud(Request $request, $item)
-    {
-
-        //update item
-        $item->update($request->all());
-        //update relation
-        foreach ($this->fields as $group) {
-            if ((strpos($group->visible, 'e') !== false)) {
-                foreach ($group->tabs as $tab){
-                    if ((strpos($tab->visible, 'e') !== false)) {
-                        foreach ($tab->fields as $field) {
-                            if ((strpos($field->visible, 'e') !== false) && $field->type == 'relationM') {
-                                $data = $request->input($field->name);
-                                $item->{$field->relation[0]}()->sync($data);
-                            }
-                        }
-                    }
-                 }
+        foreach ($this->model->getCreateFields() as $field) {
+            if (isset($field->relation) && $field->multiple) {
+                $data = $request->input($field->name);
+                $item->{$field->relation->name}()->sync($data);
             }
         }
     }
 
 
-    /**
-     * This method run saveAdditional function again and if we want different functionality in update,
-     * we can override this function in update action
-     * @param Request $request
-     * @param $item
-     * @return mixed
-     */
-    public function updateAdditional(Request $request, $item)
+    private function updateResponse($item): JsonResponse
     {
-        return $this->saveAdditional($request, $item);
-    }
+        $moduleName = $this->model->getModuleName();
+        $message = trans('core::message.item-updated', ['item' => trans("message.item.$moduleName")]); //translate message
+        return Response::Json(
+            [
+                'id'      => $item->id,
+                'updated' => true,
+                'message' => $message,
+            ]
+            , 200);
 
-    /**
-     * This function redirect to view 
-     * if user clicked save&close button function redirected user to index page
-     * if user clicked on save button function redirected user to previous page
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param Object $item
-     * @return redirect to url
-     */
-    public function updateReturn(request $request, $item)
-    {
-        $url = ($request->input('save_close') ? route("$this->name.index") : route("$this->name.edit", [$this->name => $item->getKey()]));
-        $message = trans('crud::message.item-updated', ['item' => trans("message.item.$this->name")]); //translate message
-        Session::flash('message', $message);
-        if($request->input('save_close')){
-            return Redirect::to(route("$this->name.index"));
-        }else{
-            return Redirect::to(route("$this->name.edit",$item->getKey()))->with('tab', $request->input('tab'));
-        }
     }
 
 }

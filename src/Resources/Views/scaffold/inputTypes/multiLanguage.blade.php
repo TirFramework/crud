@@ -4,7 +4,7 @@ $langs = [
         ['id'=>'2','name'=>'en']
         ];
 
-$langs=     json_decode(json_encode($langs));
+$langs=     json_decode(json_encode($langs))
 @endphp
 <div class="card card-default">
     <div class="card-header ">
@@ -37,25 +37,25 @@ $langs=     json_decode(json_encode($langs));
                                             'class'=>'form-horizontal row',
                                             'enctype'=>'multipart/form-data'
                                             ]) !!}
-                            @foreach ($field->fields as $subField)
-                                @if(strpos($subField->visible, 'e') !== false)
-                                    @if(!isset($subField->display))
-                                        @php $subField->display = $subField->name; @endphp
-                                    @endif
-                                        @if(view()->exists("$crud->name::inputTypes.$subField->type"))
-                                            @include("$crud->name::inputTypes.$subField->type",['field'=>$subField,'crud'=>$crud, 'item'=>$multiLanguageItem])
-                                        @else
-                                            @include("crud::scaffold.inputTypes.$subField->type",['field'=>$subField,'crud'=>$crud,'item'=>$multiLanguageItem])
-                                        @endif
+                        @foreach ($field->fields as $subField)
+                            @if(strpos($subField->visible, 'e') !== false)
+                                @if(!isset($subField->display))
+                                    @php $subField->display = $subField->name @endphp
                                 @endif
-                            @endforeach
+                                @if(view()->exists("$crud->name::inputTypes.$subField->type"))
+                                    @include("$crud->name::inputTypes.$subField->type",['field'=>$subField,'crud'=>$crud, 'item'=>$multiLanguageItem])
+                                @else
+                                    @include("core::scaffold.inputTypes.$subField->type",['field'=>$subField,'crud'=>$crud,'item'=>$multiLanguageItem])
+                                @endif
+                            @endif
+                        @endforeach
                         {!! Form::hidden('language_id', $lang->id) !!}
 
                         <div class="col-12">
                             <div class="form-group text-right">
                                 {!! Form::label('', '', ['class' => ' control-label']) !!}
                                 <div class="">
-                                    {!! Form::submit(trans('crud::panel.update'),['class'=>'btn btn-md btn-info save'])!!}
+                                    {!! Form::submit(trans('core::panel.update'),['class'=>'btn btn-md btn-info save'])!!}
                                 </div>
                             </div>
                         </div>
@@ -73,12 +73,12 @@ $langs=     json_decode(json_encode($langs));
                         @foreach ($field->fields as $subField)
                             @if(strpos($subField->visible, 'c') !== false)
                                 @if(!isset($subField->display))
-                                    @php $subField->display = $subField->name; @endphp
+                                    @php $subField->display = $subField->name @endphp
                                 @endif
                                 @if(view()->exists("$crud->name::inputTypes.$subField->type"))
                                     @include("$crud->name::inputTypes.$subField->type",['field'=>$subField,'crud'=>$crud])
                                 @else
-                                    @include("crud::scaffold.inputTypes.$subField->type",['field'=>$subField,'crud'=>$crud])
+                                    @include("core::scaffold.inputTypes.$subField->type",['field'=>$subField,'crud'=>$crud])
                                 @endif
                             @endif
                         @endforeach
@@ -87,7 +87,7 @@ $langs=     json_decode(json_encode($langs));
                         <div class="col-12">
                             {{--Submit & Cancel--}}
                             <div class="form-group text-right">
-                                {!! Form::submit(trans('crud::panel.update'),['class'=>'btn btn-md btn-info save'])!!}
+                                {!! Form::submit(trans('core::panel.update'),['class'=>'btn btn-md btn-info save'])!!}
                             </div>
                         </div>
                         {!! Form::close() !!}

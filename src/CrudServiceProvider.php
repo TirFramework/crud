@@ -3,13 +3,14 @@
 namespace Tir\Crud;
 
 
-use Illuminate\Database\Query\Builder;
-use Tir\Crud\EventServiceProvider;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
-use Tir\Crud\Services\AdminFileds;
-use Tir\Crud\Services\Crud;
-use Tir\Crud\Services\ResourceRegistrar;
-use Tir\Setting\Facades\Stg;
+use Tir\Crud\Providers\CrudSeedServiceProvider;
+use Tir\Crud\Support\Middleware\AddUserIdToRequestsMiddleware;
+use Tir\Crud\Support\Middleware\SetLocaleMiddleware;
+use Tir\Crud\Support\Module\AdminMenu;
+use Tir\Crud\Support\Module\Modules;
+use Tir\Crud\Support\Resource\ResourceRegistrar;
 
 class CrudServiceProvider extends ServiceProvider
 {
@@ -21,21 +22,20 @@ class CrudServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //Merge config file in package and published config file.
         $this->mergeConfigFrom(
-            __DIR__.'/Config/crud.php', 'crud'
+            __DIR__ . '/Config/crud.php', 'crud'
         );
+        $this->loadTranslationsFrom(__DIR__ . '/Resources/Lang/', 'core');
 
-        //Add CustomEnhancement resource routing
-        //this route register several route resource those use in CRUD Module
-        $registrar = new ResourceRegistrar($this->app['router']);
-        $this->app->bind('Illuminate\Routing\ResourceRegistrar', function () use ($registrar) {
-            return $registrar;
-        });
 
-        $this->app->singleton('Crud', function (){
-            return new Crud;
-        });
+        $this->registerNewRouteResource();
+
+        $this->registerModulesSingleton();
+
+        $this->app->register(CrudSeedServiceProvider::class);
+
+
+        $this->adminMenu();
     }
 
     /**
@@ -45,32 +45,50 @@ class CrudServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-
-
-        $this->loadRoutesFrom(__DIR__.'/Routes/web.php');
-
-        $this->loadViewsFrom(__DIR__.'/Resources/Views', 'crud');
-
-        $this->loadTranslationsFrom(__DIR__.'/Resources/Lang/', 'crud');
-
-        $this->registerResetOrderMacro();
-
+        $this->loadRoutesFrom(__DIR__ . '/Routes/web.php');
+        $this->loadViewsFrom(__DIR__ . '/Resources/Views', 'core');
         $this->publishes([
-            __DIR__.'/config/crud.php' => config_path('crud.php'),
+            __DIR__ . '/config/crud.php' => config_path('crud.php'),
         ]);
+
+        // $this->app['router']->aliasMiddleware('addUserIdToRequests', AddUserIdToRequestsMiddleware::class);
+        // $this->app['router']->pushMiddlewareToGroup('web', AddUserIdToRequestsMiddleware::class);
+
+        $this->app['router']->aliasMiddleware('setLocale', SetLocaleMiddleware::class);
+        $this->app['router']->pushMiddlewareToGroup('*', SetLocaleMiddleware::class);
+
 
 
     }
 
-    private function registerResetOrderMacro()
+
+    /**
+     * Register several route resource those use in CRUD Module
+     *
+     * @return void
+     */
+    private function registerNewRouteResource()
     {
-        Builder::macro('resetOrders', function () {
-            $this->{$this->unions ? 'unionOrders' : 'orders'} = null;
-            return $this;
+        $registrar = new ResourceRegistrar($this->app['router']);
+        $this->app->bind('Illuminate\Routing\ResourceRegistrar', function () use ($registrar) {
+            return $registrar;
         });
     }
 
 
+    /**
+     * Register a singleton container
+     */
+
+    private function registerModulesSingleton()
+    {
+        Modules::init();
+    }
+
+    private function adminMenu()
+    {
+        $this->app->singleton('AdminMenu', function ($app) {
+            return new AdminMenu;
+        });
+    }
 }
-
-

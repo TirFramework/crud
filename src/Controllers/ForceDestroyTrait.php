@@ -2,9 +2,9 @@
 
 namespace Tir\Crud\Controllers;
 
-use Tir\Crud\Events\ForceDestroyEvent;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Session;
+use Tir\Crud\Events\ForceDestroyEvent;
 
 trait ForceDestroyTrait
 {
@@ -19,9 +19,9 @@ trait ForceDestroyTrait
         $item = $this->findForForceDestroy($id);
 
         $item->delete();
-        $message = trans('crud::message.item-permanently-deleted',['item'=>trans("message.item.$this->name")]); //translate message
+        $message = trans('core::message.item-permanently-deleted', ['item' => trans("message.item.$this->name")]); //translate message
         Session::flash('message', $message);
-        return Redirect::to(route("$this->name.trash"));  
+        return Redirect::to(route("$this->name.trash"));
     }
     
 

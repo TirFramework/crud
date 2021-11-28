@@ -1,4 +1,4 @@
-@php
+{{-- @php
     $placeholder = null;
     if(isset($field->placeholder)){
         $placeholder = $field->placeholder;
@@ -15,3 +15,9 @@
         {!! Form::label($field->name, trans("$crud->name::panel.$field->display"), ['class' => 'control-label']) !!}
     </div>
 </div>
+ --}}
+
+<x-field :field="$field" :item="$model" :message="$message ?? null" >
+	{!!  Form::textarea( $field->name, null, ['rows'=>'2', $field->option ?? null] )  !!}
+</x-field>
+

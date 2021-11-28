@@ -2,8 +2,8 @@
 
 namespace Tir\Crud\Controllers;
 
-use Tir\Crud\Events\TrashEvent;
 use Illuminate\Support\Facades\View;
+use Tir\Crud\Events\TrashEvent;
 
 trait TrashTrait
 {
@@ -15,7 +15,7 @@ trait TrashTrait
     {
         //here we can add some functionality with other packages or in application
         event(new TrashEvent($this->name));
-        return View::first(["$this->name::admin.index", "crud::scaffold.index"])->with(['crud'=>$this->crud,'trash'=>true]);
+        return View::first(["$this->name::admin.index", "core::scaffold.index"])->with(['crud' => $this->crud, 'trash' => true]);
         
     }
 
