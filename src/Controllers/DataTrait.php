@@ -36,17 +36,18 @@ trait DataTrait
 
 
     /**
-     * This function return a eloquent select with relation ship
+     * This function return a eloquent select with relationship
      */
     public function dataQuery($relation): object
     {
         $query = $this->model->select($this->model->getTable() . '.*')->with($relation);
+        $query = $query->accessLevel();
         $query = $this->applyFilters($query);
         $query = $this->applySearch($query);
         return $query;
     }
 
-    public function applySearch($query)
+    private function applySearch($query)
     {
         $req = request()->input('search');
         if($req == null){
@@ -59,7 +60,7 @@ trait DataTrait
         }
 
         return $query;
-    
+
     }
 
 

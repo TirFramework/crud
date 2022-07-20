@@ -11,7 +11,6 @@ trait CreateTrait
     public function create(): JsonResponse
     {
         $fields = $this->model->getCreateFields();
-
         return Response::json($fields, '200');
 
     }

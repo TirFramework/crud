@@ -2,7 +2,9 @@
 
 namespace Tir\Crud\Controllers;
 
+use Illuminate\Support\Facades\Response;
 use Illuminate\Routing\Controller as BaseController;
+use Tir\Authorization\Access;
 
 abstract class CrudController extends BaseController
 {
@@ -13,17 +15,12 @@ abstract class CrudController extends BaseController
 
     public function __construct()
     {
-//        $this->middleware('acl');
+        $this->middleware('acl');
         // $this->middleware('setLocale');
-        $this->request();
         $this->modelInit();
         $this->validation();
     }
 
-    protected function request()
-    {
-
-    }
 
     private function modelInit(): void
     {
@@ -33,28 +30,28 @@ abstract class CrudController extends BaseController
     }
 
 
-//
-//    private function checkAccess($module, $action): string
-//    {
-//        if (class_exists(access::class)) {
-//            if (access::check($module, $action) != 'deny') {
-//                return true;
-//            }
-//        }
-//    }
-//
-//    private function executeAccess($module, $action): string
-//    {
-//        if (class_exists(access::class)) {
-//            return access::execute($module, $action);
-//        }
-//        return 'allow';
-//    }
-//
-//
+
+    private function checkAccess($module, $action): string
+    {
+        if (class_exists(access::class)) {
+            if (access::check($module, $action) != 'deny') {
+                return true;
+            }
+        }
+    }
+
+    private function executeAccess($module, $action): string
+    {
+        if (class_exists(access::class)) {
+            return access::execute($module, $action);
+        }
+        return 'allow';
+    }
+
 //    private function getDataPermission(): array
 //    {
 //        $permission['index'] = $this->checkAccess($this->model->getModuleName(), 'index');
+//        $permission['create'] = $this->checkAccess($this->model->getModuleName(), 'create');
 //        $permission['edit'] = $this->checkAccess($this->model->getModuleName(), 'edit');
 //        $permission['destroy'] = $this->checkAccess($this->model->getModuleName(), 'destroy');
 //
