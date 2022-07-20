@@ -33,8 +33,8 @@ abstract class CrudController extends BaseController
 
     private function checkAccess($module, $action): string
     {
-        if (class_exists(access::class)) {
-            if (access::check($module, $action) != 'deny') {
+        if (class_exists(Access::class)) {
+            if (Access::check($module, $action) != 'deny') {
                 return true;
             }
         }
@@ -42,8 +42,8 @@ abstract class CrudController extends BaseController
 
     private function executeAccess($module, $action): string
     {
-        if (class_exists(access::class)) {
-            return access::execute($module, $action);
+        if (class_exists(Access::class)) {
+            return Access::execute($module, $action);
         }
         return 'allow';
     }

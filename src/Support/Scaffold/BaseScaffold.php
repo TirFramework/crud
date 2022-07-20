@@ -84,7 +84,7 @@ trait BaseScaffold
 
     private function checkActionsAccess($moduleName)
     {
-        if (class_exists(access::class)) {
+        if (class_exists(Access::class)) {
 
             $this->indexable = Access::check($moduleName, 'index');
             $this->viewable = Access::check($moduleName, 'view');

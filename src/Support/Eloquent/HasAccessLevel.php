@@ -11,6 +11,8 @@ trait HasAccessLevel
 {
 
     public function scopeAccessLevel($query) {
+        if (class_exists(Access::class)) {
+
             $access = Access::check($this->getModuleName(), 'index');
             if ($access == 'owner') {
                 return $query->where('user_id', '=', Auth::id());
@@ -19,6 +21,7 @@ trait HasAccessLevel
             if ($access == 'deny') {
                 abort(403);
             }
+        }
         return $query;
     }
 
