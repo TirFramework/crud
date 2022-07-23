@@ -21,37 +21,100 @@ class Module
     {
         $this->permissions = [
             [
-                'index' => trans('core::panel.index'),
-                'allow' => trans('core::panel.allow'),
-                'owner' => trans('core::panel.owner'),
-                'deny'  => trans('core::panel.deny')
-            ],
-
-            [
-                'create' => trans('core::panel.create'),
-                'allow'  => trans('core::panel.allow'),
-                'deny'   => trans('core::panel.deny')
-            ],
-
-
-            [
-                'edit'  => trans('core::panel.edit'),
-                'allow' => trans('core::panel.allow'),
-                'owner' => trans('core::panel.owner'),
-                'deny'  => trans('core::panel.deny')
-            ],
-
-            [
-                'destroy' => trans('core::panel.delete-restore'),
-                'allow'   => trans('core::panel.allow'),
-                'owner'   => trans('core::panel.owner'),
-                'deny'    => trans('core::panel.deny')
+                'page' => [
+                    'label' => trans('core::panel.index'),
+                    'value' => 'index'
+                ],
+                'access' => [
+                    [
+                        'label' => trans('core::panel.allow'),
+                        'value' => 'allow',
+                    ],
+                    [
+                        'label' => trans('core::panel.owner'),
+                        'value' => 'owner',
+                    ],
+                    [
+                        'label' => trans('core::panel.deny'),
+                        'value' => 'deny',
+                    ]
+                ]
             ],
             [
-                'fullDestroy' => trans('core::panel.full-delete'),
-                'allow'       => trans('core::panel.allow'),
-                'owner'       => trans('core::panel.owner'),
-                'deny'        => trans('core::panel.deny')
+                'page' => [
+                    'label' => trans('core::panel.create'),
+                    'value' => 'create'
+                ],
+                'access' => [
+                    [
+                        'label' => trans('core::panel.allow'),
+                        'value' => 'allow',
+                    ],
+                    [
+                        'label' => trans('core::panel.deny'),
+                        'value' => 'deny',
+                    ]
+                ]
+            ],
+            [
+                'page' => [
+                    'label' => trans('core::panel.edit'),
+                    'value' => 'edit'
+                ],
+                'access' => [
+                    [
+                        'label' => trans('core::panel.allow'),
+                        'value' => 'allow',
+                    ],
+                    [
+                        'label' => trans('core::panel.owner'),
+                        'value' => 'owner',
+                    ],
+                    [
+                        'label' => trans('core::panel.deny'),
+                        'value' => 'deny',
+                    ]
+                ]
+            ],
+            [
+                'page' => [
+                    'label' => trans('core::panel.delete-restore'),
+                    'value' => 'delete'
+                ],
+                'access' => [
+                    [
+                        'label' => trans('core::panel.allow'),
+                        'value' => 'allow',
+                    ],
+                    [
+                        'label' => trans('core::panel.owner'),
+                        'value' => 'owner',
+                    ],
+                    [
+                        'label' => trans('core::panel.deny'),
+                        'value' => 'deny',
+                    ]
+                ]
+            ],
+            [
+                'page' => [
+                    'label' => trans('core::panel.full-delete'),
+                    'value' => 'full-delete'
+                ],
+                'access' => [
+                    [
+                        'label' => trans('core::panel.allow'),
+                        'value' => 'allow',
+                    ],
+                    [
+                        'label' => trans('core::panel.owner'),
+                        'value' => 'owner',
+                    ],
+                    [
+                        'label' => trans('core::panel.deny'),
+                        'value' => 'deny',
+                    ]
+                ]
             ]
         ];
     }

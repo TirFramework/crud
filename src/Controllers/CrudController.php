@@ -2,7 +2,9 @@
 
 namespace Tir\Crud\Controllers;
 
+use Illuminate\Support\Facades\Response;
 use Illuminate\Routing\Controller as BaseController;
+use Tir\Authorization\Access;
 
 abstract class CrudController extends BaseController
 {
@@ -15,15 +17,10 @@ abstract class CrudController extends BaseController
     {
 //        $this->middleware('acl');
         // $this->middleware('setLocale');
-        $this->request();
         $this->modelInit();
         $this->validation();
     }
 
-    protected function request()
-    {
-
-    }
 
     private function modelInit(): void
     {
@@ -33,11 +30,11 @@ abstract class CrudController extends BaseController
     }
 
 
-//
+
 //    private function checkAccess($module, $action): string
 //    {
-//        if (class_exists(access::class)) {
-//            if (access::check($module, $action) != 'deny') {
+//        if (class_exists(Access::class)) {
+//            if (Access::check($module, $action) != 'deny') {
 //                return true;
 //            }
 //        }
@@ -45,20 +42,10 @@ abstract class CrudController extends BaseController
 //
 //    private function executeAccess($module, $action): string
 //    {
-//        if (class_exists(access::class)) {
-//            return access::execute($module, $action);
+//        if (class_exists(Access::class)) {
+//            return Access::execute($module, $action);
 //        }
 //        return 'allow';
-//    }
-//
-//
-//    private function getDataPermission(): array
-//    {
-//        $permission['index'] = $this->checkAccess($this->model->getModuleName(), 'index');
-//        $permission['edit'] = $this->checkAccess($this->model->getModuleName(), 'edit');
-//        $permission['destroy'] = $this->checkAccess($this->model->getModuleName(), 'destroy');
-//
-//        return $permission;
 //    }
 
 

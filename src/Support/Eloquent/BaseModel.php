@@ -6,6 +6,7 @@ namespace Tir\Crud\Support\Eloquent;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Tir\Crud\Scopes\AccessLevelScope;
 use Tir\Crud\Support\Scaffold\BaseScaffold;
 
 abstract class BaseModel extends Model
@@ -13,6 +14,7 @@ abstract class BaseModel extends Model
     use BaseScaffold;
 
     use SoftDeletes;
+    use HasAccessLevel;
 
     protected $dates = ['deleted_at'];
 

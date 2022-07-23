@@ -13,7 +13,8 @@ trait EditTrait
      */
     public function edit($id)
     {
-        $dataModel = $this->model->findOrFail($id);
+
+        $dataModel = $this->model->accessLevel()->findOrFail($id);
         $dataModel->scaffold($dataModel);
         return $dataModel->getEditFields();
 

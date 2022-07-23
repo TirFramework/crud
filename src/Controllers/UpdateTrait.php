@@ -13,7 +13,7 @@ trait UpdateTrait
 
     public function update(Request $request, int $id): JsonResponse
     {
-        $item = $this->model->findOrFail($id);
+        $item = $this->model->accessLevel()->findOrFail($id);
         $item->scaffold();
 
         $this->updateCrud($request, $id, $item);
@@ -21,7 +21,7 @@ trait UpdateTrait
     }
 
 
-    private function updateCrud(Request $request, $id, $item)
+    final function updateCrud(Request $request, $id, $item)
     {
         return DB::transaction(function () use ($request, $item) { // Start the transaction
 
@@ -34,7 +34,8 @@ trait UpdateTrait
     }
 
 
-    private function updateRelations(Request $request, $item)
+
+    final function updateRelations(Request $request, $item)
     {
         foreach ($this->model->getCreateFields() as $field) {
             if (isset($field->relation) && $field->multiple) {
@@ -45,7 +46,7 @@ trait UpdateTrait
     }
 
 
-    private function updateResponse($item): JsonResponse
+    final function updateResponse($item): JsonResponse
     {
         $moduleName = $this->model->getModuleName();
         $message = trans('core::message.item-updated', ['item' => trans("message.item.$moduleName")]); //translate message

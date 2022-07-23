@@ -10,7 +10,7 @@ trait IsTranslatable
     public static function boot()
     {
         parent::boot();
-        
+
         self::creating(function($model){
             $model->locale = request()->input('locale');
         });

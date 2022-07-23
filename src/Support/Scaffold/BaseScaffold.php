@@ -4,6 +4,7 @@ namespace Tir\Crud\Support\Scaffold;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Tir\Authorization\Access;
 use Tir\Crud\Scopes\OwnerScope;
 use function PHPUnit\Framework\isEmpty;
 
@@ -26,6 +27,13 @@ trait BaseScaffold
     protected array $creationRules = [];
     protected array $updateRules = [];
 
+    protected string $indexable = 'allow';
+    protected string $creatable = 'allow';
+    protected string $editable = 'allow';
+    protected string $deletable = 'allow';
+    protected string $viewable = 'allow';
+
+
 
 
     public function scaffold($dataModel = null)
@@ -44,9 +52,10 @@ trait BaseScaffold
     {
         parent::boot();
         self::creating(function($model){
-            $model->user_id = auth()->id();
+            if(in_array('user_id',$model->fillable)){
+                $model->user_id = auth()->id();
+            }
         });
-//        static::addGlobalScope(new OwnerScope);
     }
 
 
@@ -75,12 +84,38 @@ trait BaseScaffold
     }
 
 
+    private function checkActionsAccess($moduleName)
+    {
+        if (class_exists(Access::class)) {
+
+            $this->indexable = Access::check($moduleName, 'index');
+            $this->viewable = Access::check($moduleName, 'view');
+            $this->creatable = Access::check($moduleName, 'create');
+            $this->editable = Access::check($moduleName, 'edit');
+            $this->deletable = Access::check($moduleName, 'delete');
+
+        }
+    }
+
+
     final function setUpdateRules()
     {
         foreach ($this->getFields() as $field) {
             if (isset($field->updateRules))
                 $this->rules[$field->name] = $field->updateRules;
         }
+    }
+
+    final function getActions():array
+    {
+        $this->checkActionsAccess($this->moduleName);
+        return [
+            'indexable'=>$this->indexable,
+            'creatable'=>$this->creatable,
+            'editable'=>$this->editable,
+            'deletable'=>$this->deletable,
+            'viewable'=>$this->viewable
+        ];
     }
 
     final function getFields(): array
