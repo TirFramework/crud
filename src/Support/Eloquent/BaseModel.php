@@ -14,7 +14,6 @@ abstract class BaseModel extends Model
     use BaseScaffold;
 
     use SoftDeletes;
-    use HasAccessLevel;
 
     protected $dates = ['deleted_at'];
 

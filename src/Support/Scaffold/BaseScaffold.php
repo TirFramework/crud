@@ -6,10 +6,12 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Tir\Authorization\Access;
 use Tir\Crud\Scopes\OwnerScope;
+use Tir\Crud\Support\Eloquent\HasAccessLevel;
 use function PHPUnit\Framework\isEmpty;
 
 trait BaseScaffold
 {
+    use HasAccessLevel;
 
     //Scaffolding
 
