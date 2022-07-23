@@ -35,6 +35,7 @@ trait BaseScaffold
 
 
 
+
     public function scaffold($dataModel = null)
     {
         if($dataModel == null){
@@ -51,9 +52,10 @@ trait BaseScaffold
     {
         parent::boot();
         self::creating(function($model){
-            $model->user_id = auth()->id();
+            if(in_array('user_id',$model->fillable)){
+                $model->user_id = auth()->id();
+            }
         });
-//        static::addGlobalScope(new OwnerScope);
     }
 
 

@@ -25,7 +25,7 @@ trait StoreTrait
      * @param Request $request
      * @return mixed
      */
-    private function storeCrud(Request $request)
+    final function storeCrud(Request $request)
     {
 
         return DB::transaction(function () use ($request) { // Start the transaction
@@ -41,7 +41,7 @@ trait StoreTrait
     }
 
 
-    private function storeResponse($item): JsonResponse
+    final function storeResponse($item): JsonResponse
     {
         $moduleName = $this->model->getModuleName();
         $message = trans('core::message.item-created', ['item' => trans("message.item.$moduleName")]); //translate message
@@ -56,7 +56,7 @@ trait StoreTrait
 
     }
 
-    private function storeRelations(Request $request)
+    final function storeRelations(Request $request)
     {
         foreach ($this->model->getCreateFields() as $field) {
             if (isset($field->relation) && $field->multiple) {

@@ -15,7 +15,7 @@ abstract class CrudController extends BaseController
 
     public function __construct()
     {
-        $this->middleware('acl');
+//        $this->middleware('acl');
         // $this->middleware('setLocale');
         $this->modelInit();
         $this->validation();
@@ -31,31 +31,21 @@ abstract class CrudController extends BaseController
 
 
 
-    private function checkAccess($module, $action): string
-    {
-        if (class_exists(Access::class)) {
-            if (Access::check($module, $action) != 'deny') {
-                return true;
-            }
-        }
-    }
-
-    private function executeAccess($module, $action): string
-    {
-        if (class_exists(Access::class)) {
-            return Access::execute($module, $action);
-        }
-        return 'allow';
-    }
-
-//    private function getDataPermission(): array
+//    private function checkAccess($module, $action): string
 //    {
-//        $permission['index'] = $this->checkAccess($this->model->getModuleName(), 'index');
-//        $permission['create'] = $this->checkAccess($this->model->getModuleName(), 'create');
-//        $permission['edit'] = $this->checkAccess($this->model->getModuleName(), 'edit');
-//        $permission['destroy'] = $this->checkAccess($this->model->getModuleName(), 'destroy');
+//        if (class_exists(Access::class)) {
+//            if (Access::check($module, $action) != 'deny') {
+//                return true;
+//            }
+//        }
+//    }
 //
-//        return $permission;
+//    private function executeAccess($module, $action): string
+//    {
+//        if (class_exists(Access::class)) {
+//            return Access::execute($module, $action);
+//        }
+//        return 'allow';
 //    }
 
 

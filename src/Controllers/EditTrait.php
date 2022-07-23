@@ -14,7 +14,7 @@ trait EditTrait
     public function edit($id)
     {
 
-        $dataModel = $this->model->findOrFail($id)->accessLevel();
+        $dataModel = $this->model->accessLevel()->findOrFail($id);
         $dataModel->scaffold($dataModel);
         return $dataModel->getEditFields();
 

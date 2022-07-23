@@ -3,7 +3,7 @@
 namespace Tir\Crud\Support\Scaffold\Fields;
 
 
-class Blank extends BaseField
+class Group extends BaseField
 {
     protected string $type = 'Group';
 

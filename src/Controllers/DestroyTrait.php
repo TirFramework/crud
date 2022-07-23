@@ -11,7 +11,7 @@ trait DestroyTrait
 
     public function destroy($id)
     {
-        $item = $this->model->findOrFail($id)->accessLevel();
+        $item = $this->model->accessLevel()->findOrFail($id);
 
         DB::transaction(function () use ($item) { // Start the transaction
             $item->delete();
