@@ -40,4 +40,10 @@ return [
 
     'action' => 'عملیات',
 
+    'allow'            => 'Allow',
+    'owner'            => 'Owner',
+    'deny'             => 'Deny',
+    'index'            => 'Index',
+    'delete-restore'   => 'Delete & Restore',
+
 ];
