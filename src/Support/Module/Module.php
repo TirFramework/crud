@@ -119,6 +119,11 @@ class Module
         ];
     }
 
+    public function setPermissions(array $permissions)
+    {
+        $this->permissions = $permissions;
+    }
+
 
     public function setName(string $name): Module
     {
