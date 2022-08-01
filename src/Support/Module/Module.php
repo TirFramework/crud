@@ -79,7 +79,7 @@ class Module
             [
                 'page' => [
                     'label' => trans('core::panel.delete-restore'),
-                    'value' => 'delete'
+                    'value' => 'destroy'
                 ],
                 'access' => [
                     [
@@ -98,8 +98,8 @@ class Module
             ],
             [
                 'page' => [
-                    'label' => trans('core::panel.full-delete'),
-                    'value' => 'full-delete'
+                    'label' => trans('core::panel.full-destroy'),
+                    'value' => 'full-destroy'
                 ],
                 'access' => [
                     [
