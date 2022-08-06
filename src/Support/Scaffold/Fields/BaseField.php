@@ -16,7 +16,7 @@ abstract class BaseField
     protected string $id = '';
     protected string $class = '';
     protected string $group = 'all';
-    protected int $col = 12;
+    protected int $col = 24;
     protected bool $disable =false;
     protected bool $readonly = false;
     protected string $defaultValue;
