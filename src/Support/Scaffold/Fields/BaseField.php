@@ -2,6 +2,7 @@
 
 namespace Tir\Crud\Support\Scaffold\Fields;
 
+use Illuminate\Support\Arr;
 
 abstract class BaseField
 {
@@ -341,6 +342,6 @@ abstract class BaseField
 
     protected function setValue($model)
     {
-        $this->value = $model->{$this->name};
+        $this->value = Arr::get($model, $this->name);
     }
 }
