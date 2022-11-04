@@ -76,7 +76,7 @@ abstract class BaseField
         $this->class = $this->class . ' ' . $name;
         return $this;
     }
-    
+
     /**
      * Add display group to input
      *
@@ -342,6 +342,8 @@ abstract class BaseField
 
     protected function setValue($model)
     {
+
         $this->value = Arr::get($model, $this->name);
+
     }
 }
