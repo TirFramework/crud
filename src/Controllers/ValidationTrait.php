@@ -12,14 +12,6 @@ use Route;
 trait ValidationTrait
 {
 
-    public function __construct()
-    {
-        parent::__cunstruct();
-        $this->validation();
-
-    }
-
-
     private function validation()
     {
         if (Request::method() == 'POST') {

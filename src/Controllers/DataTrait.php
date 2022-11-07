@@ -41,7 +41,6 @@ trait DataTrait
     public function dataQuery($relation): object
     {
         $query = $this->model->select($this->model->getTable() . '.*')->with($relation);
-        $query = $query->accessLevel();
         $query = $this->applyFilters($query);
         $query = $this->applySearch($query);
         return $query;

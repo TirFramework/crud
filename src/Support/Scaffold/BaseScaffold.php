@@ -11,7 +11,7 @@ use function PHPUnit\Framework\isEmpty;
 
 trait BaseScaffold
 {
-    use HasAccessLevel;
+//    use HasAccessLevel;
 
     //Scaffolding
 
@@ -23,6 +23,8 @@ trait BaseScaffold
     protected abstract function setFields(): array;
 
 //    private object $fields;
+    private static bool $accessLevel = false;
+    private static string $action;
     private $fields = [];
     public string $moduleName;
     protected array $rules = [];
@@ -34,6 +36,13 @@ trait BaseScaffold
     protected string $editable = 'allow';
     protected string $deletable = 'allow';
     protected string $viewable = 'allow';
+    protected array $actionsStatus = [
+        'index' => true,
+        'create'=>true,
+        'edit'=>true,
+        'destroy'=>true,
+        'show'=>true
+    ];
 
 
 
@@ -43,16 +52,22 @@ trait BaseScaffold
         if($dataModel == null){
             $dataModel = new $this;
         }
+
         $this->moduleName = $this->setModuleName();
         $this->addFieldsToScaffold($dataModel);
         $this->setRules();
-
+        return $this;
     }
 
+    public static function accessLevel($action, $status = true){
+        self::$accessLevel = $status;
+        self::$action = $action;
+    }
 
     public static function boot()
     {
         parent::boot();
+
         self::creating(function($model){
             if(in_array('user_id',$model->fillable)){
                 $model->user_id = auth()->id();
@@ -77,47 +92,16 @@ trait BaseScaffold
         }
     }
 
-    private function setCreationRules()
+
+    final function setActionsStatus($action, $status)
     {
-        foreach ($this->getFields() as $field) {
-            if (isset($field->creationRules))
-                $this->creationRules[$field->name] = $field->creationRules;
-        }
+        $this->actionsStatus[$action] = $status;
     }
 
 
-    private function checkActionsAccess($moduleName)
+    final function getActionsStatus():array
     {
-        if (class_exists(Access::class)) {
-
-            $this->indexable = Access::check($moduleName, 'index');
-            $this->viewable = Access::check($moduleName, 'view');
-            $this->creatable = Access::check($moduleName, 'create');
-            $this->editable = Access::check($moduleName, 'edit');
-            $this->deletable = Access::check($moduleName, 'delete');
-
-        }
-    }
-
-
-    final function setUpdateRules()
-    {
-        foreach ($this->getFields() as $field) {
-            if (isset($field->updateRules))
-                $this->rules[$field->name] = $field->updateRules;
-        }
-    }
-
-    final function getActions():array
-    {
-        $this->checkActionsAccess($this->moduleName);
-        return [
-            'indexable'=>$this->indexable,
-            'creatable'=>$this->creatable,
-            'editable'=>$this->editable,
-            'deletable'=>$this->deletable,
-            'viewable'=>$this->viewable
-        ];
+        return $this->actionsStatus;
     }
 
     final function getFields(): array

@@ -13,7 +13,7 @@ trait UpdateTrait
 
     public function update(Request $request, int $id): JsonResponse
     {
-        $item = $this->model->accessLevel()->findOrFail($id);
+        $item = $this->model->findOrFail($id);
         $item->scaffold();
 
         $this->updateCrud($request, $id, $item);

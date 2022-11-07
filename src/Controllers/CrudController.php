@@ -2,9 +2,9 @@
 
 namespace Tir\Crud\Controllers;
 
-use Illuminate\Support\Facades\Response;
 use Illuminate\Routing\Controller as BaseController;
-use Tir\Authorization\Access;
+use Illuminate\Support\Facades\Route;
+
 
 abstract class CrudController extends BaseController
 {
@@ -15,38 +15,29 @@ abstract class CrudController extends BaseController
 
     public function __construct()
     {
-        $this->middleware('acl');
-        // $this->middleware('setLocale');
         $this->modelInit();
+        $this->addBasicsToRequest();
+        $this->middleware('acl');
+        $this->model->scaffold();
         $this->validation();
-    }
 
+    }
 
     private function modelInit(): void
     {
         $model = $this->setModel();
         $this->model = new $model;
-        $this->model->scaffold();
+
     }
 
-
-
-//    private function checkAccess($module, $action): string
-//    {
-//        if (class_exists(Access::class)) {
-//            if (Access::check($module, $action) != 'deny') {
-//                return true;
-//            }
-//        }
-//    }
-//
-//    private function executeAccess($module, $action): string
-//    {
-//        if (class_exists(Access::class)) {
-//            return Access::execute($module, $action);
-//        }
-//        return 'allow';
-//    }
-
+    private function addBasicsToRequest()
+    {
+        $action = explode('@', Route::getCurrentRoute()->getActionName())[1];
+        request()->merge([
+            'crudModelName'=>$this->model,
+            'crudModuleName' => $this->model->getModuleName(),
+            'crudActionName'=>$action
+        ]);
+    }
 
 }

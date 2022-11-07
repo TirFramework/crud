@@ -99,7 +99,7 @@ class Module
             [
                 'page' => [
                     'label' => trans('core::panel.full-destroy'),
-                    'value' => 'full-destroy'
+                    'value' => 'fullDestroy'
                 ],
                 'access' => [
                     [
