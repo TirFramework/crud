@@ -3,14 +3,13 @@
 namespace Tir\Crud\Controllers;
 
 
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 
 trait StoreTrait
 {
-    public function store(Request $request): JsonResponse
+    public function store(Request $request)
     {
         $item = $this->storeCrud($request);
         return $this->storeResponse($item);
@@ -36,7 +35,7 @@ trait StoreTrait
     }
 
 
-    final function storeResponse($item): JsonResponse
+    final function storeResponse($item)
     {
         $moduleName = $this->model->getModuleName();
         $message = trans('core::message.item-created', ['item' => trans("message.item.$moduleName")]); //translate message

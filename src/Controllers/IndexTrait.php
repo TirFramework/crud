@@ -27,7 +27,7 @@ trait IndexTrait
 
 
         $data = [
-            'actions'     => $this->model->getActions(),
+            'actions'     => $this->model->getActionsStatus(),
             'cols'       => $col,
             'dataRoute'  => route('admin.' . $this->model->moduleName . '.data'),
             'trashRoute' => route('admin.' . $this->model->moduleName . '.trashData'),
