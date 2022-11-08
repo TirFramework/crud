@@ -3,12 +3,16 @@
 namespace Tir\Crud\Controllers;
 
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Route;
 
 
 abstract class CrudController extends BaseController
 {
     use IndexTrait, DataTrait, CreateTrait, StoreTrait, EditTrait, UpdateTrait, ValidationTrait, SelectTrait, DestroyTrait;
+
+    private $model;
+    private $action;
 
     protected abstract function setModel(): string;
 
@@ -23,6 +27,7 @@ abstract class CrudController extends BaseController
 
     }
 
+
     private function modelInit(): void
     {
         $model = $this->setModel();
@@ -32,12 +37,15 @@ abstract class CrudController extends BaseController
 
     private function addBasicsToRequest()
     {
-        $action = explode('@', Route::getCurrentRoute()->getActionName())[1];
+        $this->action = explode('@', Route::getCurrentRoute()->getActionName())[1];
         request()->merge([
             'crudModelName'=>$this->model,
             'crudModuleName' => $this->model->getModuleName(),
-            'crudActionName'=>$action
+            'crudActionName'=>$this->action
         ]);
     }
+
+
+
 
 }
