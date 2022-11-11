@@ -13,7 +13,7 @@ trait DataTrait
 
     public function data(): JsonResponse
     {
-        $relations = $this->getRelationFields($this->model);
+        $relations = $this->getRelationFields($this->model());
         $items = $this->dataQuery($relations);
         $paginatedItems = $items->orderBy('created_at','DESC')->paginate(request()->input('result'));
         return Response::Json($paginatedItems, '200');
@@ -40,7 +40,7 @@ trait DataTrait
      */
     public function dataQuery($relation): object
     {
-        $query = $this->model->select($this->model->getTable() . '.*')->with($relation);
+        $query = $this->model()->select($this->model()->getTable() . '.*')->with($relation);
         $query = $this->applyFilters($query);
         $query = $this->applySearch($query);
         return $query;
@@ -52,7 +52,7 @@ trait DataTrait
         if($req == null){
             return $query;
         }
-        $searchableFields = $this->model->getSearchableFields();
+        $searchableFields = $this->model()->getSearchableFields();
 
         foreach($searchableFields as $field){
             $query->orWhere($field->name,'like', "%$req%");
@@ -71,7 +71,6 @@ trait DataTrait
         }
 
         $filters = $this->getFilter($req);
-
 
 
         foreach ($filters['original'] as $key => $value) {
@@ -97,16 +96,16 @@ trait DataTrait
         $relational = [];
 
         foreach ($req as $filter => $value) {
-            $field = $this->model->getFieldByName($filter);
+            $field = $this->model()->getFieldByName($filter);
 
                 //if filter is manyToMany relation
                 if(isset($field->relation) && isset($field->multiple))
                 {
                     //get table name from relation
-                    $table = $this->model->{$field->relation->name}()->getRelated()->getTable();
+                    $table = $this->model()->{$field->relation->name}()->getRelated()->getTable();
 
                     //get primary key from relation
-                    $primaryKey = $this->model->{$field->relation->name}()->getRelated()->getKeyName();
+                    $primaryKey = $this->model()->{$field->relation->name}()->getRelated()->getKeyName();
 
                     $primaryKey = $table . '.' . $primaryKey;
 

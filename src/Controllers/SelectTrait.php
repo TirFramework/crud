@@ -18,11 +18,11 @@ trait SelectTrait
 //        $loadMore = 1;
 //        $offset = $request['page'] * 20;
 //
-//        if(in_array($key,$this->model->translatedAttributes)){
-//            $items = $this->model::select('id')->whereTranslationLike($key, '%'.$request['search'].'%')->paginate(10)->toArray();
+//        if(in_array($key,$this->model()->translatedAttributes)){
+//            $items = $this->model()::select('id')->whereTranslationLike($key, '%'.$request['search'].'%')->paginate(10)->toArray();
 //            $data = str_replace('name','text',json_encode($items['data']));
 //        }else{
-//            $items = $this->model::select('id' ,"$key as text")->where($key,'LIKE', '%'.$request['search'].'%')->orderBy('text')->paginate(10)->toArray();
+//            $items = $this->model()::select('id' ,"$key as text")->where($key,'LIKE', '%'.$request['search'].'%')->orderBy('text')->paginate(10)->toArray();
 //            $data = json_encode($items['data']);
 //        }
 //
@@ -64,15 +64,15 @@ trait SelectTrait
 
     private function search($field, $search)
     {
-        $keyName = $this->model->getKeyName();
-        return  $this->model::select($keyName.' as value' ,"$field as label")->where($field,'LIKE', '%'.$search.'%')->orderBy('label')->get();
+        $keyName = $this->model()->getKeyName();
+        return  $this->model()::select($keyName.' as value' ,"$field as label")->where($field,'LIKE', '%'.$search.'%')->orderBy('label')->get();
 
     }
 
     private function find($id, $field){
-        $keyName = $this->model->getKeyName();
+        $keyName = $this->model()->getKeyName();
         $id  = explode(',',$id);
-        return $this->model->select($keyName.' as value' ,"$field as label")->whereIn($keyName,$id)->get();
+        return $this->model()->select($keyName.' as value' ,"$field as label")->whereIn($keyName,$id)->get();
 
     }
 

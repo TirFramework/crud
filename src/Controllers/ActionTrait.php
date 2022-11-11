@@ -38,14 +38,14 @@ trait ActionTrait
         }
         return null;
     }
-   
+
     public function publishAction($ids)
     {
         $successful = 0;
         $error = 0;
         if($this->checkPermission('edit')){
             foreach ($ids as $id) {
-                $item = $this->model::findOrFail($id);
+                $item = $this->model()::findOrFail($id);
                 $item->status = 'published';
                 if ($item->save()) {
                     $successful++;
@@ -66,7 +66,7 @@ trait ActionTrait
         $error = 0;
         if ($this->checkPermission('edit')) {
             foreach ($ids as $id) {
-                $item = $this->model::findOrFail($id);
+                $item = $this->model()::findOrFail($id);
                 $item->status = 'unpublished';
                 if ($item->save()) {
                     $successful++;
@@ -88,7 +88,7 @@ trait ActionTrait
         if ($this->checkPermission('delete')) {
 
             foreach ($ids as $id) {
-                $item = $this->model::withTrashed()->findOrFail($id);
+                $item = $this->model()::withTrashed()->findOrFail($id);
                 if ($item->restore()) {
                     $successful++;
                 } else {
@@ -108,7 +108,7 @@ trait ActionTrait
         if ($this->checkPermission('destroy')) {
 
             foreach ($ids as $id) {
-                $item = $this->model::findOrFail($id);
+                $item = $this->model()::findOrFail($id);
                 if ($item->delete()) {
                     $successful++;
                 } else {
@@ -128,7 +128,7 @@ trait ActionTrait
         if ($this->checkPermission('forceDestroy')) {
 
             foreach ($ids as $id) {
-                $item = $this->model::withTrashed()->findOrFail($id);
+                $item = $this->model()::withTrashed()->findOrFail($id);
                 if ($item->forceDelete()) {
                     $successful++;
                 } else {
@@ -149,13 +149,13 @@ trait ActionTrait
         if ($request->input('id') !== null) {
             $id = $request->input('id');
             $position = $request->input('position');
-            $item = $this->model::findOrFail($id);
+            $item = $this->model()::findOrFail($id);
             $item->position = $position;
             if ($item->save()) {
                 $response = 'send response records updated goes here';
                 return response()->json($response);
             }
-         } 
+         }
         //else {  //drag
         //     $count = 0;
         //     $ids = $request->input('data');
@@ -163,7 +163,7 @@ trait ActionTrait
         //         foreach ($ids as $i => $key) {
         //             $id = $key['id'];
         //             $position = $key['position'];
-        //             $item = $this->model::withTrashed()->findOrFail($id);
+        //             $item = $this->model()::withTrashed()->findOrFail($id);
         //             $item->ordered = $position;
         //             if ($item->save()) {
         //                 $count++;

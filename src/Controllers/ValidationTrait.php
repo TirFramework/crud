@@ -25,7 +25,7 @@ trait ValidationTrait
 
     public function storeValidation()
     {
-        $validator = Validator::make(Request::all(), $this->model->getCreationRules());
+        $validator = Validator::make(Request::all(), $this->model()->getCreationRules());
         if ($validator->fails()) {
             abort(Response::Json([
                 'error'   => 'validation_error',
@@ -39,8 +39,8 @@ trait ValidationTrait
     public function updateValidation()
     {
         //get route(url) parameter {id}
-        $id = request()->route()->parameter($this->model->getModuleName());
-        $model = $this->model->findOrNew($id);
+        $id = request()->route()->parameter($this->model()->getModuleName());
+        $model = $this->model()->findOrNew($id);
         $model->scaffold();
         $validator = Validator::make(Request::all(), $model->getUpdateRules());
         if ($validator->fails()) {

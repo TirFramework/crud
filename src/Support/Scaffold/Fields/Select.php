@@ -94,7 +94,7 @@ class Select extends BaseField
             $filterModel = $filterModel->{$this->relation['name']}()->getModel();
 
             $this->filter = $filterModel::select(
-                $this->relation['field'].' as text',
+                $this->relation['field'].' as label',
                 $this->relation['key'].' as value',
             )->get()->toArray();
         }

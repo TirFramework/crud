@@ -22,9 +22,13 @@ abstract class CrudController extends BaseController
         $this->modelInit();
         $this->addBasicsToRequest();
 //        $this->middleware('acl');
-        $this->model->scaffold();
+        $this->model()->scaffold();
         $this->validation();
+    }
 
+    public function model()
+    {
+        return $this->model;
     }
 
 
@@ -32,17 +36,21 @@ abstract class CrudController extends BaseController
     {
         $model = $this->setModel();
         $this->model = new $model;
-
     }
 
     private function addBasicsToRequest()
     {
-        $this->action = explode('@', Route::getCurrentRoute()->getActionName())[1];
-        request()->merge([
-            'crudModelName'=>$this->model,
-            'crudModuleName' => $this->model->getModuleName(),
-            'crudActionName'=>$this->action
-        ]);
+        $route = Route::getCurrentRoute();
+        if($route) {
+            $this->action = explode('@', Route::getCurrentRoute()->getActionName())[1];
+
+            request()->merge([
+                'crudModelName'=>$this->model(),
+                'crudModuleName' => $this->model()->getModuleName(),
+                'crudActionName'=>$this->action
+            ]);
+        }
+
     }
 
 

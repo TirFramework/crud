@@ -25,19 +25,19 @@ trait StoreTrait
     {
         return DB::transaction(function () use ($request) { // Start the transaction
             // Store model
-            $this->model->fill($request->all());
-            $this->model->save();
+            $this->model()->fill($request->all());
+            $this->model()->save();
             //Store relations
             $this->storeRelations($request);
 
-            return $this->model;
+            return $this->model();
         });
     }
 
 
     final function storeResponse($item)
     {
-        $moduleName = $this->model->getModuleName();
+        $moduleName = $this->model()->getModuleName();
         $message = trans('core::message.item-created', ['item' => trans("message.item.$moduleName")]); //translate message
 
         return Response::Json(
@@ -52,10 +52,10 @@ trait StoreTrait
 
     final function storeRelations(Request $request)
     {
-        foreach ($this->model->getCreateFields() as $field) {
+        foreach ($this->model()->getCreateFields() as $field) {
             if (isset($field->relation) && $field->multiple) {
                 $data = $request->input($field->name);
-                $this->model->{$field->relation->name}()->sync($data);
+                $this->model()->{$field->relation->name}()->sync($data);
             }
         }
     }
