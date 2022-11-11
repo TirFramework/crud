@@ -21,7 +21,7 @@ abstract class CrudController extends BaseController
     {
         $this->modelInit();
         $this->addBasicsToRequest();
-//        $this->middleware('acl');
+        $this->middleware('acl');
         $this->model()->scaffold();
         $this->validation();
     }
@@ -52,8 +52,5 @@ abstract class CrudController extends BaseController
         }
 
     }
-
-
-
 
 }
