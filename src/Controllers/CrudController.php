@@ -3,6 +3,7 @@
 namespace Tir\Crud\Controllers;
 
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Route;
 
@@ -21,7 +22,8 @@ abstract class CrudController extends BaseController
     {
         $this->modelInit();
         $this->addBasicsToRequest();
-        $this->middleware('acl');
+        $this->crudInit();
+        $this->checkAccess();
         $this->model()->scaffold();
         $this->validation();
     }
@@ -43,13 +45,29 @@ abstract class CrudController extends BaseController
         $route = Route::getCurrentRoute();
         if($route) {
             $this->action = explode('@', Route::getCurrentRoute()->getActionName())[1];
-
             request()->merge([
                 'crudModelName'=>$this->model(),
                 'crudModuleName' => $this->model()->getModuleName(),
                 'crudActionName'=>$this->action
             ]);
         }
+
+    }
+
+    protected function crudInit()
+    {
+    }
+
+    protected function getAction()
+    {
+        return $this->action;
+    }
+
+    private function checkAccess()
+    {
+        if($this->model()->getAccessLevelStatus()){
+            $this->middleware('acl');
+    }
 
     }
 

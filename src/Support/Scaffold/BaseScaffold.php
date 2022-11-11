@@ -17,6 +17,7 @@ trait BaseScaffold
 
     private array $indexFields = [];
     private array $editFields = [];
+    protected bool $accessLevelControl = true;
 
     protected abstract function setModuleName(): string;
 
@@ -59,11 +60,11 @@ trait BaseScaffold
         return $this;
     }
 
-    public static function accessLevel($action, $status = true){
-        self::$accessLevel = $status;
-        self::$action = $action;
-    }
 
+    public function getAccessLevelStatus(): bool
+    {
+        return $this->accessLevelControl;
+    }
     public static function boot()
     {
         parent::boot();
