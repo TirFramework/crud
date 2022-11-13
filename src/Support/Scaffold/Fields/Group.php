@@ -22,9 +22,6 @@ class Group extends BaseField
 
     public function get($dataModel): array
     {
-//        if(isset($dataModel)){
-//            $this->setValue($dataModel);
-//        }
         $this->getChildren($dataModel);
         return get_object_vars($this);
     }
