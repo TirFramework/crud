@@ -2,23 +2,35 @@
 
 namespace Tir\Crud\Controllers;
 
-use Illuminate\Support\Facades\Response;
 use Illuminate\Routing\Controller as BaseController;
-use Tir\Authorization\Access;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Route;
+
 
 abstract class CrudController extends BaseController
 {
     use IndexTrait, DataTrait, CreateTrait, StoreTrait, EditTrait, UpdateTrait, ValidationTrait, SelectTrait, DestroyTrait;
+
+    private $model;
+    private $action;
 
     protected abstract function setModel(): string;
 
 
     public function __construct()
     {
-        $this->middleware('acl');
-        // $this->middleware('setLocale');
         $this->modelInit();
+        $this->addBasicsToRequest();
+        $this->crudInit();
+        $this->checkAccess();
+        $this->model()->scaffold();
         $this->validation();
+    }
+
+    public function model()
+    {
+        return $this->model;
     }
 
 
@@ -26,27 +38,37 @@ abstract class CrudController extends BaseController
     {
         $model = $this->setModel();
         $this->model = new $model;
-        $this->model->scaffold();
     }
 
+    private function addBasicsToRequest()
+    {
+        $route = Route::getCurrentRoute();
+        if($route) {
+            $this->action = explode('@', Route::getCurrentRoute()->getActionName())[1];
+            request()->merge([
+                'crudModelName'=>$this->model(),
+                'crudModuleName' => $this->model()->getModuleName(),
+                'crudActionName'=>$this->action
+            ]);
+        }
 
+    }
 
-//    private function checkAccess($module, $action): string
-//    {
-//        if (class_exists(Access::class)) {
-//            if (Access::check($module, $action) != 'deny') {
-//                return true;
-//            }
-//        }
-//    }
-//
-//    private function executeAccess($module, $action): string
-//    {
-//        if (class_exists(Access::class)) {
-//            return Access::execute($module, $action);
-//        }
-//        return 'allow';
-//    }
+    protected function crudInit()
+    {
+    }
 
+    protected function getAction()
+    {
+        return $this->action;
+    }
+
+    private function checkAccess()
+    {
+        if($this->model()->getAccessLevelStatus()){
+            $this->middleware('acl');
+    }
+
+    }
 
 }

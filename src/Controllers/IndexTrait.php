@@ -11,7 +11,7 @@ trait IndexTrait
     public function index()
     {
         $col = [];
-        foreach ($this->model->getIndexFields() as $index => $field) {
+        foreach ($this->model()->getIndexFields() as $index => $field) {
             $col[$index] = [
                 'title'     => $field->display,
                 'dataIndex' => $this->getName($field),
@@ -27,10 +27,10 @@ trait IndexTrait
 
 
         $data = [
-            'actions'     => $this->model->getActions(),
+            'actions'     => $this->model()->getActionsStatus(),
             'cols'       => $col,
-            'dataRoute'  => route('admin.' . $this->model->moduleName . '.data'),
-            'trashRoute' => route('admin.' . $this->model->moduleName . '.trashData'),
+            'dataRoute'  => route('admin.' . $this->model()->moduleName . '.data'),
+            'trashRoute' => route('admin.' . $this->model()->moduleName . '.trashData'),
         ];
 
         return Response::json($data, '200');

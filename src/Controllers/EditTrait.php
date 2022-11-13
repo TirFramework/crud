@@ -2,8 +2,6 @@
 
 namespace Tir\Crud\Controllers;
 
-use Tir\Crud\Events\EditEvent;
-
 trait EditTrait
 {
     /**
@@ -13,8 +11,7 @@ trait EditTrait
      */
     public function edit($id)
     {
-
-        $dataModel = $this->model->accessLevel()->findOrFail($id);
+        $dataModel = $this->model()->findOrFail($id);
         $dataModel->scaffold($dataModel);
         return $dataModel->getEditFields();
 

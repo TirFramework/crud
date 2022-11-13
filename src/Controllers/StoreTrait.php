@@ -3,17 +3,13 @@
 namespace Tir\Crud\Controllers;
 
 
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 
-/**
- * @property object $model
- */
 trait StoreTrait
 {
-    public function store(Request $request): JsonResponse
+    public function store(Request $request)
     {
         $item = $this->storeCrud($request);
         return $this->storeResponse($item);
@@ -27,23 +23,21 @@ trait StoreTrait
      */
     final function storeCrud(Request $request)
     {
-
         return DB::transaction(function () use ($request) { // Start the transaction
             // Store model
-            $this->model->fill($request->all());
-            $this->model->save();
-
+            $this->model()->fill($request->all());
+            $this->model()->save();
             //Store relations
             $this->storeRelations($request);
 
-            return $this->model;
+            return $this->model();
         });
     }
 
 
-    final function storeResponse($item): JsonResponse
+    final function storeResponse($item)
     {
-        $moduleName = $this->model->getModuleName();
+        $moduleName = $this->model()->getModuleName();
         $message = trans('core::message.item-created', ['item' => trans("message.item.$moduleName")]); //translate message
 
         return Response::Json(
@@ -58,10 +52,10 @@ trait StoreTrait
 
     final function storeRelations(Request $request)
     {
-        foreach ($this->model->getCreateFields() as $field) {
+        foreach ($this->model()->getCreateFields() as $field) {
             if (isset($field->relation) && $field->multiple) {
                 $data = $request->input($field->name);
-                $this->model->{$field->relation->name}()->sync($data);
+                $this->model()->{$field->relation->name}()->sync($data);
             }
         }
     }

@@ -23,7 +23,7 @@ trait ForceDestroyTrait
         Session::flash('message', $message);
         return Redirect::to(route("$this->name.trash"));
     }
-    
+
 
 
         /**
@@ -32,7 +32,7 @@ trait ForceDestroyTrait
      */
     public function findForForceDestroy($id)
     {
-        $items = $this->model::onlyTrashed()->findOrFail($id);
+        $items = $this->model()::onlyTrashed()->findOrFail($id);
         if($this->permission == 'owner'){
             $items = $items->OnlyOwner();
         }

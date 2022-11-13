@@ -11,7 +11,7 @@ trait DestroyTrait
 
     public function destroy($id)
     {
-        $item = $this->model->accessLevel()->findOrFail($id);
+        $item = $this->model()->accessLevel()->findOrFail($id);
 
         DB::transaction(function () use ($item) { // Start the transaction
             $item->delete();
@@ -25,7 +25,7 @@ trait DestroyTrait
 
     private function deleteResponse(): JsonResponse
     {
-        $moduleName = $this->model->getModuleName();
+        $moduleName = $this->model()->getModuleName();
         $message = trans('core::message.item-deleted', ['item' => trans("message.item.$moduleName")]); //translate message
 
         return Response::Json(
@@ -60,7 +60,7 @@ trait DestroyTrait
     //  */
     // public function findForRestore($id)
     // {
-    //     $items = $this->model::onlyTrashed()->findOrFail($id);
+    //     $items = $this->model()::onlyTrashed()->findOrFail($id);
     //     if($this->permission == 'owner'){
     //         $items = $items->OnlyOwner();
     //     }
