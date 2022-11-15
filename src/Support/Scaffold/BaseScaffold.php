@@ -32,7 +32,6 @@ trait BaseScaffold
     protected array $creationRules = [];
     protected array $updateRules = [];
     
-    protected bool $additoinal = false;
     protected string $indexable = 'allow';
     protected string $creatable = 'allow';
     protected string $editable = 'allow';
@@ -77,11 +76,6 @@ trait BaseScaffold
         });
     }
 
-
-    public function additional()
-    {
-        $this->additioanl = true;
-    }
 
     private function addFieldsToScaffold($dataModel): void
     {

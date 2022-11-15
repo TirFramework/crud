@@ -35,6 +35,7 @@ abstract class BaseField
     protected bool $filterable = false;
     protected bool $multiple = false;
     protected array $comment = [];
+    protected bool additional = false;
 
 
     /**
@@ -312,6 +313,12 @@ abstract class BaseField
         return $this;
     }
 
+    public function additional(){
+        $this->additional = ture;
+        return $this;
+    }
+    
+        
     public function creationRules(...$rules): BaseField
     {
         $this->creationRules = $rules;
