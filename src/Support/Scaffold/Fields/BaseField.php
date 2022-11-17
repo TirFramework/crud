@@ -18,7 +18,7 @@ abstract class BaseField
     protected string $class = '';
     protected string $group = 'all';
     protected int $col = 24;
-    protected bool $disable =false;
+    protected bool $disable = false;
     protected bool $readonly = false;
     protected string $defaultValue;
     protected bool $showOnIndex = true;
@@ -111,6 +111,18 @@ abstract class BaseField
     public function placeholder(string $text): BaseField
     {
         $this->placeholder = $text;
+        return $this;
+    }
+
+    /**
+     * Add col attribute to input
+     *
+     * @param string $text
+     * @return $this
+     */
+    public function col(string $number): BaseField
+    {
+        $this->col = $number;
         return $this;
     }
 
@@ -250,11 +262,11 @@ abstract class BaseField
     public function hideFromAll($callback = true): BaseField
     {
         $this->showOnCreating =
-        $this->showOnEditing =
-        $this->showOnIndex =
-        $this->showOnDetail =
+            $this->showOnEditing =
+            $this->showOnIndex =
+            $this->showOnDetail =
             is_callable($callback) ? !call_user_func_array($callback, func_get_args())
-                : !$callback;
+            : !$callback;
         return $this;
     }
 
@@ -313,12 +325,13 @@ abstract class BaseField
         return $this;
     }
 
-    public function additional(){
+    public function additional()
+    {
         $this->additional = true;
         return $this;
     }
-    
-        
+
+
     public function creationRules(...$rules): BaseField
     {
         $this->creationRules = $rules;
@@ -340,7 +353,7 @@ abstract class BaseField
 
     public function get($dataModel): array
     {
-        if(isset($dataModel)){
+        if (isset($dataModel)) {
             $this->setValue($dataModel);
         }
         return get_object_vars($this);
@@ -351,6 +364,5 @@ abstract class BaseField
     {
 
         $this->value = Arr::get($model, $this->name);
-
     }
 }
