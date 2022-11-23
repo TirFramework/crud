@@ -8,6 +8,7 @@ abstract class BaseField
 {
 
     protected string $type;
+    protected string $originalName;
     protected string $name;
     protected string $valueType = 'string';
     protected $value;
@@ -35,7 +36,7 @@ abstract class BaseField
     protected bool $filterable = false;
     protected bool $multiple = false;
     protected array $comment = [];
-    protected bool additional = false;
+    protected bool $additional = false;
 
 
     /**
@@ -48,10 +49,11 @@ abstract class BaseField
     public static function make(string $name): BaseField
     {
         $obj = new static;
-        $obj->name = $obj->id = $obj->class = $name;
+        $obj->originalName = $obj->name = $obj->id = $obj->class = $name;
         $obj->display($name);
         return $obj;
     }
+
 
 
     /**
@@ -77,18 +79,18 @@ abstract class BaseField
         $this->class = $this->class . ' ' . $name;
         return $this;
     }
-    
+
     /**
      * Add display group to input
      *
      * @param string $name
      * @return $this
      */
-    public function group(string $name): BaseField
-    {
-        $this->group = $name;
-        return $this;
-    }
+//    public function group(string $name): BaseField
+//    {
+//        $this->group = $name;
+//        return $this;
+//    }
 
     /**
      * Add display id to input
@@ -165,6 +167,10 @@ abstract class BaseField
         return $this;
     }
 
+    public function col($number){
+        $this->col = $number;
+        return $this;
+    }
     /**
      * @return $this
      */
@@ -314,11 +320,12 @@ abstract class BaseField
     }
 
     public function additional(){
-        $this->additional = ture;
+        $this->name = $this->name.'.1';
+        $this->additional = true;
         return $this;
     }
-    
-        
+
+
     public function creationRules(...$rules): BaseField
     {
         $this->creationRules = $rules;
@@ -340,15 +347,35 @@ abstract class BaseField
 
     public function get($dataModel): array
     {
-        if(isset($dataModel)){
-            $this->setValue($dataModel);
+        $this->setValue($dataModel);
+        $fields = [get_object_vars($this)];
+        return $this->setValueInAdditional($dataModel,$fields);
+    }
+
+    private function setValueInAdditional($dataModel, $fields){
+
+        if(isset($dataModel) && $this->additional){
+            $values = Arr::get($dataModel, $this->originalName);
+            if(isset($values) && is_array($values))
+            {
+                $fields = [];
+                foreach($values as $key => $value){
+                    $this->name = $this->originalName.'.'.$key;
+                    $this->value = Arr::get($dataModel, $this->name);
+                    $field = get_object_vars($this);
+                    array_push($fields, $field);
+                }
+            }
         }
-        return get_object_vars($this);
+        return $fields;
     }
 
 
     protected function setValue($model)
     {
-        $this->value = Arr::get($model, $this->name);
+        if(isset($model)){
+            $this->value = Arr::get($model, $this->name);
+        }
+
     }
 }

@@ -29,8 +29,8 @@ trait IndexTrait
         $data = [
             'actions'     => $this->model()->getActionsStatus(),
             'cols'       => $col,
-            'dataRoute'  => route('admin.' . $this->model()->moduleName . '.data'),
-            'trashRoute' => route('admin.' . $this->model()->moduleName . '.trashData'),
+            'dataRoute'  => route('admin.' . $this->model()->getmoduleName() . '.data'),
+            'trashRoute' => route('admin.' . $this->model()->getmoduleName() . '.trashData'),
         ];
 
         return Response::json($data, '200');

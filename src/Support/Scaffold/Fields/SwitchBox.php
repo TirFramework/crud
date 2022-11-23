@@ -7,8 +7,4 @@ namespace Tir\Crud\Support\Scaffold\Fields;
 
      protected string $type = 'switch';
 
-     public static function select(string $string)
-     {
-     }
-
  }

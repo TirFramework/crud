@@ -110,11 +110,14 @@ class Select extends BaseField
 
     protected function setValue($model)
     {
-        $this->value = $model->{$this->name};
+        if(isset($model)){
+            $this->value = $model->{$this->name};
 
-        if(isset($this->relation) && $this->multiple){
-            $this->value = $this->setRelationalValue($model);
+            if(isset($this->relation) && $this->multiple){
+                $this->value = $this->setRelationalValue($model);
+            }
         }
+
     }
 
 

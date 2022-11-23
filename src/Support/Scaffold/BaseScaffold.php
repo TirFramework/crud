@@ -31,7 +31,7 @@ trait BaseScaffold
     protected array $rules = [];
     protected array $creationRules = [];
     protected array $updateRules = [];
-    
+
     protected string $indexable = 'allow';
     protected string $creatable = 'allow';
     protected string $editable = 'allow';
@@ -50,10 +50,6 @@ trait BaseScaffold
 
     public function scaffold($dataModel = null)
     {
-        if($dataModel == null){
-            $dataModel = new $this;
-        }
-
         $this->moduleName = $this->setModuleName();
         $this->addFieldsToScaffold($dataModel);
         $this->setRules();
@@ -81,9 +77,10 @@ trait BaseScaffold
     {
 
         foreach ($this->setFields() as $input) {
-            array_push($this->fields, $input->get($dataModel));
+            foreach($input->get($dataModel) as $field){
+                array_push($this->fields, $field);
+            }
         }
-
     }
 
     private function setRules()
@@ -92,7 +89,6 @@ trait BaseScaffold
             $this->rules[$field->name] = $field->rules;
         }
     }
-
 
     final function setActionsStatus($action, $status)
     {
