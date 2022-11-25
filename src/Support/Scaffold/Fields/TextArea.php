@@ -4,5 +4,5 @@ namespace Tir\Crud\Support\Scaffold\Fields;
 
 class TextArea extends BaseField
 {
-    protected string $type = 'textarea';
+    protected string $type = 'Textarea';
 }

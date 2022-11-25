@@ -5,7 +5,7 @@ namespace Tir\Crud\Support\Scaffold\Fields;
  class Editor extends BaseField
 {
 
-     protected string $type = 'editor';
+     protected string $type = 'Editor';
      protected int $height = 400;
 
 

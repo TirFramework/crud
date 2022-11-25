@@ -5,7 +5,7 @@ namespace Tir\Crud\Support\Scaffold\Fields;
 
 class Select extends BaseField
 {
-    protected string $type = 'select';
+    protected string $type = 'Select';
     protected array $data;
     protected array $relation;
     protected string $dataUrl;
