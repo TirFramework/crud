@@ -19,7 +19,7 @@ abstract class BaseField
     protected string $class = '';
     protected string $group = 'all';
     protected int $col = 24;
-    protected bool $disable =false;
+    protected bool $disable = false;
     protected bool $readonly = false;
     protected string $defaultValue;
     protected bool $showOnIndex = true;
@@ -117,6 +117,18 @@ abstract class BaseField
     }
 
     /**
+     * Add col attribute to input
+     *
+     * @param string $text
+     * @return $this
+     */
+    public function col(string $number): BaseField
+    {
+        $this->col = $number;
+        return $this;
+    }
+
+    /**
      * Add comment for help
      *
      * @param string $text
@@ -167,10 +179,6 @@ abstract class BaseField
         return $this;
     }
 
-    public function col($number){
-        $this->col = $number;
-        return $this;
-    }
     /**
      * @return $this
      */
@@ -320,12 +328,11 @@ abstract class BaseField
     }
 
     public function additional(){
-        $this->name = $this->name.'.1';
-        $this->additional = true;
+        $this->additional = ture;
         return $this;
     }
-
-
+    
+        
     public function creationRules(...$rules): BaseField
     {
         $this->creationRules = $rules;
