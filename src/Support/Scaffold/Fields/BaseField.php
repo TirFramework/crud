@@ -327,12 +327,13 @@ abstract class BaseField
         return $this;
     }
 
-    public function additional(){
-        $this->additional = ture;
+    public function additional():BaseField
+    {
+        $this->additional = true;
         return $this;
     }
-    
-        
+
+
     public function creationRules(...$rules): BaseField
     {
         $this->creationRules = $rules;

@@ -18,10 +18,10 @@ class Blank extends BaseField
         $this->value = $value;
         return $this;
     }
-    
+
     public function get($dataModel): array
     {
-        return get_object_vars($this);
+        return [get_object_vars($this)];
     }
 
 }
