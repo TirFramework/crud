@@ -5,6 +5,6 @@ namespace Tir\Crud\Support\Scaffold\Fields;
  class SwitchBox extends BaseField
 {
 
-     protected string $type = 'switch';
+     protected string $type = 'Switch';
 
  }

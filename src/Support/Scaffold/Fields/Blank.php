@@ -5,7 +5,7 @@ namespace Tir\Crud\Support\Scaffold\Fields;
 
 class Blank extends BaseField
 {
-    protected string $type = 'blank';
+    protected string $type = 'Blank';
 
     /**
      * Add display attribute to input
