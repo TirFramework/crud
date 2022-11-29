@@ -364,8 +364,7 @@ abstract class BaseField
     public function get($dataModel): array
     {
         $this->setValue($dataModel);
-        $fields = [get_object_vars($this)];
-        return $this->setValueInAdditional($dataModel,$fields);
+        return get_object_vars($this);
     }
 
 

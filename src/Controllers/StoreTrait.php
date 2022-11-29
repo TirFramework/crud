@@ -23,7 +23,7 @@ trait StoreTrait
      */
     final function storeCrud(Request $request)
     {
-        return DB::transaction(function () use ($request) { // Start the transaction
+//        return DB::transaction(function () use ($request) { // Start the transaction
             // Store model
             $this->model()->fill($request->all());
             $this->model()->save();
@@ -31,7 +31,7 @@ trait StoreTrait
             $this->storeRelations($request);
 
             return $this->model();
-        });
+//        });
     }
 
 
