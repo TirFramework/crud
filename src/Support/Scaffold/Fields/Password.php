@@ -7,8 +7,5 @@ namespace Tir\Crud\Support\Scaffold\Fields;
 
      protected string $type = 'Password';
 
-     public static function select(string $string)
-     {
-     }
 
  }

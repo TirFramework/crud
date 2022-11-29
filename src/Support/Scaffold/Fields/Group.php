@@ -16,13 +16,7 @@ class Group extends BaseField
     }
     private function getChildren($dataModel){
         foreach ($this->subInputs as $input){
-            if($this->additional){
-                $input->name= $this->name.'.'.$input->name;
-            }
-            foreach($input->get($dataModel) as $field) {
-
-                $this->children[] = $field;
-            }
+            $this->children[]  = $input->get($dataModel);
         }
     }
 

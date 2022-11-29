@@ -353,6 +353,14 @@ abstract class BaseField
         return $this;
     }
 
+
+    protected function setValue($model)
+    {
+        if(isset($model)){
+            $this->value = Arr::get($model, $this->name);
+        }
+    }
+
     public function get($dataModel): array
     {
         $this->setValue($dataModel);
@@ -360,30 +368,5 @@ abstract class BaseField
         return $this->setValueInAdditional($dataModel,$fields);
     }
 
-    private function setValueInAdditional($dataModel, $fields){
 
-        if(isset($dataModel) && $this->additional){
-            $values = Arr::get($dataModel, $this->originalName);
-            if(isset($values) && is_array($values))
-            {
-                $fields = [];
-                foreach($values as $key => $value){
-                    $this->name = $this->originalName.'.'.$key;
-                    $this->value = Arr::get($dataModel, $this->name);
-                    $field = get_object_vars($this);
-                    array_push($fields, $field);
-                }
-            }
-        }
-        return $fields;
-    }
-
-
-    protected function setValue($model)
-    {
-        if(isset($model)){
-            $this->value = Arr::get($model, $this->name);
-        }
-
-    }
 }

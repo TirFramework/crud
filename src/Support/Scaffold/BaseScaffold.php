@@ -75,11 +75,8 @@ trait BaseScaffold
 
     private function addFieldsToScaffold($dataModel): void
     {
-
-        foreach ($this->setFields() as $input) {
-            foreach($input->get($dataModel) as $field){
-                array_push($this->fields, $field);
-            }
+        foreach ($this->setFields() as $field) {
+            array_push($this->fields, $field->get($dataModel));
         }
     }
 
