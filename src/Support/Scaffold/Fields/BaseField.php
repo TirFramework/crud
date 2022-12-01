@@ -164,6 +164,7 @@ abstract class BaseField
     public function options($options = [])
     {
         $this->options = $options;
+        return $this;
     }
 
 

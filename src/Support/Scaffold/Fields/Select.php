@@ -17,7 +17,7 @@ class Select extends BaseField
      * @param array $data
      * @return $this
      */
-    public function data(array ...$data): Select
+    public function data(...$data): Select
     {
         $this->data = $data;
         return $this;

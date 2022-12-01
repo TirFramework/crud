@@ -11,7 +11,7 @@ trait UpdateTrait
 {
     use ValidationTrait;
 
-    public function update(Request $request, int $id): JsonResponse
+    public function update(Request $request, $id): JsonResponse
     {
         $item = $this->model()->findOrFail($id);
         $item->scaffold();
@@ -23,14 +23,14 @@ trait UpdateTrait
 
     final function updateCrud(Request $request, $id, $item)
     {
-        return DB::transaction(function () use ($request, $item) { // Start the transaction
+//        return DB::transaction(function () use ($request, $item) { // Start the transaction
 
             $item->update($request->all());
 
             $this->updateRelations($request, $item);
 
             return $item;
-        });
+//        });
     }
 
 
