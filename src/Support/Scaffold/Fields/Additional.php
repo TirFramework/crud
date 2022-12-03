@@ -19,20 +19,9 @@ class Additional extends BaseField
 
     private function getChildren($dataModel): array
     {
-        $fields = [];
-        if(isset($dataModel)){
-            $fields = $this->getChildrenWithValue($dataModel);
-        }else{
-            $fields = $this->getChildrenWithValue($dataModel);
-        }
-        return $fields;
+        return $this->getChildrenWithValue($dataModel);
     }
 
-    protected function getTemplate()
-    {
-
-
-    }
 
     protected function getChildrenWithValue($model): array
     {
@@ -40,6 +29,8 @@ class Additional extends BaseField
 
         $values = Arr::get($model, $this->name) ?? [0];
         $index = 0;
+
+        //make json for multiple field
         if(count($this->children) < 2){
             foreach ($values as $key => $value) {
                 foreach ($this->children as $field) {
@@ -49,6 +40,7 @@ class Additional extends BaseField
             $index++;
             }
         }else{
+            //make json for single field
             foreach ($values as $value) {
                 foreach ($this->children as $field) {
                     $field->name = $this->name.'.'.$index.'.'.$field->originalName;
@@ -61,6 +53,11 @@ class Additional extends BaseField
         return $fields;
 
     }
+
+//    protected function setValue($model)
+//    {
+//            $this->value = null;
+//    }
 
 
     public function get($dataModel): array

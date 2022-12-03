@@ -98,7 +98,7 @@ trait BaseScaffold
         return $this->actionsStatus;
     }
 
-    final function getFields(): array
+    final function getFields()
     {
         return json_decode(json_encode($this->fields), false);
     }
@@ -143,7 +143,29 @@ trait BaseScaffold
         $fields = [];
         foreach ($this->getFields() as $field) {
             if ($field->showOnIndex) {
-                array_push($fields, $field);
+                if($field->type != 'Group'){
+                    $fields[] = $field;
+                }
+                $fields = $this->getChildrenFields($field, $fields);
+
+
+            }
+        }
+        return $fields;
+
+    }
+
+    private function getChildrenFields($field, $fields)
+    {
+        if(isset($field->children))
+        {
+            foreach ($field->children as $childField){
+                if($childField->type != 'Group'){
+                    $fields[] = $childField;
+                }
+
+                $fields = $this->getChildrenFields($childField, $fields);
+
             }
         }
         return $fields;

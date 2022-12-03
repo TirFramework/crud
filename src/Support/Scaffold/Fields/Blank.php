@@ -19,4 +19,10 @@ class Blank extends BaseField
         return $this;
     }
 
+    protected function setValue($model)
+    {
+        return $this->value;
+    }
+
+
 }

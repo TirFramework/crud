@@ -11,8 +11,11 @@ use Illuminate\Support\Arr;
 trait DataTrait
 {
 
-    public function data(): JsonResponse
+    private array $selectFields =[];
+
+    public function data()
     {
+
         $relations = $this->getRelationFields($this->model());
         $items = $this->dataQuery($relations);
         $paginatedItems = $items->orderBy('created_at','DESC')->paginate(request()->input('result'));
@@ -26,7 +29,8 @@ trait DataTrait
         $relations = [];
         foreach ($model->getIndexFields() as $field) {
             if (isset($field->relation)) {
-                $relation = $field->relation->name . ':' . $field->relation->key . ',' . $field->relation->field . ' as text';
+                $relation = $field->relation->name . ':' . $field->relation->key . ',' . $field->relation->field. ' as text';
+                $this->selectFields[] = $field->relation->key;
                 array_push($relations, $relation);
             }
         }
@@ -40,7 +44,11 @@ trait DataTrait
      */
     public function dataQuery($relation): object
     {
-        $query = $this->model()->select($this->model()->getTable() . '.*')->with($relation);
+        $this->selectFields = array_merge($this->selectFields, collect($this->model()->getIndexFields())->pluck('name')->toArray());
+
+        //$query = $this->model()->select($this->model()->getTable() . '.*')->with($relation);
+
+        $query = $this->model()->select($this->selectFields)->with($relation);
         $query = $this->applyFilters($query);
         $query = $this->applySearch($query);
         return $query;
@@ -98,29 +106,28 @@ trait DataTrait
         foreach ($req as $filter => $value) {
             $field = $this->model()->getFieldByName($filter);
 
-                //if filter is manyToMany relation
-                if(isset($field->relation) && isset($field->multiple))
-                {
-                    //get table name from relation
-                    $table = $this->model()->{$field->relation->name}()->getRelated()->getTable();
+            //if filter is manyToMany relation
+            if(isset($field->relation) && isset($field->multiple))
+            {
+                //get table name from relation
+                $table = $this->model()->{$field->relation->name}()->getRelated()->getTable();
 
-                    //get primary key from relation
-                    $primaryKey = $this->model()->{$field->relation->name}()->getRelated()->getKeyName();
+                //get primary key from relation
+                $primaryKey = $this->model()->{$field->relation->name}()->getRelated()->getKeyName();
 
-                    $primaryKey = $table . '.' . $primaryKey;
+                $primaryKey = $table . '.' . $primaryKey;
 
-                    array_push($relational, ['relation' =>  $field->relation->name,  'value'=>$value, 'primaryKey'=>$primaryKey]);
-                }else{
-                    $original[$field->name] = $req->{$field->name};
-                }
+                array_push($relational, ['relation' =>  $field->relation->name,  'value'=>$value, 'primaryKey'=>$primaryKey]);
+            }else{
+                $original[$field->name] = $req->{$field->name};
             }
+        }
 
         $filters['original'] = $original;
         $filters['relational'] = $relational;
 
         return $filters;
     }
-
 }
 
 
