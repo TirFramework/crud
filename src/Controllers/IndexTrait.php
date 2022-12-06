@@ -8,27 +8,25 @@ use Illuminate\Support\Facades\Response;
 trait IndexTrait
 {
 
-    public function index()
+    public function index(): JsonResponse
     {
-        $col = [];
+        $cols = [];
         foreach ($this->model()->getIndexFields() as $index => $field) {
-            $col[$index] = [
+            $cols[$index] = [
                 'title'     => $field->display,
                 'dataIndex' => $this->getName($field),
-                // 'sorter'    => $field->sortable,
                 'fieldName' => $field->name,
                 'valueType' => $field->valueType,
                 'comment'   => $field->comment,
             ];
             if(count($field->filter)){
-                $col[$index]['filters'] = $field->filter;
+                $cols[$index]['filters'] = $field->filter;
             }
         }
 
-
         $data = [
-            'actions'     => $this->model()->getActionsStatus(),
-            'cols'       => $col,
+            'actions'    => $this->model()->getActionsStatus(),
+            'cols'       => $cols,
             'dataRoute'  => route('admin.' . $this->model()->getmoduleName() . '.data'),
             'trashRoute' => route('admin.' . $this->model()->getmoduleName() . '.trashData'),
         ];

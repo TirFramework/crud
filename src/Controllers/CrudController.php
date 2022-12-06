@@ -12,8 +12,7 @@ abstract class CrudController extends BaseController
 {
     use IndexTrait, DataTrait, CreateTrait, StoreTrait, EditTrait, UpdateTrait, ValidationTrait, SelectTrait, DestroyTrait;
 
-    private $model;
-    private $action;
+    private mixed $model;
 
     protected abstract function setModel(): string;
 
@@ -44,11 +43,11 @@ abstract class CrudController extends BaseController
     {
         $route = Route::getCurrentRoute();
         if($route) {
-            $this->action = explode('@', Route::getCurrentRoute()->getActionName())[1];
+            $action = explode('@', Route::getCurrentRoute()->getActionName())[1];
             request()->merge([
                 'crudModelName'=>$this->model(),
                 'crudModuleName' => $this->model()->getModuleName(),
-                'crudActionName'=>$this->action
+                'crudActionName'=>$action
             ]);
         }
 

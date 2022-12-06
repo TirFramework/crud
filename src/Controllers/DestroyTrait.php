@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Response;
 trait DestroyTrait
 {
 
-    public function destroy($id)
+    public function destroy($id): JsonResponse
     {
         $item = $this->model()->findOrFail($id);
 
@@ -24,7 +24,7 @@ trait DestroyTrait
     private function deleteResponse(): JsonResponse
     {
         $moduleName = $this->model()->getModuleName();
-        $message = trans('core::message.item-deleted', ['item' => trans("message.item.$moduleName")]); //translate message
+        $message = trans('core::message.item-deleted', ['item' => trans("message.item.$moduleName")]);
 
         return Response::Json(
             [
@@ -35,34 +35,30 @@ trait DestroyTrait
 
     }
 
-    // public function restore($id){
+     public function restore($id): JsonResponse
+     {
+         $moduleName = $this->model()->getModuleName();
+         $item = $this->model()::onlyTrashed()->findOrFail($id);
 
-    //     $item = $this->findForRestore($id);
+         if ($item->restore()) {
+             $message = trans('core::message.item-restored', ['item' => trans("message.item.$moduleName")]);
+             return Response::Json(
+                 [
+                     'deleted' => true,
+                     'message' => $message,
+                 ]
+                 , 200);
+         } else {
+             $message = trans('core::message.problem'); //translate message
+             return Response::Json(
+                 [
+                     'deleted' => false,
+                     'message' => $message,
+                 ]
+                 , 500);
+         }
+     }
 
 
-    //     if ($item->restore()) {
-    //         $message = trans('core::message.item-restored', ['item' => trans("message.item.$this->name")]); //translate message
-    //         Session::flash('message', $message);
-    //         return Redirect::back();
-    //     } else {
-    //         $message = trans('core::message.problem'); //translate message
-    //         Session::flash('error', $message);
-    //         return Redirect::back();
-    //     }
-    // }
-
-
-    //  /**
-    //  * This function find an object model and if permission == owner return only owner item
-    //  * @return eloquent
-    //  */
-    // public function findForRestore($id)
-    // {
-    //     $items = $this->model()::onlyTrashed()->findOrFail($id);
-    //     if($this->permission == 'owner'){
-    //         $items = $items->OnlyOwner();
-    //     }
-    //     return $items;
-    // }
 
 }

@@ -2,19 +2,8 @@
 
 namespace Tir\Crud\Support\Scaffold;
 
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Auth;
-use Tir\Authorization\Access;
-use Tir\Crud\Scopes\OwnerScope;
-use Tir\Crud\Support\Eloquent\HasAccessLevel;
-use function PHPUnit\Framework\isEmpty;
-
 trait BaseScaffold
 {
-//    use HasAccessLevel;
-
-    //Scaffolding
-
     private array $indexFields = [];
     private array $editFields = [];
     protected bool $accessLevelControl = true;
@@ -23,20 +12,11 @@ trait BaseScaffold
 
     protected abstract function setFields(): array;
 
-//    private object $fields;
-    private static bool $accessLevel = false;
-    private static string $action;
-    private $fields = [];
     public string $moduleName;
     protected array $rules = [];
-    protected array $creationRules = [];
-    protected array $updateRules = [];
+    private array $fields = [];
+    private array $buttons = [];
 
-    protected string $indexable = 'allow';
-    protected string $creatable = 'allow';
-    protected string $editable = 'allow';
-    protected string $deletable = 'allow';
-    protected string $viewable = 'allow';
     protected array $actionsStatus = [
         'index' => true,
         'create'=>true,
@@ -47,8 +27,7 @@ trait BaseScaffold
 
 
 
-
-    public function scaffold($dataModel = null)
+    public function scaffold($dataModel = null): static
     {
         $this->moduleName = $this->setModuleName();
         $this->addFieldsToScaffold($dataModel);
@@ -56,11 +35,11 @@ trait BaseScaffold
         return $this;
     }
 
-
     public function getAccessLevelStatus(): bool
     {
         return $this->accessLevelControl;
     }
+
     public static function boot()
     {
         parent::boot();
@@ -76,22 +55,39 @@ trait BaseScaffold
     private function addFieldsToScaffold($dataModel): void
     {
         foreach ($this->setFields() as $field) {
-            array_push($this->fields, $field->get($dataModel));
+            $this->fields[] = $field->get($dataModel);
         }
     }
 
-    private function setRules()
+    private function setRules(): void
     {
         foreach ($this->getFields() as $field) {
             $this->rules[$field->name] = $field->rules;
         }
     }
 
-    final function setActionsStatus($action, $status)
+    private function getChildrenFields($field, $fields)
+    {
+        if(isset($field->children))
+        {
+            foreach ($field->children as $childField){
+                if($childField->type != 'Group'){
+                    $fields[] = $childField;
+                }
+
+                $fields = $this->getChildrenFields($childField, $fields);
+
+            }
+        }
+        return $fields;
+    }
+
+
+
+    final function setActionsStatus($action, $status):bool
     {
         $this->actionsStatus[$action] = $status;
     }
-
 
     final function getActionsStatus():array
     {
@@ -118,7 +114,7 @@ trait BaseScaffold
         return $this->routeName;
     }
 
-    final function getCreationRules()
+    final function getCreationRules(): array
     {
         foreach ($this->getFields() as $field) {
             if ($field->creationRules)
@@ -128,7 +124,7 @@ trait BaseScaffold
 
     }
 
-    final function getUpdateRules()
+    final function getUpdateRules(): array
     {
         foreach ($this->getFields() as $field) {
             if ($field->updateRules)
@@ -155,44 +151,26 @@ trait BaseScaffold
 
     }
 
-    private function getChildrenFields($field, $fields)
-    {
-        if(isset($field->children))
-        {
-            foreach ($field->children as $childField){
-                if($childField->type != 'Group'){
-                    $fields[] = $childField;
-                }
-
-                $fields = $this->getChildrenFields($childField, $fields);
-
-            }
-        }
-        return $fields;
-    }
 
     final function getEditFields(): array
     {
         $fields = [];
         foreach ($this->getFields() as $field){
             if ($field->showOnEditing){
-                array_push($fields, $field);
+                $fields[] = $field;
             }
         }
-
         return $fields ;
     }
-
 
     final function getCreateFields(): array
     {
         $fields = [];
         foreach ($this->getFields() as $field) {
             if ($field->showOnCreating) {
-                array_push($fields, $field);
+                $fields[] = $field;
             }
         }
-
         return $fields;
     }
 
@@ -205,13 +183,12 @@ trait BaseScaffold
         }
     }
 
-
-    final function getSearchableFields()
+    final function getSearchableFields(): array
     {
         $fields = [];
         foreach ($this->getIndexFields() as $field) {
             if ($field->searchable) {
-                array_push($fields, $field);
+                $fields[] = $field;
             }
         }
 

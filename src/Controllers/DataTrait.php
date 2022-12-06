@@ -13,9 +13,8 @@ trait DataTrait
 
     private array $selectFields =[];
 
-    public function data()
+    public function data(): JsonResponse
     {
-
         $relations = $this->getRelationFields($this->model());
         $items = $this->dataQuery($relations);
         $paginatedItems = $items->orderBy('created_at','DESC')->paginate(request()->input('result'));
@@ -31,7 +30,7 @@ trait DataTrait
             if (isset($field->relation)) {
                 $relation = $field->relation->name . ':' . $field->relation->key . ',' . $field->relation->field. ' as text';
                 $this->selectFields[] = $field->relation->key;
-                array_push($relations, $relation);
+                $relations[] = $relation;
             }
         }
 
@@ -40,7 +39,7 @@ trait DataTrait
 
 
     /**
-     * This function return a eloquent select with relationship
+     * This function return an eloquent select with relationship
      */
     public function dataQuery($relation): object
     {
@@ -50,8 +49,7 @@ trait DataTrait
 
         $query = $this->model()->select($this->selectFields)->with($relation);
         $query = $this->applyFilters($query);
-        $query = $this->applySearch($query);
-        return $query;
+        return $this->applySearch($query);
     }
 
     private function applySearch($query)
@@ -67,7 +65,6 @@ trait DataTrait
         }
 
         return $query;
-
     }
 
 
@@ -117,7 +114,7 @@ trait DataTrait
 
                 $primaryKey = $table . '.' . $primaryKey;
 
-                array_push($relational, ['relation' =>  $field->relation->name,  'value'=>$value, 'primaryKey'=>$primaryKey]);
+                $relational[] = ['relation' => $field->relation->name, 'value' => $value, 'primaryKey' => $primaryKey];
             }else{
                 $original[$field->name] = $req->{$field->name};
             }
