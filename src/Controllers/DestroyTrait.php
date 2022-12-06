@@ -3,19 +3,17 @@
 namespace Tir\Crud\Controllers;
 
 use Illuminate\Http\JsonResponse;
-// use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 trait DestroyTrait
 {
 
     public function destroy($id)
     {
-        $item = $this->model()->accessLevel()->findOrFail($id);
+        $item = $this->model()->findOrFail($id);
 
-        DB::transaction(function () use ($item) { // Start the transaction
+//        DB::transaction(function () use ($item) { // Start the transaction
             $item->delete();
-        });
+//        });
 
         return $this->deleteResponse();
 

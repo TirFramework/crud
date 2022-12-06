@@ -33,6 +33,7 @@ class Select extends BaseField
     public function multiple(bool $check = true): Select
     {
         $this->multiple = $check;
+        $this->value = [];
         return $this;
     }
 
