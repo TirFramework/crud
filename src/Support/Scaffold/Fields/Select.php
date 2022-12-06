@@ -43,7 +43,7 @@ class Select extends BaseField
         return $this;
     }
 
-    public function filter($items = []): BaseField
+    public function filter(...$items): BaseField
     {
         $this->filterable = true;
 
@@ -109,7 +109,7 @@ class Select extends BaseField
         })->toArray();
     }
 
-    protected function setValue($model)
+    protected function setValue($model):void
     {
         if(isset($model)){
             $this->value = $model->{$this->name};

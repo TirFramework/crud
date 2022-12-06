@@ -2,15 +2,33 @@
 
 namespace Tir\Crud\Support\Scaffold;
 
+use Tir\Crud\Support\Scaffold\Fields\Button;
+
 trait BaseScaffold
 {
     private array $indexFields = [];
     private array $editFields = [];
     protected bool $accessLevelControl = true;
 
+    public static function boot()
+    {
+        parent::boot();
+
+        self::creating(function($model){
+            if(in_array('user_id',$model->fillable)){
+                $model->user_id = auth()->id();
+            }
+        });
+    }
+
     protected abstract function setModuleName(): string;
 
     protected abstract function setFields(): array;
+
+    protected function setButtons():array
+    {
+        return [];
+    }
 
     public string $moduleName;
     protected array $rules = [];
@@ -26,11 +44,11 @@ trait BaseScaffold
     ];
 
 
-
     public function scaffold($dataModel = null): static
     {
         $this->moduleName = $this->setModuleName();
         $this->addFieldsToScaffold($dataModel);
+        $this->addButtonsToScaffold();
         $this->setRules();
         return $this;
     }
@@ -40,22 +58,17 @@ trait BaseScaffold
         return $this->accessLevelControl;
     }
 
-    public static function boot()
-    {
-        parent::boot();
-
-        self::creating(function($model){
-            if(in_array('user_id',$model->fillable)){
-                $model->user_id = auth()->id();
-            }
-        });
-    }
-
-
     private function addFieldsToScaffold($dataModel): void
     {
         foreach ($this->setFields() as $field) {
             $this->fields[] = $field->get($dataModel);
+        }
+    }
+
+    private function addButtonsToScaffold(): void
+    {
+        foreach ($this->setButtons() as $button) {
+            $this->buttons[] = $button->get(null);
         }
     }
 
@@ -82,8 +95,6 @@ trait BaseScaffold
         return $fields;
     }
 
-
-
     final function setActionsStatus($action, $status):bool
     {
         $this->actionsStatus[$action] = $status;
@@ -97,6 +108,11 @@ trait BaseScaffold
     final function getFields()
     {
         return json_decode(json_encode($this->fields), false);
+    }
+
+    final function getButtons()
+    {
+        return json_decode(json_encode($this->buttons), false);
     }
 
     final function getModuleName(): string
@@ -151,7 +167,6 @@ trait BaseScaffold
 
     }
 
-
     final function getEditFields(): array
     {
         $fields = [];
@@ -172,6 +187,46 @@ trait BaseScaffold
             }
         }
         return $fields;
+    }
+
+    final function getCreateButtons(): array
+    {
+        $buttons = [];
+        foreach ($this->getButtons() as $button) {
+            if ($button->showOnCreating) {
+                $buttons[] = $button;
+            }
+        }
+        return $buttons;
+    }
+
+    final function getEditButtons(): array
+    {
+        $buttons = [];
+        foreach ($this->getButtons() as $button) {
+            if ($button->showOnEditing) {
+                $buttons[] = $button;
+            }
+        }
+        return $buttons;
+    }
+
+    final function getCreateElements(): array
+    {
+        return [
+            'fields' => $this->getCreateFields(),
+            'buttons' => $this->getCreateButtons(),
+            'config' => []
+        ];
+    }
+
+    final function getEditElements(): array
+    {
+        return [
+            'fields' => $this->getEditFields(),
+            'buttons' => $this->getEditButtons(),
+            'config' => []
+        ];
     }
 
     final function getFieldByName($name)

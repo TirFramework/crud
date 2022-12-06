@@ -13,7 +13,7 @@ trait EditTrait
     {
         $dataModel = $this->model()->findOrFail($id);
         $dataModel->scaffold($dataModel);
-        return $dataModel->getEditFields();
+        return $dataModel->getEditElements();
 
     }
 
