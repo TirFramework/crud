@@ -11,7 +11,7 @@ trait UpdateTrait
 {
     use ValidationTrait;
 
-    public function update(Request $request, $id): JsonResponse
+    public function update(Request $request, int|string $id): JsonResponse
     {
         $item = $this->model()->findOrFail($id);
         $item->scaffold();

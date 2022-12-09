@@ -43,7 +43,7 @@ class Select extends BaseField
         return $this;
     }
 
-    public function filter(...$items): BaseField
+    public function filter(...$items): Select
     {
         $this->filterable = true;
 
