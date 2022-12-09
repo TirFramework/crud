@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 
 abstract class CrudController extends BaseController
 {
-    use IndexTrait, DataTrait, CreateTrait, StoreTrait, EditTrait, UpdateTrait, ValidationTrait, SelectTrait, DestroyTrait;
+    use IndexTrait, DataTrait, ShowTrait, CreateTrait, StoreTrait, EditTrait, UpdateTrait, ValidationTrait, SelectTrait, DestroyTrait;
 
     private mixed $model;
 
