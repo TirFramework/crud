@@ -6,7 +6,6 @@ use Illuminate\Support\Arr;
 
 abstract class BaseField
 {
-
     protected string $type;
     protected string $originalName;
     protected string $name;
@@ -37,7 +36,7 @@ abstract class BaseField
     protected bool $additional = false;
 
 
-    public static function make(string $name): BaseField
+    public static function make(string $name):static
     {
         $obj = new static;
         $obj->init();
@@ -251,6 +250,5 @@ abstract class BaseField
         $this->setValue($dataModel);
         return get_object_vars($this);
     }
-
 
 }
