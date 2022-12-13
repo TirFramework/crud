@@ -23,14 +23,16 @@ trait UpdateTrait
 
     final function updateCrud(Request $request, $id, $item)
     {
-//        return DB::transaction(function () use ($request, $item) { // Start the transaction
+        return DB::transaction(function () use ($request, $item) { // Start the transaction
 
             $item->update($request->all());
 
             $this->updateRelations($request, $item);
 
+            DB::commit();
+
             return $item;
-//        });
+        });
     }
 
 
