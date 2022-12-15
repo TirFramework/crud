@@ -2,10 +2,8 @@
 
 return [
 
-    'middlewares'=> env('CRUD_MIDDLEWARES',['auth:sanctum']),
+    //This value config which admin panel user in scaffolding system.
 
-    'localization' => env('CRUD_LOCALE',true),
-
-    'accessLevelControl' => env('CRUD_ACCESS_LEVEL_CONTROL','on'),
-
+    'middlewares'=> env('CRUD_MIDDLEWARE',['api:auth']),
+    'localization' => true
 ];

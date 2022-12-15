@@ -6,7 +6,7 @@ namespace Tir\Crud\Support\Scaffold\Fields;
 class Select extends BaseField
 {
     protected string $type = 'Select';
-    protected array $data;
+    protected array $data = [];
     protected array $relation;
     protected string $dataUrl;
     protected string $valueType = 'string';
@@ -20,6 +20,7 @@ class Select extends BaseField
     public function data(...$data): Select
     {
         $this->data = $data;
+        $this->setDataSet();
         return $this;
     }
 
@@ -61,7 +62,7 @@ class Select extends BaseField
 
     }
 
-    public function get($dataModel): array
+    protected function init(): void
     {
         if (isset($this->relation)) {
             $this->setDataRoute($dataModel);
@@ -71,9 +72,15 @@ class Select extends BaseField
         if ($this->multiple) {
             $this->valueType = 'array';
         }
-        return parent::get($dataModel);
     }
 
+
+    private function setDataSet()
+    {
+        if(count($this->dataSet)==0){
+            $this->dataSet = collect($this->data)->pluck('label','value');
+        }
+    }
 
     private function setDataRoute($model)
     {

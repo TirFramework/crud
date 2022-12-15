@@ -33,6 +33,7 @@ abstract class BaseField
     protected bool $filterable = false;
     protected bool $multiple = false;
     protected array $comment = [];
+    protected $dataSet = [];
     protected bool $additional = false;
 
 

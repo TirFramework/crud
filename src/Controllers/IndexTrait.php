@@ -18,6 +18,8 @@ trait IndexTrait
                 'fieldName' => $field->name,
                 'valueType' => $field->valueType,
                 'comment'   => $field->comment,
+                'dataSet' => $field->dataSet,
+
             ];
             if(count($field->filter)){
                 $cols[$index]['filters'] = $field->filter;
