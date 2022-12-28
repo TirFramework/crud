@@ -178,6 +178,18 @@ trait BaseScaffold
         return $fields ;
     }
 
+    final function getDetailFields(): array
+    {
+        $fields = [];
+        foreach ($this->getFields() as $field){
+            if ($field->showOnDetail){
+                $field->readOnly = true;
+                $fields[] = $field;
+            }
+        }
+        return $fields ;
+    }
+
     final function getCreateFields(): array
     {
         $fields = [];
@@ -194,6 +206,17 @@ trait BaseScaffold
         $buttons = [];
         foreach ($this->getButtons() as $button) {
             if ($button->showOnCreating) {
+                $buttons[] = $button;
+            }
+        }
+        return $buttons;
+    }
+
+    final function getDetailButtons(): array
+    {
+        $buttons = [];
+        foreach ($this->getButtons() as $button) {
+            if ($button->showOnDetail) {
                 $buttons[] = $button;
             }
         }
@@ -229,6 +252,15 @@ trait BaseScaffold
         ];
     }
 
+    final function getDetailElements(): array
+    {
+        return [
+            'fields' => $this->getDetailFields(),
+            'buttons' => $this->getDetailButtons(),
+            'config' => []
+        ];
+    }
+
     final function getFieldByName($name)
     {
         foreach ($this->getIndexFields() as $field) {
@@ -246,8 +278,6 @@ trait BaseScaffold
                 $fields[] = $field;
             }
         }
-
         return $fields;
-
     }
 }

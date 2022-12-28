@@ -3,6 +3,7 @@
 namespace Tir\Crud\Controllers;
 
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Route;
@@ -19,12 +20,15 @@ abstract class CrudController extends BaseController
 
     public function __construct()
     {
-        $this->modelInit();
-        $this->addBasicsToRequest();
-        $this->crudInit();
-        $this->checkAccess();
-        $this->model()->scaffold();
-        $this->validation();
+        $this->middleware(function ($request, $next) {
+            $this->modelInit();
+            $this->addBasicsToRequest();
+            $this->crudInit();
+            $this->checkAccess();
+            $this->model()->scaffold();
+            $this->validation();
+            return $next($request);
+        });
     }
 
     public function model()
@@ -66,7 +70,7 @@ abstract class CrudController extends BaseController
     {
         if($this->model()->getAccessLevelStatus()){
             $this->middleware('acl');
-    }
+         }
 
     }
 

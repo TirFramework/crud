@@ -8,7 +8,7 @@ trait ShowTrait
     {
         $dataModel = $this->model()->findOrFail($id);
         $dataModel->scaffold($dataModel);
-        return $dataModel->getEditElements();
+        return $dataModel->getDetailElements();
     }
 
 }

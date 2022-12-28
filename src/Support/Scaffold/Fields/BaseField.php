@@ -42,7 +42,7 @@ abstract class BaseField
         $obj = new static;
         $obj->init();
         $obj->originalName = $obj->name = $obj->class = $name;
-        $obj->display($name);
+//        $obj->display = ucwords(str_replace('_', ' ', $name));
         return $obj;
     }
 
@@ -52,7 +52,7 @@ abstract class BaseField
 
     public function display(string $value): BaseField
     {
-        $this->display = ucwords(str_replace('_', ' ', $value));
+        $this->display = $value;
         return $this;
     }
 
