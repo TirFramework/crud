@@ -8,7 +8,10 @@ trait BaseScaffold
 {
     private array $indexFields = [];
     private array $editFields = [];
+    private string $moduleTitle;
+
     protected bool $accessLevelControl = true;
+
 
     public static function boot()
     {
@@ -30,8 +33,14 @@ trait BaseScaffold
         return [];
     }
 
-    public string $moduleName;
-    protected array $rules = [];
+    protected function setModuleTitle():string
+    {
+        return $this->moduleName ;
+    }
+
+
+    private string $moduleName;
+        protected array $rules = [];
     private array $fields = [];
     private array $buttons = [];
 
@@ -47,6 +56,7 @@ trait BaseScaffold
     public function scaffold($dataModel = null): static
     {
         $this->moduleName = $this->setModuleName();
+        $this->moduleTitle = $this->setModuleTitle();
         $this->addFieldsToScaffold($dataModel);
         $this->addButtonsToScaffold();
         $this->setRules();
@@ -93,6 +103,22 @@ trait BaseScaffold
             }
         }
         return $fields;
+    }
+
+    private function getValidationMsg(): array{
+        return [
+            'required' => '${label} is required!',
+            'string' => [
+            'max'=> '${label} cannot be longer than  ${max} characters'
+            ]
+        ];
+    }
+
+    private function getConfigs(): array
+    {
+        return [
+            'module_title' => $this->moduleTitle
+        ];
     }
 
     final function setActionsStatus($action, $status):bool
@@ -201,6 +227,17 @@ trait BaseScaffold
         return $fields;
     }
 
+    final function getIndexButtons(): array
+    {
+        $buttons = [];
+        foreach ($this->getButtons() as $button) {
+            if ($button->showOnIndex) {
+                $buttons[] = $button;
+            }
+        }
+        return $buttons;
+    }
+
     final function getCreateButtons(): array
     {
         $buttons = [];
@@ -234,12 +271,22 @@ trait BaseScaffold
         return $buttons;
     }
 
+    final function getIndexElements(): array
+    {
+        return [
+            'fields' => $this->getIndexFields(),
+            'buttons' => $this->getIndexButtons(),
+            'configs' => $this->getConfigs()
+        ];
+    }
+
     final function getCreateElements(): array
     {
         return [
             'fields' => $this->getCreateFields(),
             'buttons' => $this->getCreateButtons(),
-            'config' => []
+            'validationMsg' => $this->getValidationMsg(),
+            'configs' => $this->getConfigs()
         ];
     }
 
@@ -248,7 +295,8 @@ trait BaseScaffold
         return [
             'fields' => $this->getEditFields(),
             'buttons' => $this->getEditButtons(),
-            'config' => []
+            'validationMsg' => $this->getValidationMsg(),
+            'configs' => $this->getConfigs()
         ];
     }
 

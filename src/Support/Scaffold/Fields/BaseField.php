@@ -10,7 +10,7 @@ abstract class BaseField
     protected string $originalName;
     protected string $name;
     protected string $valueType = 'string';
-    protected mixed $value;
+    protected mixed $value = null;
     protected string $display;
     protected string $placeholder = '';
     protected string $class = '';
@@ -42,7 +42,7 @@ abstract class BaseField
         $obj = new static;
         $obj->init();
         $obj->originalName = $obj->name = $obj->class = $name;
-//        $obj->display = ucwords(str_replace('_', ' ', $name));
+        $obj->display = ucwords(str_replace('_', ' ', $name));
         return $obj;
     }
 

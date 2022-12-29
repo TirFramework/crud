@@ -47,8 +47,8 @@ trait DataTrait
         //$query = $this->model()->select($this->model()->getTable() . '.*')->with($relation);
 
         $query = $this->model()->select($this->selectFields)->with($relation);
-        $query = $this->applyFilters($query);
-        return $this->applySearch($query);
+        $query = $this->applySearch($query);
+        return $this->applyFilters($query);
     }
 
     private function applySearch($query)
