@@ -8,6 +8,7 @@ class Group extends BaseField
     protected string $type = 'Group';
     protected array $subInputs = [];
     protected array $children = [];
+    protected bool $dataField = false;
 
     public function children(...$inputs):Group
     {
@@ -24,9 +25,22 @@ class Group extends BaseField
         return $this-> children;
     }
 
-    public function get($dataModel): array
+    private function getChildrenRules(...$rules)
+    {
+        foreach ($this->children as $input)
+        {
+            if($input->rules){
+                $rules[$input->name] =  $input->rules;
+            }
+        }
+        $this->rules = $rules;
+    }
+
+
+    public function get($dataModel)
     {
         $this->getChildren($dataModel);
+//        $this->getChildrenRules();
         return parent::get($dataModel);
     }
 }

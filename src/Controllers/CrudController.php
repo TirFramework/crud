@@ -26,7 +26,7 @@ abstract class CrudController extends BaseController
             $this->crudInit();
             $this->checkAccess();
             $this->model()->scaffold();
-            $this->validation();
+//            $this->validation();
             return $next($request);
         });
     }
@@ -39,6 +39,7 @@ abstract class CrudController extends BaseController
 
     private function modelInit(): void
     {
+        dump('modelInit');
         $model = $this->setModel();
         $this->model = new $model;
     }

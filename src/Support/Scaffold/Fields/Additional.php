@@ -54,13 +54,8 @@ class Additional extends BaseField
 
     }
 
-//    protected function setValue($model)
-//    {
-//            $this->value = null;
-//    }
 
-
-    public function get($dataModel): array
+    public function get($dataModel)
     {
         $this->children = $this->getChildren($dataModel);
         $this->template = $this->children[0];

@@ -35,6 +35,8 @@ abstract class BaseField
     protected array $comment = [];
     protected $dataSet = [];
     protected bool $additional = false;
+    protected bool $dataField = true;
+
 
 
     public static function make(string $name):static
@@ -246,10 +248,14 @@ abstract class BaseField
         }
     }
 
-    public function get($dataModel): array
+    public function get($dataModel)
     {
         $this->setValue($dataModel);
-        return get_object_vars($this);
+        return json_decode(
+                    json_encode(
+                        get_object_vars($this)
+                    ), false
+        );
     }
 
 }

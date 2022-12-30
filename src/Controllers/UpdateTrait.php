@@ -11,13 +11,13 @@ trait UpdateTrait
 {
     use ValidationTrait;
 
-    public function update(Request $request, int|string $id): JsonResponse
+    public function update(Request $request, int|string $id)
     {
         $item = $this->model()->findOrFail($id);
-        $item->scaffold();
-
-        $this->updateCrud($request, $id, $item);
-        return $this->updateResponse($item);
+//        $item->scaffold();
+//
+//        $this->updateCrud($request, $id, $item);
+        return 'hi';
     }
 
 
@@ -39,7 +39,7 @@ trait UpdateTrait
 
     final function updateRelations(Request $request, $item)
     {
-        foreach ($this->model()->getCreateFields() as $field) {
+        foreach ($this->model()->getEditFields() as $field) {
             if (isset($field->relation) && $field->multiple) {
                 $data = $request->input($field->name);
                 $item->{$field->relation->name}()->sync($data);

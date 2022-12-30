@@ -9,7 +9,7 @@ trait BaseScaffold
     private array $indexFields = [];
     private array $editFields = [];
     private string $moduleTitle;
-
+    private bool $isScaffolded = false;
     protected bool $accessLevelControl = true;
 
 
@@ -17,8 +17,8 @@ trait BaseScaffold
     {
         parent::boot();
 
-        self::creating(function($model){
-            if(in_array('user_id',$model->fillable)){
+        self::creating(function ($model) {
+            if (in_array('user_id', $model->fillable)) {
                 $model->user_id = auth()->id();
             }
         });
@@ -28,33 +28,38 @@ trait BaseScaffold
 
     protected abstract function setFields(): array;
 
-    protected function setButtons():array
+    protected function setButtons(): array
     {
         return [];
     }
 
-    protected function setModuleTitle():string
+    protected function setModuleTitle(): string
     {
-        return $this->moduleName ;
+        return $this->moduleName;
     }
 
 
     private string $moduleName;
-        protected array $rules = [];
+    protected array $rules = [];
     private array $fields = [];
     private array $buttons = [];
 
     protected array $actionsStatus = [
-        'index' => true,
-        'create'=>true,
-        'edit'=>true,
-        'destroy'=>true,
-        'show'=>true
+        'index'   => true,
+        'create'  => true,
+        'edit'    => true,
+        'destroy' => true,
+        'show'    => true
     ];
 
 
     public function scaffold($dataModel = null): static
     {
+        if ($this->isScaffolded) {
+            dd('You cannot make scaffold again');
+        }
+        $this->isScaffolded = true;
+        dump('scaffold');
         $this->moduleName = $this->setModuleName();
         $this->moduleTitle = $this->setModuleTitle();
         $this->addFieldsToScaffold($dataModel);
@@ -70,6 +75,7 @@ trait BaseScaffold
 
     private function addFieldsToScaffold($dataModel): void
     {
+        dump('addFieldsToScaffold');
         foreach ($this->setFields() as $field) {
             $this->fields[] = $field->get($dataModel);
         }
@@ -84,32 +90,37 @@ trait BaseScaffold
 
     private function setRules(): void
     {
-        foreach ($this->getFields() as $field) {
+        foreach ($this->getAllDataFields() as $field) {
             $this->rules[$field->name] = $field->rules;
         }
     }
 
-    private function getChildrenFields($field, $fields)
+    public function getAllDataFields()
     {
-        if(isset($field->children))
-        {
-            foreach ($field->children as $childField){
-                if($childField->type != 'Group'){
-                    $fields[] = $childField;
-                }
-
-                $fields = $this->getChildrenFields($childField, $fields);
-
-            }
-        }
-        return $fields;
+        $allFields = [];
+        $allFields = $this->getChildrenFields($this->fields, $allFields);
+        return $allFields;
     }
 
-    private function getValidationMsg(): array{
+    private function getChildrenFields($fields, $allFields)
+    {
+        foreach ($fields as $field) {
+            if ($field->type == 'Group') {
+                $allFields = $this->getChildrenFields($field->children, $allFields);
+            } elseif ($field->dataField) {
+                $allFields[] = $field;
+            }
+        }
+        return $allFields;
+    }
+
+
+    private function getValidationMsg(): array
+    {
         return [
             'required' => '${label} is required!',
-            'string' => [
-            'max'=> '${label} cannot be longer than  ${max} characters'
+            'string'   => [
+                'max' => '${label} cannot be longer than  ${max} characters'
             ]
         ];
     }
@@ -121,19 +132,20 @@ trait BaseScaffold
         ];
     }
 
-    final function setActionsStatus($action, $status):bool
+    final function setActionsStatus($action, $status): bool
     {
         $this->actionsStatus[$action] = $status;
     }
 
-    final function getActionsStatus():array
+    final function getActionsStatus(): array
     {
         return $this->actionsStatus;
     }
 
     final function getFields()
     {
-        return json_decode(json_encode($this->fields), false);
+        dump('getFields');
+        return $this->fields;
     }
 
     final function getButtons()
@@ -168,6 +180,7 @@ trait BaseScaffold
 
     final function getUpdateRules(): array
     {
+        dump($this->getFields());
         foreach ($this->getFields() as $field) {
             if ($field->updateRules)
                 $this->rules[$field->name] = $field->updateRules;
@@ -181,12 +194,10 @@ trait BaseScaffold
         $fields = [];
         foreach ($this->getFields() as $field) {
             if ($field->showOnIndex) {
-                if($field->type != 'Group'){
+                if ($field->type != 'Group') {
                     $fields[] = $field;
                 }
                 $fields = $this->getChildrenFields($field, $fields);
-
-
             }
         }
         return $fields;
@@ -196,24 +207,24 @@ trait BaseScaffold
     final function getEditFields(): array
     {
         $fields = [];
-        foreach ($this->getFields() as $field){
-            if ($field->showOnEditing){
+        foreach ($this->getFields() as $field) {
+            if ($field->showOnEditing) {
                 $fields[] = $field;
             }
         }
-        return $fields ;
+        return $fields;
     }
 
     final function getDetailFields(): array
     {
         $fields = [];
-        foreach ($this->getFields() as $field){
-            if ($field->showOnDetail){
+        foreach ($this->getFields() as $field) {
+            if ($field->showOnDetail) {
                 $field->readOnly = true;
                 $fields[] = $field;
             }
         }
-        return $fields ;
+        return $fields;
     }
 
     final function getCreateFields(): array
@@ -274,7 +285,7 @@ trait BaseScaffold
     final function getIndexElements(): array
     {
         return [
-            'fields' => $this->getIndexFields(),
+            'fields'  => $this->getIndexFields(),
             'buttons' => $this->getIndexButtons(),
             'configs' => $this->getConfigs()
         ];
@@ -283,36 +294,36 @@ trait BaseScaffold
     final function getCreateElements(): array
     {
         return [
-            'fields' => $this->getCreateFields(),
-            'buttons' => $this->getCreateButtons(),
+            'fields'        => $this->getCreateFields(),
+            'buttons'       => $this->getCreateButtons(),
             'validationMsg' => $this->getValidationMsg(),
-            'configs' => $this->getConfigs()
+            'configs'       => $this->getConfigs()
         ];
     }
 
     final function getEditElements(): array
     {
         return [
-            'fields' => $this->getEditFields(),
-            'buttons' => $this->getEditButtons(),
+            'fields'        => $this->getEditFields(),
+            'buttons'       => $this->getEditButtons(),
             'validationMsg' => $this->getValidationMsg(),
-            'configs' => $this->getConfigs()
+            'configs'       => $this->getConfigs()
         ];
     }
 
     final function getDetailElements(): array
     {
         return [
-            'fields' => $this->getDetailFields(),
+            'fields'  => $this->getDetailFields(),
             'buttons' => $this->getDetailButtons(),
-            'config' => []
+            'config'  => []
         ];
     }
 
     final function getFieldByName($name)
     {
         foreach ($this->getIndexFields() as $field) {
-            if($field->name == $name){
+            if ($field->name == $name) {
                 return $field;
             }
         }
