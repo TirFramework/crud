@@ -6,7 +6,7 @@ namespace Tir\Crud\Support\Scaffold\Fields;
 class Group extends BaseField
 {
     protected string $type = 'Group';
-    protected array $subInputs = [];
+    protected array $subFields = [];
     protected array $children = [];
     protected bool $dataField = false;
 
@@ -22,25 +22,14 @@ class Group extends BaseField
             $fields[]  = $input->get($dataModel);
         }
         $this->children = $fields;
-        return $this-> children;
-    }
-
-    private function getChildrenRules(...$rules)
-    {
-        foreach ($this->children as $input)
-        {
-            if($input->rules){
-                $rules[$input->name] =  $input->rules;
-            }
-        }
-        $this->rules = $rules;
+        $this->subFields = $fields;
+        return $this->children;
     }
 
 
     public function get($dataModel)
     {
         $this->getChildren($dataModel);
-//        $this->getChildrenRules();
         return parent::get($dataModel);
     }
 }

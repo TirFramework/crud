@@ -6,12 +6,23 @@ use Tir\Crud\Support\Scaffold\Fields\Button;
 
 trait BaseScaffold
 {
-    private array $indexFields = [];
-    private array $editFields = [];
-    private string $moduleTitle;
-    private bool $isScaffolded = false;
-    protected bool $accessLevelControl = true;
+    use FieldsHelper;
+    use ButtonsHelper;
+    use RulesHelper;
 
+    private string $moduleTitle;
+    public bool $isScaffolded = false;
+    protected bool $accessLevelControl = true;
+    private string $moduleName;
+    private array $fields = [];
+    private array $buttons = [];
+    private array $actionsStatus = [
+        'index'   => true,
+        'create'  => true,
+        'edit'    => true,
+        'destroy' => true,
+        'show'    => true
+    ];
 
     public static function boot()
     {
@@ -38,91 +49,29 @@ trait BaseScaffold
         return $this->moduleName;
     }
 
-
-    private string $moduleName;
-    protected array $rules = [];
-    private array $fields = [];
-    private array $buttons = [];
-
-    protected array $actionsStatus = [
-        'index'   => true,
-        'create'  => true,
-        'edit'    => true,
-        'destroy' => true,
-        'show'    => true
-    ];
-
-
     public function scaffold($dataModel = null): static
     {
         if ($this->isScaffolded) {
             dd('You cannot make scaffold again');
         }
         $this->isScaffolded = true;
-        dump('scaffold');
         $this->moduleName = $this->setModuleName();
         $this->moduleTitle = $this->setModuleTitle();
         $this->addFieldsToScaffold($dataModel);
         $this->addButtonsToScaffold();
-        $this->setRules();
         return $this;
-    }
-
-    public function getAccessLevelStatus(): bool
-    {
-        return $this->accessLevelControl;
     }
 
     private function addFieldsToScaffold($dataModel): void
     {
-        dump('addFieldsToScaffold');
         foreach ($this->setFields() as $field) {
             $this->fields[] = $field->get($dataModel);
         }
     }
 
-    private function addButtonsToScaffold(): void
+    public function getAccessLevelStatus(): bool
     {
-        foreach ($this->setButtons() as $button) {
-            $this->buttons[] = $button->get(null);
-        }
-    }
-
-    private function setRules(): void
-    {
-        foreach ($this->getAllDataFields() as $field) {
-            $this->rules[$field->name] = $field->rules;
-        }
-    }
-
-    public function getAllDataFields()
-    {
-        $allFields = [];
-        $allFields = $this->getChildrenFields($this->fields, $allFields);
-        return $allFields;
-    }
-
-    private function getChildrenFields($fields, $allFields)
-    {
-        foreach ($fields as $field) {
-            if ($field->type == 'Group') {
-                $allFields = $this->getChildrenFields($field->children, $allFields);
-            } elseif ($field->dataField) {
-                $allFields[] = $field;
-            }
-        }
-        return $allFields;
-    }
-
-
-    private function getValidationMsg(): array
-    {
-        return [
-            'required' => '${label} is required!',
-            'string'   => [
-                'max' => '${label} cannot be longer than  ${max} characters'
-            ]
-        ];
+        return $this->accessLevelControl;
     }
 
     private function getConfigs(): array
@@ -142,17 +91,6 @@ trait BaseScaffold
         return $this->actionsStatus;
     }
 
-    final function getFields()
-    {
-        dump('getFields');
-        return $this->fields;
-    }
-
-    final function getButtons()
-    {
-        return json_decode(json_encode($this->buttons), false);
-    }
-
     final function getModuleName(): string
     {
         return $this->setModuleName();
@@ -168,121 +106,7 @@ trait BaseScaffold
         return $this->routeName;
     }
 
-    final function getCreationRules(): array
-    {
-        foreach ($this->getFields() as $field) {
-            if ($field->creationRules)
-                $this->rules[$field->name] = $field->creationRules;
-        }
-        return $this->rules;
-
-    }
-
-    final function getUpdateRules(): array
-    {
-        dump($this->getFields());
-        foreach ($this->getFields() as $field) {
-            if ($field->updateRules)
-                $this->rules[$field->name] = $field->updateRules;
-        }
-        return $this->rules;
-
-    }
-
-    final function getIndexFields(): array
-    {
-        $fields = [];
-        foreach ($this->getFields() as $field) {
-            if ($field->showOnIndex) {
-                if ($field->type != 'Group') {
-                    $fields[] = $field;
-                }
-                $fields = $this->getChildrenFields($field, $fields);
-            }
-        }
-        return $fields;
-
-    }
-
-    final function getEditFields(): array
-    {
-        $fields = [];
-        foreach ($this->getFields() as $field) {
-            if ($field->showOnEditing) {
-                $fields[] = $field;
-            }
-        }
-        return $fields;
-    }
-
-    final function getDetailFields(): array
-    {
-        $fields = [];
-        foreach ($this->getFields() as $field) {
-            if ($field->showOnDetail) {
-                $field->readOnly = true;
-                $fields[] = $field;
-            }
-        }
-        return $fields;
-    }
-
-    final function getCreateFields(): array
-    {
-        $fields = [];
-        foreach ($this->getFields() as $field) {
-            if ($field->showOnCreating) {
-                $fields[] = $field;
-            }
-        }
-        return $fields;
-    }
-
-    final function getIndexButtons(): array
-    {
-        $buttons = [];
-        foreach ($this->getButtons() as $button) {
-            if ($button->showOnIndex) {
-                $buttons[] = $button;
-            }
-        }
-        return $buttons;
-    }
-
-    final function getCreateButtons(): array
-    {
-        $buttons = [];
-        foreach ($this->getButtons() as $button) {
-            if ($button->showOnCreating) {
-                $buttons[] = $button;
-            }
-        }
-        return $buttons;
-    }
-
-    final function getDetailButtons(): array
-    {
-        $buttons = [];
-        foreach ($this->getButtons() as $button) {
-            if ($button->showOnDetail) {
-                $buttons[] = $button;
-            }
-        }
-        return $buttons;
-    }
-
-    final function getEditButtons(): array
-    {
-        $buttons = [];
-        foreach ($this->getButtons() as $button) {
-            if ($button->showOnEditing) {
-                $buttons[] = $button;
-            }
-        }
-        return $buttons;
-    }
-
-    final function getIndexElements(): array
+    final function getIndexScaffold(): array
     {
         return [
             'fields'  => $this->getIndexFields(),
@@ -291,7 +115,7 @@ trait BaseScaffold
         ];
     }
 
-    final function getCreateElements(): array
+    final function getCreateScaffold(): array
     {
         return [
             'fields'        => $this->getCreateFields(),
@@ -301,7 +125,7 @@ trait BaseScaffold
         ];
     }
 
-    final function getEditElements(): array
+    final function getEditScaffold(): array
     {
         return [
             'fields'        => $this->getEditFields(),
@@ -311,7 +135,7 @@ trait BaseScaffold
         ];
     }
 
-    final function getDetailElements(): array
+    final function getDetailScaffold(): array
     {
         return [
             'fields'  => $this->getDetailFields(),
@@ -320,23 +144,4 @@ trait BaseScaffold
         ];
     }
 
-    final function getFieldByName($name)
-    {
-        foreach ($this->getIndexFields() as $field) {
-            if ($field->name == $name) {
-                return $field;
-            }
-        }
-    }
-
-    final function getSearchableFields(): array
-    {
-        $fields = [];
-        foreach ($this->getIndexFields() as $field) {
-            if ($field->searchable) {
-                $fields[] = $field;
-            }
-        }
-        return $fields;
-    }
 }

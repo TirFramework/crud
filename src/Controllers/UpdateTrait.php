@@ -14,18 +14,16 @@ trait UpdateTrait
     public function update(Request $request, int|string $id)
     {
         $item = $this->model()->findOrFail($id);
-//        $item->scaffold();
-//
-//        $this->updateCrud($request, $id, $item);
-        return 'hi';
+        $item = $this->updateCrud($request, $id, $item);
+        return $this->updateResponse($item);
     }
 
 
     final function updateCrud(Request $request, $id, $item)
     {
         return DB::transaction(function () use ($request, $item) { // Start the transaction
-
-            $item->update($request->all());
+            //TODO GetOnlyEditFields
+            $item->update($request->only(collect($this->model()->getAllDataFields())->pluck('name')->flatten()->toArray()));
 
             $this->updateRelations($request, $item);
 
