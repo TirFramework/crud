@@ -25,7 +25,7 @@ trait StoreTrait
     {
         return DB::transaction(function () use ($request) { // Start the transaction
             // Store model
-            $this->model()->fill($request->all());
+            $this->model()->fill($request->only(collect($this->model()->getAllDataFields())->pluck('name')->flatten()->toArray()));
             $this->model()->save();
             //Store relations
             $this->storeRelations($request);

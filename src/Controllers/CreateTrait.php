@@ -10,7 +10,7 @@ trait CreateTrait
 
     public function create()
     {
-        $fields = $this->model()->getCreateElements();
+        $fields = $this->model()->getCreateScaffold();
         return Response::json($fields, '200');
     }
 

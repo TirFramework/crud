@@ -11,9 +11,15 @@ class Additional extends BaseField
     protected array $children = [];
     protected array $template = [];
 
-    public function children(...$inputs):BaseField
+    public function children(...$inputs):Additional
     {
         $this->children = $inputs;
+        return $this;
+    }
+
+    public function request(...$schema): Additional
+    {
+        $this->request = $schema;
         return $this;
     }
 
@@ -54,13 +60,8 @@ class Additional extends BaseField
 
     }
 
-//    protected function setValue($model)
-//    {
-//            $this->value = null;
-//    }
 
-
-    public function get($dataModel): array
+    public function get($dataModel)
     {
         $this->children = $this->getChildren($dataModel);
         $this->template = $this->children[0];

@@ -9,6 +9,7 @@ abstract class BaseField
     protected string $type;
     protected string $originalName;
     protected string $name;
+    protected mixed $request;
     protected string $valueType = 'string';
     protected mixed $value = null;
     protected string $display;
@@ -35,13 +36,15 @@ abstract class BaseField
     protected array $comment = [];
     protected $dataSet = [];
     protected bool $additional = false;
+    protected bool $dataField = true;
+
 
 
     public static function make(string $name):static
     {
         $obj = new static;
         $obj->init();
-        $obj->originalName = $obj->name = $obj->class = $name;
+        $obj->originalName = $obj->name = $obj->request = $obj->class = $name;
         $obj->display = ucwords(str_replace('_', ' ', $name));
         return $obj;
     }
@@ -216,19 +219,20 @@ abstract class BaseField
 
     public function rules(...$rules): BaseField
     {
-        $this->rules = $rules;
+        $this->creationRules = $this->updateRules = $this->rules = $rules;
         return $this;
     }
 
     public function creationRules(...$rules): BaseField
     {
-        $this->creationRules = $rules;
+        //TODO::need to fix in front-end
+        $this->creationRules = $this->rules = $rules;
         return $this;
     }
 
     public function updateRules(...$rules): BaseField
     {
-        $this->updateRules = $rules;
+        $this->updateRules = $this->rules = $rules;
         return $this;
     }
 
@@ -246,10 +250,10 @@ abstract class BaseField
         }
     }
 
-    public function get($dataModel): array
+    public function get($dataModel)
     {
         $this->setValue($dataModel);
-        return get_object_vars($this);
+        return (object) get_object_vars($this);
     }
 
 }
