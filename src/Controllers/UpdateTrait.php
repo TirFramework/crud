@@ -23,6 +23,8 @@ trait UpdateTrait
     {
         return DB::transaction(function () use ($request, $item) { // Start the transaction
             //TODO GetOnlyEditFields
+//            dd(collect($this->model()->getAllDataFields())->pluck('name')->flatten()->toArray());
+//            dd($request->only(collect($this->model()->getAllDataFields())->pluck('name')->flatten()->toArray()));
             $item->update($request->only(collect($this->model()->getAllDataFields())->pluck('name')->flatten()->toArray()));
 
             $this->updateRelations($request, $item);
@@ -53,6 +55,7 @@ trait UpdateTrait
         return Response::Json(
             [
                 'id'      => $item->id,
+                'changes' => $item->getChanges(),
                 'updated' => true,
                 'message' => $message,
             ]
