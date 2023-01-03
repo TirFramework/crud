@@ -45,13 +45,10 @@ class CrudServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->loadRoutesFrom(__DIR__ . '/Routes/web.php');
         $this->publishes([
             __DIR__ . '/config/crud.php' => config_path('crud.php'),
         ]);
 
-        // $this->app['router']->aliasMiddleware('addUserIdToRequests', AddUserIdToRequestsMiddleware::class);
-        // $this->app['router']->pushMiddlewareToGroup('web', AddUserIdToRequestsMiddleware::class);
 
         $this->app['router']->aliasMiddleware('setLocale', SetLocaleMiddleware::class);
         $this->app['router']->pushMiddlewareToGroup('*', SetLocaleMiddleware::class);

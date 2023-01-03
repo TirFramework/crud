@@ -44,7 +44,7 @@ abstract class BaseField
     {
         $obj = new static;
         $obj->init();
-        $obj->originalName = $obj->name = $obj->request = $obj->class = $name;
+        $obj->originalName = $obj->name = $obj->request = $obj->className = $name;
         $obj->display = ucwords(str_replace('_', ' ', $name));
         return $obj;
     }

@@ -2,21 +2,15 @@
 
 namespace Tir\Crud\Controllers;
 
-use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Request;
-use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Route;
 
-
-abstract class CrudController extends BaseController
+trait Crud
 {
-    use IndexTrait, DataTrait, ShowTrait, CreateTrait, StoreTrait, EditTrait, UpdateTrait, ValidationTrait, SelectTrait, DestroyTrait;
+    use IndexTrait, DataTrait, ShowTrait, CreateTrait, StoreTrait, EditTrait, UpdateTrait, SelectTrait, DestroyTrait;
 
     private mixed $model;
 
     protected abstract function setModel(): string;
-
 
     public function __construct()
     {
@@ -26,7 +20,7 @@ abstract class CrudController extends BaseController
             $this->crudInit();
             $this->checkAccess();
             $this->model()->scaffold();
-            $this->validation();
+
             return $next($request);
         });
     }
@@ -49,7 +43,7 @@ abstract class CrudController extends BaseController
         if($route) {
             $action = explode('@', Route::getCurrentRoute()->getActionName())[1];
             request()->merge([
-                'crudModelName'=>$this->model(),
+                'crudModel'=>$this->model(),
                 'crudModuleName' => $this->model()->getModuleName(),
                 'crudActionName'=>$action
             ]);
@@ -61,10 +55,10 @@ abstract class CrudController extends BaseController
     {
     }
 
-    protected function getAction()
-    {
-        return $this->action;
-    }
+//    protected function getAction()
+//    {
+//        return $this->action;
+//    }
 
     private function checkAccess()
     {
@@ -73,5 +67,6 @@ abstract class CrudController extends BaseController
          }
 
     }
+
 
 }
