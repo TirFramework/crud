@@ -13,7 +13,6 @@ trait UpdateTrait
 
     public function update(CrudRequest $request, int|string $id)
     {
-        $request->validated();
         $item = $this->model()->findOrFail($id);
         $item = $this->updateCrud($request, $id, $item);
         return $this->updateResponse($item);
