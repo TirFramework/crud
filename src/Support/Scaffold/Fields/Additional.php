@@ -37,23 +37,32 @@ class Additional extends BaseField
         $index = 0;
 
         //make json for multiple field
-        if(count($this->children) < 2){
-            foreach ($values as $key => $value) {
-                foreach ($this->children as $field) {
-                    $field->name = $this->name.'.'.$index;
-                    $fields[$index][] = $field->get($model);
-                }
-            $index++;
+//        if(count($this->children) < 2){
+//            foreach ($values as $key => $value) {
+//                foreach ($this->children as $field) {
+//                    $field->name = $this->name.'.'.$index;
+//                    $fields[$index][] = $field->get($model);
+//                }
+//                $index++;
+//            }
+//        }else{
+//            //make json for single field
+//            foreach ($values as $value) {
+//                foreach ($this->children as $field) {
+//                    $field->name = $this->name.'.'.$index.'.'.$field->originalName;
+//                    $fields[$index][]  = $field->get($model);
+//                }
+//                $index++;
+//            }
+//        }
+
+        foreach ($values as $value) {
+            foreach ($this->children as $field) {
+                $field->name = str_replace('*', $index, $field->originalName);
+                $fields[$index][] = $field->get($model);
+                unset($field->value);
             }
-        }else{
-            //make json for single field
-            foreach ($values as $value) {
-                foreach ($this->children as $field) {
-                    $field->name = $this->name.'.'.$index.'.'.$field->originalName;
-                    $fields[$index][]  = $field->get($model);
-                }
             $index++;
-            }
         }
 
         return $fields;
