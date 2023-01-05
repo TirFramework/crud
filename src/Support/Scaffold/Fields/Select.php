@@ -3,6 +3,8 @@
 namespace Tir\Crud\Support\Scaffold\Fields;
 
 
+use Illuminate\Support\Arr;
+
 class Select extends BaseField
 {
     protected string $type = 'Select';
@@ -34,7 +36,6 @@ class Select extends BaseField
     public function multiple(bool $check = true): Select
     {
         $this->multiple = $check;
-        $this->value = [];
         return $this;
     }
 
@@ -119,7 +120,11 @@ class Select extends BaseField
     protected function setValue($model):void
     {
         if(isset($model)){
-            $this->value = $model->{$this->name};
+            $value = Arr::get($model, $this->name);
+            if(isset($value))
+            {
+                $this->value = $value ;
+            }
 
             if(isset($this->relation) && $this->multiple){
                 $this->value = $this->setRelationalValue($model);
