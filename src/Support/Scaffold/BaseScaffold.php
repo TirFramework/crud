@@ -24,16 +24,6 @@ trait BaseScaffold
         'show'    => true
     ];
 
-    public static function boot()
-    {
-        parent::boot();
-
-        self::creating(function ($model) {
-            if (in_array('user_id', $model->fillable)) {
-                $model->user_id = auth()->id();
-            }
-        });
-    }
 
     protected abstract function setModuleName(): string;
 

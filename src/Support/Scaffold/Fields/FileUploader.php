@@ -25,13 +25,6 @@ class FileUploader extends BaseField
         return $this;
     }
 
-    protected function setValue($model): void
-    {
-
-        if(isset($model)){
-            $this->value = Arr::get($model, $this->name);
-        }
-    }
 
     public function maxCount(int $value): static
     {
