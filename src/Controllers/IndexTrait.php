@@ -39,7 +39,7 @@ trait IndexTrait
     private function getName($field)
     {
         if(isset($field->relation)){
-            return $field->relation->name;
+            return $field->relation->name.'.'.$field->relation->field;
         }else{
             return $field->name;
         }

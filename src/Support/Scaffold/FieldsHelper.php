@@ -71,7 +71,7 @@ trait FieldsHelper
 
     final function getFieldByName($name)
     {
-        foreach ($this->getFields() as $field) {
+        foreach ($this->getAllDataFields() as $field) {
             if ($field->name == $name) {
                 return $field;
             }

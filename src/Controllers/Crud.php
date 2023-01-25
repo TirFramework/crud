@@ -63,7 +63,7 @@ trait Crud
     private function checkAccess()
     {
         if($this->model()->getAccessLevelStatus()){
-            $this->middleware('acl');
+            $this->middleware('acl:'.$this->model()->getModuleName());
          }
 
     }

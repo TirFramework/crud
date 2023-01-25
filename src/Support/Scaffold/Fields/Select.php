@@ -9,7 +9,7 @@ class Select extends BaseField
 {
     protected string $type = 'Select';
     protected array $data = [];
-    protected array $relation;
+    protected object $relation;
     protected string $dataUrl;
     protected string $valueType = 'string';
 
@@ -41,7 +41,7 @@ class Select extends BaseField
 
     public function relation(string $name, string $field, string $primaryKey = 'id'): Select
     {
-        $this->relation = ['name' => $name, 'field' => $field, 'key' => $primaryKey];
+        $this->relation = (object)['name' => $name, 'field' => $field, 'key' => $primaryKey];
         return $this;
     }
 
@@ -65,14 +65,20 @@ class Select extends BaseField
 
     protected function init(): void
     {
+
+    }
+
+    public function get($dataModel)
+    {
         if (isset($this->relation)) {
-            $this->setDataRoute($dataModel);
-            $this->setDataFilter($dataModel);
-            $this->valueType = 'object';
+//            $this->setDataRoute($dataModel);
+//            $this->setDataFilter($dataModel);
+//            $this->valueType = 'object';
         }
         if ($this->multiple) {
             $this->valueType = 'array';
         }
+        return parent::get($dataModel);
     }
 
 
@@ -85,9 +91,9 @@ class Select extends BaseField
 
     private function setDataRoute($model)
     {
-        $dataModel = get_class($model->{$this->relation['name']}()->getModel());
+        $dataModel = get_class($model->{$this->relation->name}()->getModel());
         $dataModel = new $dataModel();
-        $this->dataUrl = route('admin.' . $dataModel->getModuleName() . '.select', ['field' => $this->relation['field']]);
+        $this->dataUrl = route('admin.' . $dataModel->getModuleName() . '.select', ['field' => $this->relation->field]);
     }
 
     private function setDataFilter($filterModel)
@@ -100,11 +106,11 @@ class Select extends BaseField
 
         if (isset($this->relation)) {
 
-            $filterModel = $filterModel->{$this->relation['name']}()->getModel();
+            $filterModel = $filterModel->{$this->relation->name}()->getModel();
 
             $this->filter = $filterModel::select(
-                $this->relation['field'].' as label',
-                $this->relation['key'].' as value',
+                $this->relation->field.' as label',
+                $this->relation->key.' as value',
             )->get()->toArray();
         }
 

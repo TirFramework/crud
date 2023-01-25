@@ -27,7 +27,8 @@ trait DataTrait
         $relations = [];
         foreach ($model->getIndexFields() as $field) {
             if (isset($field->relation)) {
-                $relation = $field->relation->name . ':' . $field->relation->key . ',' . $field->relation->field. ' as text';
+//                $relation = $field->relation->name . ':' . $field->relation->key . ',' . $field->relation->field. ' as text';
+                $relation = $field->relation->name . ':' . $field->relation->key . ',' . $field->relation->field;
                 $this->selectFields[] = $field->relation->key;
                 $relations[] = $relation;
             }
@@ -44,14 +45,16 @@ trait DataTrait
     {
         $this->selectFields = array_merge($this->selectFields, collect($this->model()->getIndexFields())->pluck('name')->toArray());
 
-        //$query = $this->model()->select($this->model()->getTable() . '.*')->with($relation);
+//        dd($relation);
+        $query = $this->model()->select($this->model()->getTable() . '.*')->with($relation);
+//        $query = $this->model()->select($this->selectFields)->with($relation);
+        $query = $this->model()->with($relation);
 
-        $query = $this->model()->select($this->selectFields)->with($relation);
         $query = $this->applySearch($query);
         return $this->applyFilters($query);
     }
 
-    private function applySearch($query)
+    public function applySearch($query)
     {
         $req = request()->input('search');
         if($req == null){
