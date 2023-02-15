@@ -22,17 +22,13 @@ class Module
         $this->permissions = [
             [
                 'page' => [
-                    'label' => trans('core::panel.index'),
-                    'value' => 'index'
+                    'label' => trans('core::panel.create'),
+                    'value' => 'create'
                 ],
                 'access' => [
                     [
                         'label' => trans('core::panel.allow'),
                         'value' => 'allow',
-                    ],
-                    [
-                        'label' => trans('core::panel.owner'),
-                        'value' => 'owner',
                     ],
                     [
                         'label' => trans('core::panel.deny'),
@@ -42,13 +38,17 @@ class Module
             ],
             [
                 'page' => [
-                    'label' => trans('core::panel.create'),
-                    'value' => 'create'
+                    'label' => trans('core::panel.index'),
+                    'value' => 'index'
                 ],
                 'access' => [
                     [
                         'label' => trans('core::panel.allow'),
                         'value' => 'allow',
+                    ],
+                    [
+                        'label' => trans('core::panel.operator'),
+                        'value' => 'operator',
                     ],
                     [
                         'label' => trans('core::panel.deny'),
@@ -67,8 +67,8 @@ class Module
                         'value' => 'allow',
                     ],
                     [
-                        'label' => trans('core::panel.owner'),
-                        'value' => 'owner',
+                        'label' => trans('core::panel.operator'),
+                        'value' => 'operator',
                     ],
                     [
                         'label' => trans('core::panel.deny'),
@@ -87,8 +87,8 @@ class Module
                         'value' => 'allow',
                     ],
                     [
-                        'label' => trans('core::panel.owner'),
-                        'value' => 'owner',
+                        'label' => trans('core::panel.operator'),
+                        'value' => 'operator',
                     ],
                     [
                         'label' => trans('core::panel.deny'),
@@ -107,8 +107,8 @@ class Module
                         'value' => 'allow',
                     ],
                     [
-                        'label' => trans('core::panel.owner'),
-                        'value' => 'owner',
+                        'label' => trans('core::panel.operator'),
+                        'value' => 'operator',
                     ],
                     [
                         'label' => trans('core::panel.deny'),

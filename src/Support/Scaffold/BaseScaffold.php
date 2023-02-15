@@ -16,7 +16,7 @@ trait BaseScaffold
     private string $moduleName;
     private array $fields = [];
     private array $buttons = [];
-    private array $actionsStatus = [
+    private array $actions = [
         'index'   => true,
         'create'  => true,
         'edit'    => true,
@@ -34,6 +34,16 @@ trait BaseScaffold
         return [];
     }
 
+    protected function scaffoldBoot(): void
+    {
+        //
+    }
+
+    protected function setAcl(): bool
+    {
+        return true;
+    }
+
     protected function setModuleTitle(): string
     {
         return $this->moduleName;
@@ -44,11 +54,14 @@ trait BaseScaffold
         if ($this->isScaffolded) {
             dd('You cannot make scaffold again');
         }
-        $this->isScaffolded = true;
+        $this->scaffoldBoot();
         $this->moduleName = $this->setModuleName();
         $this->moduleTitle = $this->setModuleTitle();
+        $this->accessLevelControl = $this->setAcl();
+        $this->actions = $this->setActions();
         $this->addFieldsToScaffold($dataModel);
         $this->addButtonsToScaffold();
+        $this->isScaffolded = true;
         return $this;
     }
 
@@ -71,18 +84,27 @@ trait BaseScaffold
         ];
     }
 
-    final function setActionsStatus($action, $status): bool
+    protected function setActions(): array
     {
-        $this->actionsStatus[$action] = $status;
+        return [
+            'index'   => true,
+            'create'  => true,
+            'edit'    => true,
+            'destroy' => true,
+            'show'    => true
+        ];
     }
 
-    final function getActionsStatus(): array
+    final function getActions(): array
     {
-        return $this->actionsStatus;
+        return $this->actions;
     }
 
     final function getModuleName(): string
     {
+        if(isset($this->moduleName)){
+            return $this->moduleName;
+        }
         return $this->setModuleName();
     }
 

@@ -11,7 +11,8 @@ trait IndexTrait
     public function index(): JsonResponse
     {
         $cols = [];
-        foreach ($this->model()->getIndexFields() as $index => $field) {
+        $scaffold = $this->model()->getIndexScaffold();
+        foreach ($scaffold['fields'] as $index => $field) {
             $cols[$index] = [
                 'title'     => $field->display,
                 'dataIndex' => $this->getName($field),
@@ -27,7 +28,8 @@ trait IndexTrait
         }
 
         $data = [
-            'actions'    => $this->model()->getActionsStatus(),
+            'actions'    => $this->model()->getActions(),
+            'configs'    => $scaffold['configs'],
             'cols'       => $cols,
             'dataRoute'  => route('admin.' . $this->model()->getmoduleName() . '.data'),
             'trashRoute' => route('admin.' . $this->model()->getmoduleName() . '.trashData'),

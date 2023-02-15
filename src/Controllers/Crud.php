@@ -14,15 +14,12 @@ trait Crud
 
     public function __construct()
     {
-        $this->middleware(function ($request, $next) {
             $this->modelInit();
             $this->addBasicsToRequest();
             $this->crudInit();
-            $this->checkAccess();
             $this->model()->scaffold();
+            $this->checkAccess();
 
-            return $next($request);
-        });
     }
 
     public function model()
@@ -55,10 +52,6 @@ trait Crud
     {
     }
 
-//    protected function getAction()
-//    {
-//        return $this->action;
-//    }
 
     private function checkAccess()
     {

@@ -13,15 +13,14 @@ trait UpdateTrait
 
     public function update(CrudRequest $request, int|string $id)
     {
-        $item = $this->model()->findOrFail($id);
-        $item = $this->updateCrud($request, $id, $item);
-        return $this->updateResponse($item);
+        return $this->updateCrud($request, $id);
     }
 
 
-    final function updateCrud($request, $id, $item)
+    final function updateCrud($request, $id)
     {
-        return DB::transaction(function () use ($request, $item) { // Start the transaction
+        $item = $this->model()->findOrFail($id);
+        $item =  DB::transaction(function () use ($request, $item) { // Start the transaction
             //TODO GetOnlyEditFields
             $item->update($request->only(collect($this->model()->getAllDataFields())->pluck('request')->flatten()->toArray()));
 
@@ -31,6 +30,7 @@ trait UpdateTrait
 
             return $item;
         });
+        return $this->updateResponse($item);
     }
 
 

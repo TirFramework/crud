@@ -43,6 +43,7 @@ trait StoreTrait
         return Response::Json(
             [
                 'id' => $item->id,
+                'item' => $item,
                 'created' => true,
                 'message'    => $message,
             ]

@@ -100,7 +100,7 @@ abstract class BaseField
 
     public function options($options = []): BaseField
     {
-        $this->options = $options;
+        $this->options = $this->options + $options;
         return $this;
     }
 
