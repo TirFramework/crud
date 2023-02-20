@@ -6,10 +6,11 @@ namespace Tir\Crud\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
+use Tir\Crud\Support\Requests\CrudRequest;
 
 trait StoreTrait
 {
-    public function store(Request $request)
+    public function store(CrudRequest $request)
     {
         $item = $this->storeCrud($request);
         return $this->storeResponse($item);
@@ -18,18 +19,17 @@ trait StoreTrait
 
     /**
      * This function store crud and relations
-     * @param Request $request
-     * @return mixed
      */
-    final function storeCrud(Request $request)
+    final function storeCrud($request)
     {
         return DB::transaction(function () use ($request) { // Start the transaction
             // Store model
-            $this->model()->fill($request->all());
+            $this->model()->fill($request->only(collect($this->model()->getAllDataFields())->pluck('request')->flatten()->toArray()));
             $this->model()->save();
             //Store relations
             $this->storeRelations($request);
 
+            DB::commit();
             return $this->model();
         });
     }
@@ -43,6 +43,7 @@ trait StoreTrait
         return Response::Json(
             [
                 'id' => $item->id,
+                'item' => $item,
                 'created' => true,
                 'message'    => $message,
             ]

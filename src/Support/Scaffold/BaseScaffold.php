@@ -2,116 +2,113 @@
 
 namespace Tir\Crud\Support\Scaffold;
 
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Auth;
-use Tir\Authorization\Access;
-use Tir\Crud\Scopes\OwnerScope;
-use Tir\Crud\Support\Eloquent\HasAccessLevel;
-use function PHPUnit\Framework\isEmpty;
+use Tir\Crud\Support\Scaffold\Fields\Button;
 
 trait BaseScaffold
 {
-//    use HasAccessLevel;
+    use FieldsHelper;
+    use ButtonsHelper;
+    use RulesHelper;
 
-    //Scaffolding
-
-    private array $indexFields = [];
-    private array $editFields = [];
+    private string $moduleTitle;
+    public bool $isScaffolded = false;
     protected bool $accessLevelControl = true;
+    private string $moduleName;
+    private array $fields = [];
+    private array $buttons = [];
+    private array $actions = [
+        'index'   => true,
+        'create'  => true,
+        'edit'    => true,
+        'destroy' => true,
+        'show'    => true
+    ];
+
 
     protected abstract function setModuleName(): string;
 
     protected abstract function setFields(): array;
 
-//    private object $fields;
-    private static bool $accessLevel = false;
-    private static string $action;
-    private $fields = [];
-    public string $moduleName;
-    protected array $rules = [];
-    protected array $creationRules = [];
-    protected array $updateRules = [];
-    
-    protected string $indexable = 'allow';
-    protected string $creatable = 'allow';
-    protected string $editable = 'allow';
-    protected string $deletable = 'allow';
-    protected string $viewable = 'allow';
-    protected array $actionsStatus = [
-        'index' => true,
-        'create'=>true,
-        'edit'=>true,
-        'destroy'=>true,
-        'show'=>true
-    ];
-
-
-
-
-    public function scaffold($dataModel = null)
+    protected function setButtons(): array
     {
-        if($dataModel == null){
-            $dataModel = new $this;
-        }
+        return [
+            Button::make('back')->action('Cancel'),
+            Button::make('submit')->action('Submit'),
+        ];
+    }
 
+    protected function scaffoldBoot(): void
+    {
+        //
+    }
+
+    protected function setAcl(): bool
+    {
+        return true;
+    }
+
+    protected function setModuleTitle(): string
+    {
+        return $this->moduleName;
+    }
+
+    public function scaffold($dataModel = null): static
+    {
+        if ($this->isScaffolded) {
+            dd('You cannot make scaffold again');
+        }
+        $dataModel = $this;
+        $this->scaffoldBoot();
         $this->moduleName = $this->setModuleName();
+        $this->moduleTitle = $this->setModuleTitle();
+        $this->accessLevelControl = $this->setAcl();
+        $this->actions = $this->setActions();
         $this->addFieldsToScaffold($dataModel);
-        $this->setRules();
+        $this->addButtonsToScaffold();
+        $this->isScaffolded = true;
         return $this;
     }
 
+    private function addFieldsToScaffold($dataModel): void
+    {
+        foreach ($this->setFields() as $field) {
+            $this->fields[] = $field->get($dataModel);
+        }
+    }
 
     public function getAccessLevelStatus(): bool
     {
         return $this->accessLevelControl;
     }
-    public static function boot()
-    {
-        parent::boot();
 
-        self::creating(function($model){
-            if(in_array('user_id',$model->fillable)){
-                $model->user_id = auth()->id();
-            }
-        });
+    private function getConfigs(): array
+    {
+        return [
+            'module_title' => $this->moduleTitle
+        ];
     }
 
-
-    private function addFieldsToScaffold($dataModel): void
+    protected function setActions(): array
     {
-
-        foreach ($this->setFields() as $input) {
-            array_push($this->fields, $input->get($dataModel));
-        }
-
+        return [
+            'index'   => true,
+            'create'  => true,
+            'edit'    => true,
+            'destroy' => true,
+            'show'    => true
+        ];
     }
 
-    private function setRules()
+    final function getActions(): array
     {
-        foreach ($this->getFields() as $field) {
-            $this->rules[$field->name] = $field->rules;
-        }
-    }
-
-
-    final function setActionsStatus($action, $status)
-    {
-        $this->actionsStatus[$action] = $status;
-    }
-
-
-    final function getActionsStatus():array
-    {
-        return $this->actionsStatus;
-    }
-
-    final function getFields(): array
-    {
-        return json_decode(json_encode($this->fields), false);
+        return $this->actions;
     }
 
     final function getModuleName(): string
     {
+        if(isset($this->moduleName)){
+            return $this->moduleName;
+        }
         return $this->setModuleName();
     }
 
@@ -125,82 +122,42 @@ trait BaseScaffold
         return $this->routeName;
     }
 
-    final function getCreationRules()
+    final function getIndexScaffold(): array
     {
-        foreach ($this->getFields() as $field) {
-            if ($field->creationRules)
-                $this->rules[$field->name] = $field->creationRules;
-        }
-        return $this->rules;
-
+        return [
+            'fields'  => $this->getIndexFields(),
+            'buttons' => $this->getIndexButtons(),
+            'configs' => $this->getConfigs()
+        ];
     }
 
-    final function getUpdateRules()
+    final function getCreateScaffold(): array
     {
-        foreach ($this->getFields() as $field) {
-            if ($field->updateRules)
-                $this->rules[$field->name] = $field->updateRules;
-        }
-        return $this->rules;
-
+        return [
+            'fields'        => $this->getCreateFields(),
+            'buttons'       => $this->getCreateButtons(),
+            'validationMsg' => $this->getValidationMsg(),
+            'configs'       => $this->getConfigs()
+        ];
     }
 
-    final function getIndexFields(): array
+    final function getEditScaffold(): array
     {
-        $fields = [];
-        foreach ($this->getFields() as $field) {
-            if ($field->showOnIndex) {
-                array_push($fields, $field);
-            }
-        }
-        return $fields;
+        return [
+            'fields'        => $this->getEditFields(),
+            'buttons'       => $this->getEditButtons(),
+            'validationMsg' => $this->getValidationMsg(),
+            'configs'       => $this->getConfigs()
+        ];
     }
 
-    final function getEditFields(): array
+    final function getDetailScaffold(): array
     {
-        $fields = [];
-        foreach ($this->getFields() as $field){
-            if ($field->showOnEditing){
-                array_push($fields, $field);
-            }
-        }
-
-        return $fields ;
+        return [
+            'fields'  => $this->getDetailFields(),
+            'buttons' => $this->getDetailButtons(),
+            'config'  => []
+        ];
     }
 
-
-    final function getCreateFields(): array
-    {
-        $fields = [];
-        foreach ($this->getFields() as $field) {
-            if ($field->showOnCreating) {
-                array_push($fields, $field);
-            }
-        }
-
-        return $fields;
-    }
-
-    final function getFieldByName($name)
-    {
-        foreach ($this->getIndexFields() as $field) {
-            if($field->name == $name){
-                return $field;
-            }
-        }
-    }
-
-
-    final function getSearchableFields()
-    {
-        $fields = [];
-        foreach ($this->getIndexFields() as $field) {
-            if ($field->searchable) {
-                array_push($fields, $field);
-            }
-        }
-
-        return $fields;
-
-    }
 }

@@ -6,38 +6,38 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
+use Tir\Crud\Support\Requests\CrudRequest;
 
 trait UpdateTrait
 {
-    use ValidationTrait;
 
-    public function update(Request $request, int $id): JsonResponse
+    public function update(CrudRequest $request, int|string $id)
     {
-        $item = $this->model()->findOrFail($id);
-        $item->scaffold();
-
-        $this->updateCrud($request, $id, $item);
-        return $this->updateResponse($item);
+        return $this->updateCrud($request, $id);
     }
 
 
-    final function updateCrud(Request $request, $id, $item)
+    final function updateCrud($request, $id)
     {
-        return DB::transaction(function () use ($request, $item) { // Start the transaction
-
-            $item->update($request->all());
+        $item = $this->model()->findOrFail($id);
+        $item =  DB::transaction(function () use ($request, $item) { // Start the transaction
+            //TODO GetOnlyEditFields
+            $item->update($request->only(collect($this->model()->getAllDataFields())->pluck('request')->flatten()->toArray()));
 
             $this->updateRelations($request, $item);
 
+            DB::commit();
+
             return $item;
         });
+        return $this->updateResponse($item);
     }
 
 
 
     final function updateRelations(Request $request, $item)
     {
-        foreach ($this->model()->getCreateFields() as $field) {
+        foreach ($this->model()->getEditFields() as $field) {
             if (isset($field->relation) && $field->multiple) {
                 $data = $request->input($field->name);
                 $item->{$field->relation->name}()->sync($data);
@@ -53,6 +53,7 @@ trait UpdateTrait
         return Response::Json(
             [
                 'id'      => $item->id,
+                'changes' => $item->getChanges(),
                 'updated' => true,
                 'message' => $message,
             ]

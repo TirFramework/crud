@@ -8,37 +8,40 @@ use Illuminate\Support\Facades\Response;
 trait IndexTrait
 {
 
-    public function index()
+    public function index(): JsonResponse
     {
-        $col = [];
-        foreach ($this->model()->getIndexFields() as $index => $field) {
-            $col[$index] = [
+        $cols = [];
+        $scaffold = $this->model()->getIndexScaffold();
+        foreach ($scaffold['fields'] as $index => $field) {
+            $cols[$index] = [
                 'title'     => $field->display,
-                'dataIndex' => $this->getName($field),
-                // 'sorter'    => $field->sortable,
+                'dataIndex' => $this->getDataIndex($field),
                 'fieldName' => $field->name,
                 'valueType' => $field->valueType,
                 'comment'   => $field->comment,
+                'dataSet' => $field->dataSet,
+                'dataKey' => $field->relation->key ?? null,
+
             ];
             if(count($field->filter)){
-                $col[$index]['filters'] = $field->filter;
+                $cols[$index]['filters'] = $field->filter;
             }
         }
 
-
         $data = [
-            'actions'     => $this->model()->getActionsStatus(),
-            'cols'       => $col,
-            'dataRoute'  => route('admin.' . $this->model()->moduleName . '.data'),
-            'trashRoute' => route('admin.' . $this->model()->moduleName . '.trashData'),
+            'actions'    => $this->model()->getActions(),
+            'configs'    => $scaffold['configs'],
+            'cols'       => $cols,
+            'dataRoute'  => route('admin.' . $this->model()->getmoduleName() . '.data'),
+            'trashRoute' => route('admin.' . $this->model()->getmoduleName() . '.trashData'),
         ];
 
         return Response::json($data, '200');
     }
 
-    private function getName($field)
+    private function getDataIndex($field)
     {
-        if(isset($field->relation)){
+        if(isset($field->relation) && $field->multiple){
             return $field->relation->name;
         }else{
             return $field->name;
