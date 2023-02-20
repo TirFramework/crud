@@ -42,8 +42,14 @@ return [
 
     'allow'            => 'Allow',
     'owner'            => 'Owner',
+    'operator'         => 'OPR',
     'deny'             => 'Deny',
+    'approve'          => 'Approve',
     'index'            => 'Index',
+    'pdf'              => 'Pdf',
+    'upload'           => 'Upload',
+    'download'         => 'Download',
     'delete-restore'   => 'Delete & Restore',
-
+    'full-destroy'     => 'Destroy',
 ];
+
