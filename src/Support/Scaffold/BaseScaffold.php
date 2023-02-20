@@ -31,7 +31,10 @@ trait BaseScaffold
 
     protected function setButtons(): array
     {
-        return [];
+        return [
+            Button::make('back')->action('Cancel'),
+            Button::make('submit')->action('Submit'),
+        ];
     }
 
     protected function scaffoldBoot(): void
@@ -54,6 +57,7 @@ trait BaseScaffold
         if ($this->isScaffolded) {
             dd('You cannot make scaffold again');
         }
+        $dataModel = $this;
         $this->scaffoldBoot();
         $this->moduleName = $this->setModuleName();
         $this->moduleTitle = $this->setModuleTitle();

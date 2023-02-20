@@ -15,11 +15,12 @@ trait IndexTrait
         foreach ($scaffold['fields'] as $index => $field) {
             $cols[$index] = [
                 'title'     => $field->display,
-                'dataIndex' => $this->getName($field),
+                'dataIndex' => $this->getDataIndex($field),
                 'fieldName' => $field->name,
                 'valueType' => $field->valueType,
                 'comment'   => $field->comment,
                 'dataSet' => $field->dataSet,
+                'dataKey' => $field->relation->key ?? null,
 
             ];
             if(count($field->filter)){
@@ -38,10 +39,10 @@ trait IndexTrait
         return Response::json($data, '200');
     }
 
-    private function getName($field)
+    private function getDataIndex($field)
     {
-        if(isset($field->relation)){
-            return $field->relation->name.'.'.$field->relation->field;
+        if(isset($field->relation) && $field->multiple){
+            return $field->relation->name;
         }else{
             return $field->name;
         }

@@ -22,7 +22,6 @@ class Select extends BaseField
     public function data(...$data): Select
     {
         $this->data = $data;
-        $this->setDataSet();
         return $this;
     }
 
@@ -70,14 +69,17 @@ class Select extends BaseField
 
     public function get($dataModel)
     {
+
         if (isset($this->relation)) {
-//            $this->setDataRoute($dataModel);
-//            $this->setDataFilter($dataModel);
-//            $this->valueType = 'object';
+            $this->setDataRoute($dataModel);
+            $this->setDataFilter($dataModel);
+            $this->valueType = 'object';
         }
         if ($this->multiple) {
             $this->valueType = 'array';
         }
+        $this->setDataSet();
+
         return parent::get($dataModel);
     }
 
@@ -91,9 +93,21 @@ class Select extends BaseField
 
     private function setDataRoute($model)
     {
-        $dataModel = get_class($model->{$this->relation->name}()->getModel());
-        $dataModel = new $dataModel();
-        $this->dataUrl = route('admin.' . $dataModel->getModuleName() . '.select', ['field' => $this->relation->field]);
+
+        if(isset($model)){
+            $dataModel = get_class($model->{$this->relation->name}()->getModel());
+//            $dataModel = new $dataModel();
+//            $this->dataUrl = route('admin.' . $dataModel->getModuleName() . '.select', ['field' => $this->relation->field]);
+        $this->data = $dataModel::select(
+                $this->relation->field.' as label',
+                $this->relation->key.' as value',
+            )->get()->toArray();
+        }
+        $this->dataSet = $dataModel::select(
+            $this->relation->field.' as label',
+            $this->relation->key.' as value',
+        )->get()->pluck('label', 'value')->toArray();
+
     }
 
     private function setDataFilter($filterModel)
@@ -118,8 +132,8 @@ class Select extends BaseField
 
     private function setRelationalValue($model)
     {
-        return $model->{$this->relation['name']}->map(function ($value) {
-            return $value->{$this->relation['key']};
+        return $model->{$this->relation->name}->map(function ($value) {
+            return $value->{$this->relation->key};
         })->toArray();
     }
 
