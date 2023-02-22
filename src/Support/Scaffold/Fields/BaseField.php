@@ -36,7 +36,7 @@ abstract class BaseField
     protected array $comment = [];
     protected $dataSet = [];
     protected bool $additional = false;
-    protected bool $dataField = true;
+    protected bool $fillable = true;
 
 
 
@@ -45,6 +45,7 @@ abstract class BaseField
         $obj = new static;
         $obj->init();
         $obj->originalName = $obj->name = $obj->request = $obj->className = $name;
+        $obj->className = str_replace('.', '-', $name);
         $obj->display = ucwords(str_replace('_', ' ', $name));
         return $obj;
     }
@@ -95,6 +96,12 @@ abstract class BaseField
     public function readonly(bool $option = true): BaseField
     {
         $this->readonly = $option;
+        return $this;
+    }
+
+    public function fillable(bool $option = true): BaseField
+    {
+        $this->fillable = $option;
         return $this;
     }
 

@@ -52,5 +52,13 @@ class CrudRequest extends FormRequest
         ));
     }
 
+    protected function passedValidation()
+    {
+        $this->offsetUnset('crudModel');
+        $this->offsetUnset('crudModuleName');
+        $this->offsetUnset('crudActionName');
+
+    }
+
 
 }

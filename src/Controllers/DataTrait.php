@@ -46,9 +46,8 @@ trait DataTrait
         $this->selectFields = array_merge($this->selectFields, collect($this->model()->getIndexFields())->pluck('name')->toArray());
 
 //        $query = $this->model()->select($this->model()->getTable() . '.*')->with($relation);
-
-        $query = $this->model()->select($this->model()->getTable() . '.*')->with($relation);
-//        $query = $this->model()->with($relation);
+//        $query = $this->model()->select($this->model()->getTable() . '.*')->with($relation);
+        $query = $this->model()->with($relation);
 
         $query = $this->applySearch($query);
         return $this->applyFilters($query);

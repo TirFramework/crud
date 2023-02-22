@@ -70,7 +70,7 @@ class Select extends BaseField
     public function get($dataModel)
     {
 
-        if (isset($this->relation)) {
+        if (isset($this->relation) &&  !isset($this->data)) {
             $this->setDataRoute($dataModel);
             $this->setDataFilter($dataModel);
             $this->valueType = 'object';

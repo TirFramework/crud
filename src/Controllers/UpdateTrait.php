@@ -4,6 +4,7 @@ namespace Tir\Crud\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Tir\Crud\Support\Requests\CrudRequest;
@@ -22,7 +23,22 @@ trait UpdateTrait
         $item = $this->model()->findOrFail($id);
         $item =  DB::transaction(function () use ($request, $item) { // Start the transaction
             //TODO GetOnlyEditFields
-            $item->update($request->only(collect($this->model()->getAllDataFields())->pluck('request')->flatten()->toArray()));
+            $requestData = $request->only(collect($this->model()->getAllDataFields())->pluck('request')->flatten()->toArray());
+
+            //update fill
+            $fillable = collect(
+                Arr::dot(
+                    $requestData
+                )
+            )->keys()->toArray();
+            $item->fillable($fillable);
+
+            if($item->getConnection()->getName() == 'mongodb'){
+
+                $requestData = Arr::dot($requestData);
+            }
+
+            $item->update($requestData);
 
             $this->updateRelations($request, $item);
 
