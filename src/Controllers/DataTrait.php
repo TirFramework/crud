@@ -33,7 +33,6 @@ trait DataTrait
                 if($model->getConnection()->getName() == 'mongodb'){
                     $relation = $field->relation->name;
                 }
-                $this->selectFields[] = $field->relation->key;
                 $relations[] = $relation;
             }
         }
@@ -47,18 +46,19 @@ trait DataTrait
      */
     public function dataQuery($relation): object
     {
-        $this->selectFields = array_merge($this->selectFields, collect($this->model()->getIndexFields())->pluck('name')->toArray());
 
-//        $query = $this->model()->select($this->model()->getTable() . '.*')->with($relation);
-//        $query = $this->model()->select($this->model()->getTable() . '.*')->with($relation);
-        $query = $this->model()->select($this->selectFields)->with($relation);
+
+
+        $query = $this->model()->select($this->model()->getTable() . '.*')->with($relation);
+
+            if($this->model()->getConnection()->getName() == 'mongodb') {
+            $this->selectFields = array_merge($this->selectFields, collect($this->model()->getIndexFields())->pluck('name')->toArray());
+            $query = $this->model()->select($this->selectFields)->with($relation);
+        }
 
         $query = $this->applySearch($query);
-//        $query->whereHas('potential_employers', function (Builder  $q){
-//            $q->whereIn('_id',['63f7925b6adb13ca410c61c2']);
-//        });
+
         return $this->applyFilters($query);
-        return $query;
     }
 
     public function applySearch($query)
