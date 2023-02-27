@@ -94,7 +94,7 @@ trait FieldsHelper
         foreach ($fields as $field) {
             if (isset($field->subFields)) {
                 $allFields = $this->getSubFields($field->subFields, $allFields);
-            } elseif($field->dataField) {
+            } elseif($field->fillable) {
                 $allFields[] = $field;
             }
         }

@@ -4,6 +4,7 @@ namespace Tir\Crud\Controllers;
 
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Tir\Crud\Support\Requests\CrudRequest;
@@ -24,7 +25,17 @@ trait StoreTrait
     {
         return DB::transaction(function () use ($request) { // Start the transaction
             // Store model
-            $this->model()->fill($request->only(collect($this->model()->getAllDataFields())->pluck('request')->flatten()->toArray()));
+            $requestData = $request->only(collect($this->model()->getAllDataFields())->pluck('request')->flatten()->toArray());
+
+            //update fill
+            $fillable = collect(Arr::dot($requestData))->keys()->toArray();
+            $this->model()->fillable($fillable);
+
+            if ($this->model()->getConnection()->getName() == 'mongodb') {
+                $requestData = Arr::dot($requestData);
+            }
+
+            $this->model()->fill($requestData);
             $this->model()->save();
             //Store relations
             $this->storeRelations($request);
@@ -42,10 +53,10 @@ trait StoreTrait
 
         return Response::Json(
             [
-                'id' => $item->id,
-                'item' => $item,
+                'id'      => $item->id,
+                'item'    => $item,
                 'created' => true,
-                'message'    => $message,
+                'message' => $message,
             ]
             , 200);
 
@@ -56,7 +67,9 @@ trait StoreTrait
         foreach ($this->model()->getCreateFields() as $field) {
             if (isset($field->relation) && $field->multiple) {
                 $data = $request->input($field->name);
-                $this->model()->{$field->relation->name}()->sync($data);
+                if(isset($data)){
+                    $this->model()->{$field->relation->name}()->sync($data);
+                }
             }
         }
     }

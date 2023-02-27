@@ -8,22 +8,10 @@ use Illuminate\Support\Arr;
 class Select extends BaseField
 {
     protected string $type = 'Select';
-    protected array $data = [];
+    protected array $data;
     protected object $relation;
     protected string $dataUrl;
     protected string $valueType = 'string';
-
-    /**
-     * This function get data for select box
-     *
-     * @param array $data
-     * @return $this
-     */
-    public function data(...$data): Select
-    {
-        $this->data = $data;
-        return $this;
-    }
 
 
     /**
@@ -44,23 +32,6 @@ class Select extends BaseField
         return $this;
     }
 
-    public function filter(...$items): Select
-    {
-        $this->filterable = true;
-
-        if (count($items)) {
-            $this->filter = $items;
-            return $this;
-        }
-
-        if (isset($this->data)) {
-            $this->filter = $this->data;
-            return $this;
-        }
-
-        return $this;
-
-    }
 
     protected function init(): void
     {
@@ -70,13 +41,16 @@ class Select extends BaseField
     public function get($dataModel)
     {
 
-        if (isset($this->relation)) {
+        if (isset($this->relation) && !isset($this->data)) {
             $this->setDataRoute($dataModel);
             $this->setDataFilter($dataModel);
             $this->valueType = 'object';
         }
         if ($this->multiple) {
             $this->valueType = 'array';
+            if(isset($this->relation)){
+                $this->name = $this->relation->name;
+            }
         }
         $this->setDataSet();
 
@@ -86,26 +60,26 @@ class Select extends BaseField
 
     private function setDataSet()
     {
-        if(count($this->dataSet)==0){
-            $this->dataSet = collect($this->data)->pluck('label','value');
+        if (count($this->dataSet) == 0) {
+            $this->dataSet = collect($this->data)->pluck('label', 'value');
         }
     }
 
     private function setDataRoute($model)
     {
 
-        if(isset($model)){
+        if (isset($model)) {
             $dataModel = get_class($model->{$this->relation->name}()->getModel());
 //            $dataModel = new $dataModel();
 //            $this->dataUrl = route('admin.' . $dataModel->getModuleName() . '.select', ['field' => $this->relation->field]);
-        $this->data = $dataModel::select(
-                $this->relation->field.' as label',
-                $this->relation->key.' as value',
+            $this->data = $dataModel::select(
+                $this->relation->field . ' as label',
+                $this->relation->key . ' as value',
             )->get()->toArray();
         }
         $this->dataSet = $dataModel::select(
-            $this->relation->field.' as label',
-            $this->relation->key.' as value',
+            $this->relation->field . ' as label',
+            $this->relation->key . ' as value',
         )->get()->pluck('label', 'value')->toArray();
 
     }
@@ -123,8 +97,8 @@ class Select extends BaseField
             $filterModel = $filterModel->{$this->relation->name}()->getModel();
 
             $this->filter = $filterModel::select(
-                $this->relation->field.' as label',
-                $this->relation->key.' as value',
+                $this->relation->field . ' as label',
+                $this->relation->key . ' as value',
             )->get()->toArray();
         }
 
@@ -137,17 +111,21 @@ class Select extends BaseField
         })->toArray();
     }
 
-    protected function setValue($model):void
+    protected function setValue($model): void
     {
-        if(isset($model)){
+        if (isset($model)) {
             $value = Arr::get($model, $this->name);
-            if(isset($value))
-            {
-                $this->value = $value ;
+            if (isset($value)) {
+                $this->value = $value;
             }
 
-            if(isset($this->relation) && $this->multiple){
-                $this->value = $this->setRelationalValue($model);
+            if (isset($this->relation) && $this->multiple) {
+                $value = $this->setRelationalValue($model);
+                if (count($value) > 0) {
+                    $this->value = $value;
+                }
+
+//                dump($this->value);
             }
         }
 

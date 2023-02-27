@@ -30,13 +30,14 @@ abstract class BaseField
     protected array $creationRules = [];
     protected array $updateRules = [];
     protected array $options = [];
+    protected array $data = [];
     protected array $filter = [];
     protected bool $filterable = false;
     protected bool $multiple = false;
     protected array $comment = [];
     protected $dataSet = [];
     protected bool $additional = false;
-    protected bool $dataField = true;
+    protected bool $fillable = true;
 
 
 
@@ -45,6 +46,7 @@ abstract class BaseField
         $obj = new static;
         $obj->init();
         $obj->originalName = $obj->name = $obj->request = $obj->className = $name;
+        $obj->className = str_replace('.', '-', $name);
         $obj->display = ucwords(str_replace('_', ' ', $name));
         return $obj;
     }
@@ -95,6 +97,12 @@ abstract class BaseField
     public function readonly(bool $option = true): BaseField
     {
         $this->readonly = $option;
+        return $this;
+    }
+
+    public function fillable(bool $option = true): BaseField
+    {
+        $this->fillable = $option;
         return $this;
     }
 
@@ -236,11 +244,30 @@ abstract class BaseField
         return $this;
     }
 
+    public function data(...$data): BaseField
+    {
+        $this->data = $data;
+        $this->dataSet = collect($data)->pluck('label','value');
+        return $this;
+    }
+
+
     public function filter(...$items): BaseField
     {
         $this->filterable = true;
-        $this->filter = $items;
+
+        if (count($items)) {
+            $this->filter = $items;
+            return $this;
+        }
+
+        if (isset($this->data)) {
+            $this->filter = $this->data;
+            return $this;
+        }
+
         return $this;
+
     }
 
     protected function setValue($model): void

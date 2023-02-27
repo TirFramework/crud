@@ -29,6 +29,10 @@ trait DataTrait
             if (isset($field->relation)) {
 //                $relation = $field->relation->name . ':' . $field->relation->key . ',' . $field->relation->field. ' as text';
                 $relation = $field->relation->name . ':' . $field->relation->key;
+
+                if($model->getConnection()->getName() == 'mongodb'){
+                    $relation = $field->relation->name;
+                }
                 $this->selectFields[] = $field->relation->key;
                 $relations[] = $relation;
             }
@@ -46,12 +50,15 @@ trait DataTrait
         $this->selectFields = array_merge($this->selectFields, collect($this->model()->getIndexFields())->pluck('name')->toArray());
 
 //        $query = $this->model()->select($this->model()->getTable() . '.*')->with($relation);
-
-        $query = $this->model()->select($this->model()->getTable() . '.*')->with($relation);
-//        $query = $this->model()->with($relation);
+//        $query = $this->model()->select($this->model()->getTable() . '.*')->with($relation);
+        $query = $this->model()->select($this->selectFields)->with($relation);
 
         $query = $this->applySearch($query);
+//        $query->whereHas('potential_employers', function (Builder  $q){
+//            $q->whereIn('_id',['63f7925b6adb13ca410c61c2']);
+//        });
         return $this->applyFilters($query);
+        return $query;
     }
 
     public function applySearch($query)
@@ -78,8 +85,6 @@ trait DataTrait
         }
 
         $filters = $this->getFilter($req);
-
-
         foreach ($filters['original'] as $key => $value) {
             $query->whereIn($key, $value);
         }
@@ -106,7 +111,7 @@ trait DataTrait
             $field = $this->model()->getFieldByName($filter);
 
             //if filter is manyToMany relation
-            if(isset($field->relation) && isset($field->multiple))
+            if(isset($field->relation) && $field->multiple ?? null == true)
             {
                 //get table name from relation
                 $table = $this->model()->{$field->relation->name}()->getRelated()->getTable();
@@ -115,6 +120,10 @@ trait DataTrait
                 $primaryKey = $this->model()->{$field->relation->name}()->getRelated()->getKeyName();
 
                 $primaryKey = $table . '.' . $primaryKey;
+
+                if($this->model()->getConnection()->getName() == 'mongodb'){
+                    $primaryKey = $this->model()->{$field->relation->name}()->getRelated()->getKeyName();
+                }
 
                 $relational[] = ['relation' => $field->relation->name, 'value' => $value, 'primaryKey' => $primaryKey];
             }else{
