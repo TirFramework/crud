@@ -27,9 +27,7 @@ trait UpdateTrait
 
             //update fill
             $fillable = collect(
-                Arr::dot(
-                    $requestData
-                )
+                Arr::dot($requestData)
             )->keys()->toArray();
             $item->fillable($fillable);
 
@@ -56,7 +54,9 @@ trait UpdateTrait
         foreach ($this->model()->getEditFields() as $field) {
             if (isset($field->relation) && $field->multiple) {
                 $data = $request->input($field->name);
-                $item->{$field->relation->name}()->sync($data);
+                if(isset($data)){
+                    $item->{$field->relation->name}()->sync($data);
+                }
             }
         }
     }

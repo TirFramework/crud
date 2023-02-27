@@ -30,6 +30,7 @@ abstract class BaseField
     protected array $creationRules = [];
     protected array $updateRules = [];
     protected array $options = [];
+    protected array $data = [];
     protected array $filter = [];
     protected bool $filterable = false;
     protected bool $multiple = false;
@@ -243,11 +244,30 @@ abstract class BaseField
         return $this;
     }
 
+    public function data(...$data): BaseField
+    {
+        $this->data = $data;
+        $this->dataSet = collect($data)->pluck('label','value');
+        return $this;
+    }
+
+
     public function filter(...$items): BaseField
     {
         $this->filterable = true;
-        $this->filter = $items;
+
+        if (count($items)) {
+            $this->filter = $items;
+            return $this;
+        }
+
+        if (isset($this->data)) {
+            $this->filter = $this->data;
+            return $this;
+        }
+
         return $this;
+
     }
 
     protected function setValue($model): void
