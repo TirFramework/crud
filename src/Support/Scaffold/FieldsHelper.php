@@ -19,7 +19,7 @@ trait FieldsHelper
     final function getAllDataFields()
     {
         $allFields = [];
-        $allFields = $this->getSubFields($this->fields, $allFields);
+        $allFields = $this->getSubFields($this->getFields(), $allFields);
         return $allFields;
     }
 

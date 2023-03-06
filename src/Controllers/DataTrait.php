@@ -51,7 +51,7 @@ trait DataTrait
 
         $query = $this->model()->select($this->model()->getTable() . '.*')->with($relation);
 
-            if($this->model()->getConnection()->getName() == 'mongodb') {
+        if($this->model()->getConnection()->getName() == 'mongodb') {
             $this->selectFields = array_merge($this->selectFields, collect($this->model()->getIndexFields())->pluck('name')->toArray());
             $query = $this->model()->select($this->selectFields)->with($relation);
         }

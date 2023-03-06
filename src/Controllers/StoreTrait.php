@@ -13,7 +13,11 @@ trait StoreTrait
 {
     public function store(CrudRequest $request)
     {
-        $item = $this->storeCrud($request);
+        $item = DB::transaction(function () use ($request) { // Start the transaction
+                $this->storeCrud($request);
+                DB::commit();
+                return $this->model();
+        });
         return $this->storeResponse($item);
     }
 
@@ -23,7 +27,6 @@ trait StoreTrait
      */
     final function storeCrud($request)
     {
-        return DB::transaction(function () use ($request) { // Start the transaction
             // Store model
             $requestData = $request->only(collect($this->model()->getAllDataFields())->pluck('request')->flatten()->toArray());
 
@@ -40,10 +43,9 @@ trait StoreTrait
             //Store relations
             $this->storeRelations($request);
 
-            DB::commit();
-            return $this->model();
-        });
+
     }
+
 
 
     final function storeResponse($item)

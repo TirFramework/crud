@@ -21,7 +21,8 @@ trait IndexTrait
                 'comment'   => $field->comment,
                 'dataSet' => $field->dataSet,
                 'dataKey' => $field->relation->key ?? null,
-
+                'type'    => $field->type,
+                'field' => $field,
             ];
             if(count($field->filter)){
                 $cols[$index]['filters'] = $field->filter;
