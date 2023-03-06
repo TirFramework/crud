@@ -24,9 +24,9 @@ trait IsTranslatable
                     $builder;
                 }
             }
-            // else{
-            //     $builder->where('locale', App::currentLocale());
-            // }
+            else{
+                $builder->where('locale', App::currentLocale());
+            }
         });
 
     }
