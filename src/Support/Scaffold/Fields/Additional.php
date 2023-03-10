@@ -10,7 +10,12 @@ class Additional extends BaseField
     protected string $type = 'Additional';
     protected array $children = [];
     protected array $template = [];
+    protected bool $defaultChild = false;
 
+    public function defaultChild($status = true):Additional {
+        $this->defaultChild = $status;
+        return $this;
+    }
     public function children(...$inputs):Additional
     {
         $this->children = $inputs;
@@ -36,26 +41,6 @@ class Additional extends BaseField
         $values = Arr::get($model, $this->name) ?? [0];
         $index = 0;
 
-        //make json for multiple field
-//        if(count($this->children) < 2){
-//            foreach ($values as $key => $value) {
-//                foreach ($this->children as $field) {
-//                    $field->name = $this->name.'.'.$index;
-//                    $fields[$index][] = $field->get($model);
-//                }
-//                $index++;
-//            }
-//        }else{
-//            //make json for single field
-//            foreach ($values as $value) {
-//                foreach ($this->children as $field) {
-//                    $field->name = $this->name.'.'.$index.'.'.$field->originalName;
-//                    $fields[$index][]  = $field->get($model);
-//                }
-//                $index++;
-//            }
-//        }
-
         foreach ($values as $value) {
             foreach ($this->children as $field) {
                 $field->name = str_replace('*', $index, $field->originalName);
@@ -74,7 +59,9 @@ class Additional extends BaseField
     {
         $this->children = $this->getChildren($dataModel);
         $this->template = $this->children[0];
-
+        if(!Arr::get($dataModel, $this->name) && !$this->defaultChild){
+            $this->children = [];
+        }
         return parent::get($dataModel);
     }
 

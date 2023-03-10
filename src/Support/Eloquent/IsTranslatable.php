@@ -23,8 +23,7 @@ trait IsTranslatable
                 } else {
                     $builder;
                 }
-            }
-            else{
+            }else{
                 $builder->where('locale', App::currentLocale());
             }
         });

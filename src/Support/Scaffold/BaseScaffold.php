@@ -12,7 +12,6 @@ trait BaseScaffold
 
     private string $moduleTitle;
     public bool $isScaffolded = false;
-    protected bool $accessLevelControl = true;
     private string $moduleName;
     private array $fields = [];
     private array $buttons = [];
@@ -61,7 +60,6 @@ trait BaseScaffold
         $this->scaffoldBoot();
         $this->moduleName = $this->setModuleName();
         $this->moduleTitle = $this->setModuleTitle();
-        $this->accessLevelControl = $this->setAcl();
         $this->actions = $this->setActions();
         $this->addFieldsToScaffold($dataModel);
         $this->addButtonsToScaffold();
@@ -78,7 +76,7 @@ trait BaseScaffold
 
     public function getAccessLevelStatus(): bool
     {
-        return $this->accessLevelControl;
+        return $this->setAcl();
     }
 
     private function getConfigs(): array

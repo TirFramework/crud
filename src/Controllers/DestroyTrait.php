@@ -19,7 +19,7 @@ trait DestroyTrait
 
 
 
-    private function deleteResponse(): JsonResponse
+    protected function deleteResponse(): JsonResponse
     {
         $moduleName = $this->model()->getModuleName();
         $message = trans('core::message.item-deleted', ['item' => trans("message.item.$moduleName")]);

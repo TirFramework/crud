@@ -11,16 +11,19 @@ use Tir\Crud\Support\Requests\CrudRequest;
 
 trait StoreTrait
 {
-    public function store(CrudRequest $request)
+    public function store(CrudRequest $request): \Illuminate\Http\JsonResponse
     {
-        $item = DB::transaction(function () use ($request) { // Start the transaction
-                $this->storeCrud($request);
-                DB::commit();
-                return $this->model();
-        });
+        $item = $this->storeTransaction($request);
         return $this->storeResponse($item);
     }
 
+    final function storeTransaction($request){
+        return DB::transaction(function () use ($request) { // Start the transaction
+            $item = $this->storeCrud($request);
+            DB::commit();
+            return $item;
+        });
+    }
 
     /**
      * This function store crud and relations
@@ -29,26 +32,18 @@ trait StoreTrait
     {
             // Store model
             $requestData = $request->only(collect($this->model()->getAllDataFields())->pluck('request')->flatten()->toArray());
-
-            //update fill
-            $fillable = collect(Arr::dot($requestData))->keys()->toArray();
-            $this->model()->fillable($fillable);
-
-            if ($this->model()->getConnection()->getName() == 'mongodb') {
-                $requestData = Arr::dot($requestData);
-            }
-
             $this->model()->fill($requestData);
-            $this->model()->save();
+            $item = $this->model()->save();
             //Store relations
             $this->storeRelations($request);
 
+            return $item;
 
     }
 
 
 
-    final function storeResponse($item)
+    final function storeResponse($item): \Illuminate\Http\JsonResponse
     {
         $moduleName = $this->model()->getModuleName();
         $message = trans('core::message.item-created', ['item' => trans("message.item.$moduleName")]); //translate message
@@ -64,7 +59,7 @@ trait StoreTrait
 
     }
 
-    final function storeRelations(Request $request)
+    final function storeRelations(Request $request): void
     {
         foreach ($this->model()->getCreateFields() as $field) {
             if (isset($field->relation) && $field->multiple) {

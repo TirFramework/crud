@@ -112,7 +112,7 @@ abstract class BaseField
         return $this;
     }
 
-    public function default(string $value): BaseField
+    public function default(mixed $value): BaseField
     {
         $this->defaultValue = $value;
         return $this;
