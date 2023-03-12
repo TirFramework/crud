@@ -31,8 +31,13 @@ trait StoreTrait
     final function storeCrud($request)
     {
             // Store model
-            $requestData = $request->only(collect($this->model()->getAllDataFields())->pluck('request')->flatten()->toArray());
-            $this->model()->fill($requestData);
+        if( !$this->model()->getFillable()){
+            $fields = collect($this->model()->getAllDataFields())
+                ->pluck('request')->flatten()->unique()->toArray();
+            $this->model()->fillable($fields);
+        }
+
+        $this->model()->fill($request->all());
             $item = $this->model()->save();
             //Store relations
             $this->storeRelations($request);

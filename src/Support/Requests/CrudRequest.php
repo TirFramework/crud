@@ -6,11 +6,16 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Arr;
+use function Termwind\renderUsing;
 
 class CrudRequest extends FormRequest
 {
-    private array $original;
     private array $unDoted;
+    private array $fields;
+    private mixed $model;
+    private array $creationRules;
+    private array $updateRules;
+    private array $onlyFields;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -27,30 +32,32 @@ class CrudRequest extends FormRequest
      *
      * @return array<string, mixed>
      */
-    public function rules()
+    public function rules(): array
     {
         return $this->getRules();
     }
 
 
-    private function getRules()
+    private function getRules(): array
     {
-
+         $rules = [];
         if ($this->method() == 'POST') {
-            return $this->input('crudModel')->getCreationRules();
+            $rules =  $this->creationRules;
         }
 
         if ($this->method() == 'PUT' || $this->method() == 'PATCH') {
-            return $this->input('crudModel')->getUpdateRules();
+            $rules =  $this->updateRules;
         }
+
+        return $rules;
     }
 
 
     protected function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response()->json([
-            'status' => 'error',
-            'error' => 'validation_error',
+            'status'  => 'error',
+            'error'   => 'validation_error',
             'message' => $validator->errors()
         ], 422
         ));
@@ -58,48 +65,45 @@ class CrudRequest extends FormRequest
 
     protected function prepareForValidation()
     {
-        $this->unDoted = Arr::undot($this->all());
-        $this->original = $this->all();
+        $this->model = $this->input('crudModel');
+        $this->creationRules = $this->model->getCreationRules();
+        $this->updateRules = $this->model->getUpdateRules();
+        $this->fields = collect($this->model->getAllDataFields())
+            ->pluck('request')->flatten()->unique()->toArray();
 
-        foreach ($this->original as $offset => $value){
+        //get only request that has equal field in scaffold
+        $this->onlyFields = collect($this->all())->only($this->fields)->toArray();
+
+        //convert dot string request to array
+        $this->unDoted = Arr::undot($this->onlyFields);
+
+
+        //Make request empty
+        foreach ($this->all() as $offset => $value) {
             $this->offsetUnset($offset);
         }
+
         $this->merge($this->unDoted);
     }
 
 
-    protected function passedValidation(){
-
-        if($this->input('crudModel')->getConnection()->getDriverName() === 'mongodb'){
-
-            foreach ($this->unDoted as $offset=> $value) {
-                $this->offsetUnset($offset);
-            }
-            $this->merge($this->groupByNumber($this->original));
-        }
-
-        $this->offsetUnset('crudModel');
-        $this->offsetUnset('crudModuleName');
-        $this->offsetUnset('crudActionName');
-    }
-
-    private function groupByNumber($array): array
+    protected function groupByNumber($array): array
     {
         $result = array();
 
         foreach ($array as $key => $value) {
             $parts = preg_split('/\.\d+\./', $key);
-            if(count($parts) == 1){
+            if (count($parts) == 1) {
                 $result[$key] = $value;
-            }else{
-                preg_match('/\.\d+\./',$key,$matches);
-                $index = str_replace('.','',$matches)[0] ?? null;
+            } else {
+                preg_match('/\.\d+\./', $key, $matches);
+                $index = str_replace('.', '', $matches)[0] ?? null;
                 $prefix = $parts[0] ?? null;
                 $suffix = $parts[1] ?? null;
 
-                if($suffix){
+                if ($suffix) {
                     $result[$prefix][$index][$suffix] = $value;
-                }else{
+                } else {
                     $result[$prefix][$index] = $value;
                 }
             }
@@ -109,6 +113,18 @@ class CrudRequest extends FormRequest
         return $result;
     }
 
+
+    protected function passedValidation()
+    {
+        //make ready request for mongodb
+        if ($this->model->getConnection()->getDriverName() === 'mongodb') {
+
+            foreach ($this->all() as $offset => $value) {
+                $this->offsetUnset($offset);
+            }
+            $this->merge($this->groupByNumber($this->onlyFields));
+        }
+    }
 
 
 }

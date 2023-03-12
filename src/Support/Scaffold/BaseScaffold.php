@@ -110,11 +110,6 @@ trait BaseScaffold
         return $this->setModuleName();
     }
 
-//    final function getModel(): string
-//    {
-//        return $this->model;
-//    }
-
     final function getRouteName(): string
     {
         return $this->routeName;

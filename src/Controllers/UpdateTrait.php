@@ -31,15 +31,14 @@ trait UpdateTrait
 
     final function updateCrud($request, $item)
     {
-        $fields =  collect($this->model()->getAllDataFields())
-                ->pluck('request')
-                ->flatten()
-                ->unique()
-                ->toArray();
+        if( !$item->getFillable()){
+            $fields = collect($this->model()->getAllDataFields())
+                ->pluck('request')->flatten()->unique()->toArray();
+            $item->fillable($fields);
+        }
 
-        $requestData = collect($request->all())->only($fields)->toArray();
-        $item->fillable($fields);
-        $item->update($requestData);
+        //we get only requests that defined in scaffold fields
+        $item->update($request->all());
 
         $this->updateRelations($request, $item);
 
