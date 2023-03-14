@@ -37,8 +37,8 @@ trait StoreTrait
             $this->model()->fillable($fields);
         }
 
-        $this->model()->fill($request->all());
-            $item = $this->model()->save();
+//        $this->model()->fill($request->all());
+            $item = $this->model()->create($request->all());
             //Store relations
             $this->storeRelations($request);
 
@@ -56,7 +56,6 @@ trait StoreTrait
         return Response::Json(
             [
                 'id'      => $item->id,
-                'item'    => $item,
                 'created' => true,
                 'message' => $message,
             ]
@@ -66,7 +65,7 @@ trait StoreTrait
 
     final function storeRelations(Request $request): void
     {
-        foreach ($this->model()->getCreateFields() as $field) {
+        foreach ($this->model()->getAllDataFields() as $field) {
             if (isset($field->relation) && $field->multiple) {
                 $data = $request->input($field->name);
                 if(isset($data)){

@@ -4,7 +4,6 @@ namespace Tir\Crud\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Tir\Crud\Support\Requests\CrudRequest;
@@ -36,7 +35,6 @@ trait UpdateTrait
                 ->pluck('request')->flatten()->unique()->toArray();
             $item->fillable($fields);
         }
-
         //we get only requests that defined in scaffold fields
         $item->update($request->all());
 
@@ -48,7 +46,7 @@ trait UpdateTrait
 
     final function updateRelations(Request $request, $item): void
     {
-        foreach ($this->model()->getEditFields() as $field) {
+        foreach ($this->model()->getAllDataFields() as $field) {
             if (isset($field->relation) && $field->multiple) {
                 $data = $request->input($field->name);
                 if (isset($data)) {

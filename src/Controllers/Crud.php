@@ -15,10 +15,10 @@ trait Crud
     public function __construct()
     {
         $this->modelInit();
+        $this->addBasicsToRequest();
         $this->checkAccess();
 
         $this->middleware(function($request, $next){
-            $this->addBasicsToRequest();
             $this->crudInit();
             $this->model()->scaffold();
             return $next($request);
