@@ -36,9 +36,8 @@ trait StoreTrait
                 ->pluck('request')->flatten()->unique()->toArray();
             $this->model()->fillable($fields);
         }
-
-//        $this->model()->fill($request->all());
-            $item = $this->model()->create($request->all());
+            $this->model()->fill($request->all());
+            $item = $this->model()->save();
             //Store relations
             $this->storeRelations($request);
 
@@ -48,14 +47,13 @@ trait StoreTrait
 
 
 
-    final function storeResponse($item): \Illuminate\Http\JsonResponse
+    final function storeResponse(): \Illuminate\Http\JsonResponse
     {
         $moduleName = $this->model()->getModuleName();
         $message = trans('core::message.item-created', ['item' => trans("message.item.$moduleName")]); //translate message
 
         return Response::Json(
             [
-                'id'      => $item->id,
                 'created' => true,
                 'message' => $message,
             ]
