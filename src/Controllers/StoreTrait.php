@@ -13,15 +13,16 @@ trait StoreTrait
 {
     public function store(CrudRequest $request): \Illuminate\Http\JsonResponse
     {
-        $item = $this->storeTransaction($request);
-        return $this->storeResponse($item);
+        $model = $this->storeTransaction($request);
+        return $this->storeResponse($model);
     }
 
-    final function storeTransaction($request){
+    final function storeTransaction($request)
+    {
         return DB::transaction(function () use ($request) { // Start the transaction
-            $item = $this->storeCrud($request);
+            $id = $this->storeCrud($request);
             DB::commit();
-            return $item;
+            return $id;
         });
     }
 
@@ -30,30 +31,28 @@ trait StoreTrait
      */
     final function storeCrud($request)
     {
-            // Store model
-        if( !$this->model()->getFillable()){
+        // Store model
+        if (!$this->model()->getFillable()) {
             $fields = collect($this->model()->getAllDataFields())
                 ->pluck('request')->flatten()->unique()->toArray();
             $this->model()->fillable($fields);
         }
-            $this->model()->fill($request->all());
-            $item = $this->model()->save();
-            //Store relations
-            $this->storeRelations($request);
-
-            return $item;
+        $this->model()->fill($request->all());
+        $this->model()->save();
+        //Store relations
+        $this->storeRelations($request);
+        return  $this->model();
 
     }
 
 
-
-    final function storeResponse(): \Illuminate\Http\JsonResponse
+    final function storeResponse($model): \Illuminate\Http\JsonResponse
     {
         $moduleName = $this->model()->getModuleName();
         $message = trans('core::message.item-created', ['item' => trans("message.item.$moduleName")]); //translate message
-
         return Response::Json(
             [
+                'id'      => $model->id,
                 'created' => true,
                 'message' => $message,
             ]
@@ -66,7 +65,7 @@ trait StoreTrait
         foreach ($this->model()->getAllDataFields() as $field) {
             if (isset($field->relation) && $field->multiple) {
                 $data = $request->input($field->name);
-                if(isset($data)){
+                if (isset($data)) {
                     $this->model()->{$field->relation->name}()->sync($data);
                 }
             }

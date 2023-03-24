@@ -35,7 +35,6 @@ trait UpdateTrait
                 ->pluck('request')->flatten()->unique()->toArray();
             $item->fillable($fields);
         }
-        //we get only requests that defined in scaffold fields
         $item->update($request->all());
 
         $this->updateRelations($request, $item);

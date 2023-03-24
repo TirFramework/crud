@@ -73,7 +73,6 @@ class CrudRequest extends FormRequest
 
         //get only request that has equal field in scaffold
         $this->onlyFields = $this->all();
-
         //convert dot string request to array
         $this->unDoted = Arr::undot($this->onlyFields);
 
