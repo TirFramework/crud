@@ -22,7 +22,7 @@ class Group extends BaseField
             $fields[]  = $input->get($dataModel);
         }
         $this->children = $fields;
-        $this->subFields = $fields;
+//        $this->subFields = $fields;
         return $this->children;
     }
 

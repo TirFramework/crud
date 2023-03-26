@@ -227,20 +227,20 @@ abstract class BaseField
 
     public function rules(...$rules): BaseField
     {
-        $this->creationRules = $this->updateRules = $this->rules = $rules;
+        $this->rules = $rules;
         return $this;
     }
 
     public function creationRules(...$rules): BaseField
     {
         //TODO::need to fix in front-end
-        $this->creationRules = $this->rules = $rules;
+        $this->creationRules = array_merge($this->rules, $rules);
         return $this;
     }
 
     public function updateRules(...$rules): BaseField
     {
-        $this->updateRules = $this->rules = $rules;
+        $this->updateRules = array_merge($this->rules, $rules);
         return $this;
     }
 
