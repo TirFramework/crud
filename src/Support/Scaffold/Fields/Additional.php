@@ -37,10 +37,14 @@ class Additional extends BaseField
     protected function getChildrenWithValue($model): array
     {
         $fields = [];
+        $values = [];
+        if(Arr::get($model, $this->name) == null || Arr::get($model, $this->name) == [] ){
+            $values = [0];
+        }else{
+            $values = Arr::get($model, $this->name) ?? [0];
+        }
 
-        $values = Arr::get($model, $this->name) ?? [0];
         $index = 0;
-
         foreach ($values as $value) {
             foreach ($this->children as $field) {
                 $field->name = str_replace('*', $index, $field->originalName);
