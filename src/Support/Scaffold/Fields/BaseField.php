@@ -227,6 +227,8 @@ abstract class BaseField
 
     public function rules(...$rules): BaseField
     {
+        $this->creationRules = array_merge($this->creationRules, $rules);
+        $this->updateRules = array_merge($this->updateRules, $rules);
         $this->rules = $rules;
         return $this;
     }
