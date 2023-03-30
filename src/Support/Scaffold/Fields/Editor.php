@@ -6,8 +6,8 @@ class Editor extends BaseField
 {
 
    protected string $type = 'Editor';
-   protected string $postUrl = '';
-   protected string $basePath = '';
+   protected string $uploadUrl;
+   protected string $basePath;
    protected int $height = 400;
 
 
@@ -23,9 +23,9 @@ class Editor extends BaseField
       return $this;
    }
 
-   public function postUrl(string $value): BaseField
+   public function uploadUrl(string $value): BaseField
    {
-      $this->postUrl = $value;
+      $this->uploadUrl = $value;
       return $this;
    }
 }
