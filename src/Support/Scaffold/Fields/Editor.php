@@ -2,7 +2,7 @@
 
 namespace Tir\Crud\Support\Scaffold\Fields;
 
-class Editor extends BaseField
+ class Editor extends BaseField
 {
 
    protected string $type = 'Editor';
