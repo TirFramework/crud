@@ -40,7 +40,7 @@ class CrudRequest extends FormRequest
 
     private function getRules(): array
     {
-         $rules = [];
+        $rules = [];
         if ($this->method() == 'POST') {
             $rules =  $this->creationRules;
         }

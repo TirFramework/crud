@@ -3,6 +3,7 @@
 namespace Tir\Crud\Controllers;
 
 use Illuminate\Support\Facades\Route;
+use Tir\Crud\Support\Requests\CrudRequest;
 
 trait Crud
 {
@@ -19,6 +20,7 @@ trait Crud
         $this->checkAccess();
 
         $this->middleware(function($request, $next){
+            $this->CrudRequestInjector();
             $this->crudInit();
             $this->model()->scaffold();
             return $next($request);
@@ -32,6 +34,20 @@ trait Crud
         return $this->model;
     }
 
+    public function setFormRequest(): string
+    {
+        return '';
+    }
+
+    private function CrudRequestInjector(): void
+    {
+        $formRequest = $this->setFormRequest();
+        if($formRequest){
+            app()->singleton(CrudRequest::class, function ($app) use ($formRequest) {
+                return new $formRequest;
+            });
+        }
+    }
 
     private function modelInit(): void
     {
