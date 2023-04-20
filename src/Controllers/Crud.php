@@ -4,10 +4,11 @@ namespace Tir\Crud\Controllers;
 
 use Illuminate\Support\Facades\Route;
 use Tir\Crud\Support\Requests\CrudRequest;
+use Tir\Crud\Support\Response\CrudResponse;
 
 trait Crud
 {
-    use IndexTrait, DataTrait, ShowTrait, CreateTrait, StoreTrait, EditTrait, UpdateTrait, SelectTrait, DestroyTrait;
+    use IndexTrait, DataTrait, ShowTrait, CreateTrait, EditTrait, DestroyTrait;
 
     private mixed $model;
 
@@ -25,8 +26,6 @@ trait Crud
             $this->model()->scaffold();
             return $next($request);
         });
-
-
     }
 
     public function model()
@@ -34,14 +33,25 @@ trait Crud
         return $this->model;
     }
 
-    public function setFormRequest(): string
+    public function setRequest(): string
     {
         return '';
     }
 
+    public function setResponse(): string
+    {
+        return CrudResponse::class;
+    }
+
+
+    protected final function response(){
+        $response = $this->setResponse();
+        return new $response;
+    }
+
     private function CrudRequestInjector(): void
     {
-        $formRequest = $this->setFormRequest();
+        $formRequest = $this->setRequest();
         if($formRequest){
             app()->singleton(CrudRequest::class, function ($app) use ($formRequest) {
                 return new $formRequest;
@@ -55,7 +65,7 @@ trait Crud
         $this->model = new $model;
     }
 
-    private function addBasicsToRequest()
+    private function addBasicsToRequest(): void
     {
         $route = Route::getCurrentRoute();
         if($route) {
@@ -69,14 +79,14 @@ trait Crud
 
     }
 
-    protected function crudInit()
+    protected function crudInit(): void
     {
     }
 
 
-    private function checkAccess()
+    private function checkAccess(): void
     {
-        if($this->model()->getAccessLevelStatus()){
+        if($this->model()->getAccessLevelStatus() && config('crud.accessLevelControl') != 'off'){
             $this->middleware('acl:'.$this->model()->getModuleName());
          }
 
