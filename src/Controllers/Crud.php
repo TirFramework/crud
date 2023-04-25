@@ -23,7 +23,7 @@ trait Crud
         $this->middleware(function($request, $next){
             $this->CrudRequestInjector();
             $this->crudInit();
-            $this->model()->scaffold();
+//            $this->model()->scaffold();
             return $next($request);
         });
     }

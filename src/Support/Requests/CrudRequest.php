@@ -53,16 +53,6 @@ class CrudRequest extends FormRequest
     }
 
 
-//    protected function failedValidation(Validator $validator)
-//    {
-//        throw new HttpResponseException(response()->json([
-//            'status'  => 'error',
-//            'error'   => 'validation_error',
-//            'message' => $validator->errors()
-//        ], 422
-//        ));
-//    }
-
     protected function prepareForValidation()
     {
         $this->model = $this->input('crudModel');

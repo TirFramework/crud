@@ -10,6 +10,7 @@ abstract class BaseField
     protected string $originalName;
     protected string $name;
     protected mixed $request;
+    protected string $page;
     protected string $valueType = 'string';
     protected mixed $value;
     protected string $display;
@@ -54,7 +55,11 @@ abstract class BaseField
     protected function init():void{
 
     }
-
+    public function page(string $page): BaseField
+    {
+        $this->page = $page;
+        return $this;
+    }
     public function display(string $value): BaseField
     {
         $this->display = $value;

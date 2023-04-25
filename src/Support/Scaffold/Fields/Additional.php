@@ -48,6 +48,9 @@ class Additional extends BaseField
         foreach ($values as $value) {
             foreach ($this->children as $field) {
                 $field->name = str_replace('*', $index, $field->originalName);
+                if($this->readonly){
+                    $field->readonly();
+                }
                 $fields[$index][] = $field->get($model);
                 unset($field->value);
             }

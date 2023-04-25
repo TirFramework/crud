@@ -12,6 +12,8 @@ trait FieldsHelper
 
     final function getFields(): array
     {
+        $this->scaffold();
+
         return $this->fields;
 
     }

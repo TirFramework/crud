@@ -19,6 +19,9 @@ class Group extends BaseField
     {
         $fields = [];
         foreach ($this->children as $input){
+            if($this->readonly){
+                $input->readonly();
+            }
             $fields[]  = $input->get($dataModel);
         }
         $this->children = $fields;

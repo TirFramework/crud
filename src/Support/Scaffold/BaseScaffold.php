@@ -32,7 +32,7 @@ trait BaseScaffold
     {
         return [
             Button::make('back')->action('Cancel'),
-            Button::make('submit')->action('Submit'),
+            Button::make('submit')->display('panel.submit')->action('Submit')->hideFromDetail(),
         ];
     }
 
@@ -51,26 +51,30 @@ trait BaseScaffold
         return $this->moduleName;
     }
 
-    public function scaffold($dataModel = null): static
+    private function scaffold($page=''): static
     {
         if ($this->isScaffolded) {
-            dd('You cannot make scaffold again');
+            return $this;
         }
-        $dataModel = $this;
         $this->scaffoldBoot();
         $this->moduleName = $this->setModuleName();
         $this->moduleTitle = $this->setModuleTitle();
         $this->actions = $this->setActions();
-        $this->addFieldsToScaffold($dataModel);
+        $this->addFieldsToScaffold($page);
         $this->addButtonsToScaffold();
         $this->isScaffolded = true;
         return $this;
     }
 
-    private function addFieldsToScaffold($dataModel): void
+    private function addFieldsToScaffold($page): void
     {
         foreach ($this->setFields() as $field) {
-            $this->fields[] = $field->get($dataModel);
+            $field->page($page);
+            if($page === 'detail'){
+                $field->readonly();
+            }
+            //here $this is the Model with data
+            $this->fields[] = $field->get($this);
         }
     }
 
@@ -117,6 +121,7 @@ trait BaseScaffold
 
     final function getIndexScaffold(): array
     {
+        $this->scaffold('index');
         return [
             'fields'  => $this->getIndexFields(),
             'buttons' => $this->getIndexButtons(),
@@ -126,6 +131,7 @@ trait BaseScaffold
 
     final function getCreateScaffold(): array
     {
+        $this->scaffold('create');
         return [
             'fields'        => $this->getCreateFields(),
             'buttons'       => $this->getCreateButtons(),
@@ -136,6 +142,8 @@ trait BaseScaffold
 
     final function getEditScaffold(): array
     {
+        $this->scaffold('edit');
+
         return [
             'fields'        => $this->getEditFields(),
             'buttons'       => $this->getEditButtons(),
@@ -146,10 +154,12 @@ trait BaseScaffold
 
     final function getDetailScaffold(): array
     {
+        $this->scaffold('detail');
         return [
             'fields'  => $this->getDetailFields(),
             'buttons' => $this->getDetailButtons(),
-            'config'  => []
+            'validationMsg' => $this->getValidationMsg(),
+            'configs'       => $this->getConfigs()
         ];
     }
 
