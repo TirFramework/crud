@@ -2,6 +2,7 @@
 
 namespace Tir\Crud\Support\Scaffold;
 
+use App\InferaStructures\Acl\Access;
 use Tir\Crud\Support\Scaffold\Fields\Button;
 
 trait BaseScaffold
@@ -15,13 +16,7 @@ trait BaseScaffold
     private string $moduleName;
     private array $fields = [];
     private array $buttons = [];
-    private array $actions = [
-        'index'   => true,
-        'create'  => true,
-        'edit'    => true,
-        'destroy' => true,
-        'show'    => true
-    ];
+    private array $actions = [];
 
 
     protected abstract function setModuleName(): string;
@@ -46,9 +41,16 @@ trait BaseScaffold
         return true;
     }
 
+
     protected function setModuleTitle(): string
     {
         return $this->moduleName;
+    }
+
+
+    protected function setActions(): array
+    {
+        return [];
     }
 
     private function scaffold($page=''): static
@@ -60,6 +62,7 @@ trait BaseScaffold
         $this->moduleName = $this->setModuleName();
         $this->moduleTitle = $this->setModuleTitle();
         $this->actions = $this->setActions();
+        $this->initActions();
         $this->addFieldsToScaffold($page);
         $this->addButtonsToScaffold();
         $this->isScaffolded = true;
@@ -86,20 +89,25 @@ trait BaseScaffold
     private function getConfigs(): array
     {
         return [
+            'actions'     => $this->getActions(),
             'module_title' => $this->moduleTitle
         ];
     }
 
-    protected function setActions(): array
+    private function initActions(): void
     {
-        return [
-            'index'   => true,
-            'create'  => true,
-            'edit'    => true,
-            'destroy' => true,
-            'show'    => true
+        $baseActions = [
+            'index'   => Access::check($this->moduleName, 'index')!== 'deny',
+            'create'  => Access::check($this->moduleName, 'create')!== 'deny',
+            'show'    => Access::check($this->moduleName, 'show')!== 'deny',
+            'edit'    => Access::check($this->moduleName, 'edit')!== 'deny',
+            'destroy' => Access::check($this->moduleName, 'destroy')!== 'deny',
+            'fullDestroy' => Access::check($this->moduleName, 'fullDestroy')!== 'deny',
         ];
+         $this->actions = array_merge($this->actions, $baseActions);
+
     }
+
 
     final function getActions(): array
     {
