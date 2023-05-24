@@ -58,7 +58,7 @@ class Module
             ],
             [
                 'page' => [
-                    'label' => trans('core::panel.details'),
+                    'label' => trans('core::panel.detail'),
                     'value' => 'show'
                 ],
                 'access' => [

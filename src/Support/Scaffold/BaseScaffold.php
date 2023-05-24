@@ -2,7 +2,7 @@
 
 namespace Tir\Crud\Support\Scaffold;
 
-use App\InferaStructures\Acl\Access;
+use Tir\Crud\Support\Acl\Access;
 use Tir\Crud\Support\Scaffold\Fields\Button;
 
 trait BaseScaffold
@@ -53,7 +53,7 @@ trait BaseScaffold
         return [];
     }
 
-    private function scaffold($page=''): static
+    private function scaffold($page = ''): static
     {
         if ($this->isScaffolded) {
             return $this;
@@ -73,7 +73,7 @@ trait BaseScaffold
     {
         foreach ($this->setFields() as $field) {
             $field->page($page);
-            if($page === 'detail'){
+            if ($page === 'detail') {
                 $field->readonly();
             }
             //here $this is the Model with data
@@ -89,7 +89,7 @@ trait BaseScaffold
     private function getConfigs(): array
     {
         return [
-            'actions'     => $this->getActions(),
+            'actions'      => $this->getActions(),
             'module_title' => $this->moduleTitle
         ];
     }
@@ -97,15 +97,36 @@ trait BaseScaffold
     private function initActions(): void
     {
         $baseActions = [
-            'index'   => Access::check($this->moduleName, 'index')!== 'deny',
-            'create'  => Access::check($this->moduleName, 'create')!== 'deny',
-            'show'    => Access::check($this->moduleName, 'show')!== 'deny',
-            'edit'    => Access::check($this->moduleName, 'edit')!== 'deny',
-            'destroy' => Access::check($this->moduleName, 'destroy')!== 'deny',
-            'fullDestroy' => Access::check($this->moduleName, 'fullDestroy')!== 'deny',
+            'index'       => true,
+            'create'      => true,
+            'show'        => true,
+            'edit'        => true,
+            'destroy'     => true,
+            'fullDestroy' => true,
         ];
-         $this->actions = array_merge($this->actions, $baseActions);
 
+        $this->actions = array_merge($baseActions, $this->actions);
+
+        if($this->getAccessLevelStatus() && config('crud.accessLevelControl') != 'off') {
+            if ($this->actions['index']){
+                $this->actions['index'] = (Access::check($this->moduleName, 'index') !== 'deny');
+            }
+            if ($this->actions['create']){
+                $this->actions['create'] = (Access::check($this->moduleName, 'create') !== 'deny');
+            }
+            if ($this->actions['show']){
+                $this->actions['show'] = (Access::check($this->moduleName, 'show') !== 'deny');
+            }
+            if ($this->actions['edit']){
+                $this->actions['edit'] = (Access::check($this->moduleName, 'edit') !== 'deny');
+            }
+            if ($this->actions['destroy']){
+                $this->actions['destroy'] = (Access::check($this->moduleName, 'destroy') !== 'deny');
+            }
+            if ($this->actions['fullDestroy']){
+                $this->actions['fullDestroy'] = (Access::check($this->moduleName, 'fullDestroy') !== 'deny');
+            }
+        }
     }
 
 
@@ -116,7 +137,7 @@ trait BaseScaffold
 
     final function getModuleName(): string
     {
-        if(isset($this->moduleName)){
+        if (isset($this->moduleName)) {
             return $this->moduleName;
         }
         return $this->setModuleName();
@@ -164,8 +185,8 @@ trait BaseScaffold
     {
         $this->scaffold('detail');
         return [
-            'fields'  => $this->getDetailFields(),
-            'buttons' => $this->getDetailButtons(),
+            'fields'        => $this->getDetailFields(),
+            'buttons'       => $this->getDetailButtons(),
             'validationMsg' => $this->getValidationMsg(),
             'configs'       => $this->getConfigs()
         ];
