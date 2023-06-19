@@ -2,7 +2,6 @@
 
 namespace Tir\Crud\Support\Scaffold;
 
-use Tir\Crud\Support\Acl\Access;
 use Tir\Crud\Support\Scaffold\Fields\Button;
 
 trait BaseScaffold
@@ -40,7 +39,6 @@ trait BaseScaffold
     {
         return true;
     }
-
 
     protected function setModuleTitle(): string
     {
@@ -106,25 +104,26 @@ trait BaseScaffold
         ];
 
         $this->actions = array_merge($baseActions, $this->actions);
-
         if($this->getAccessLevelStatus() && config('crud.accessLevelControl') != 'off') {
+            $checkerClass = config('crud.aclCheckerClass') ?? \Tir\Crud\Support\Acl\Access::Class;
+
             if ($this->actions['index']){
-                $this->actions['index'] = (Access::check($this->moduleName, 'index') !== 'deny');
+                $this->actions['index'] = ($checkerClass::check($this->moduleName, 'index') !== 'deny');
             }
             if ($this->actions['create']){
-                $this->actions['create'] = (Access::check($this->moduleName, 'create') !== 'deny');
+                $this->actions['create'] = ($checkerClass::check($this->moduleName, 'create') !== 'deny');
             }
             if ($this->actions['show']){
-                $this->actions['show'] = (Access::check($this->moduleName, 'show') !== 'deny');
+                $this->actions['show'] = ($checkerClass::check($this->moduleName, 'show') !== 'deny');
             }
             if ($this->actions['edit']){
-                $this->actions['edit'] = (Access::check($this->moduleName, 'edit') !== 'deny');
+                $this->actions['edit'] = ($checkerClass::check($this->moduleName, 'edit') !== 'deny');
             }
             if ($this->actions['destroy']){
-                $this->actions['destroy'] = (Access::check($this->moduleName, 'destroy') !== 'deny');
+                $this->actions['destroy'] = ($checkerClass::check($this->moduleName, 'destroy') !== 'deny');
             }
             if ($this->actions['fullDestroy']){
-                $this->actions['fullDestroy'] = (Access::check($this->moduleName, 'fullDestroy') !== 'deny');
+                $this->actions['fullDestroy'] = ($checkerClass::check($this->moduleName, 'fullDestroy') !== 'deny');
             }
         }
     }
