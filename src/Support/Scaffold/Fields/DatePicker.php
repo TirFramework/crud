@@ -33,7 +33,7 @@ class DatePicker extends BaseField
                 if (gettype($date) != 'object') {
                     $date = Carbon::create($date);
                 }
-                $this->value = $date->format($this->format);
+                $this->value = $date->format('Y-m-d');
             }
         }
 
