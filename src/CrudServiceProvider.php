@@ -6,6 +6,7 @@ namespace Tir\Crud;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Tir\Crud\Providers\CrudSeedServiceProvider;
+use Tir\Crud\Support\Middleware\AclMiddleware;
 use Tir\Crud\Support\Middleware\AddUserIdToRequestsMiddleware;
 use Tir\Crud\Support\Middleware\SetLocaleMiddleware;
 use Tir\Crud\Support\Module\AdminMenu;
@@ -34,7 +35,8 @@ class CrudServiceProvider extends ServiceProvider
 
         $this->app->register(CrudSeedServiceProvider::class);
 
-
+        $this->app['router']->aliasMiddleware('acl', AclMiddleware::class);
+        $this->app['router']->pushMiddlewareToGroup('*', AclMiddleware::class);
         $this->adminMenu();
     }
 
@@ -52,6 +54,7 @@ class CrudServiceProvider extends ServiceProvider
 
         $this->app['router']->aliasMiddleware('setLocale', SetLocaleMiddleware::class);
         $this->app['router']->pushMiddlewareToGroup('*', SetLocaleMiddleware::class);
+
 
 
 

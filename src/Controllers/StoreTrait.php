@@ -13,6 +13,11 @@ trait StoreTrait
 {
     public function store(CrudRequest $request): \Illuminate\Http\JsonResponse
     {
+        return $this->storeCrud($request);
+    }
+
+    final function storeCrud($request): \Illuminate\Http\JsonResponse
+    {
         $model = $this->storeTransaction($request);
         return $this->storeResponse($model);
     }
@@ -20,7 +25,7 @@ trait StoreTrait
     final function storeTransaction($request)
     {
         return DB::transaction(function () use ($request) { // Start the transaction
-            $id = $this->storeCrud($request);
+            $id = $this->storeModel($request);
             DB::commit();
             return $id;
         });
@@ -29,7 +34,7 @@ trait StoreTrait
     /**
      * This function store crud and relations
      */
-    final function storeCrud($request)
+    final function storeModel($request)
     {
         // Store model
         if (!$this->model()->getFillable()) {

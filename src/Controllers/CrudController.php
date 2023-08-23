@@ -8,4 +8,5 @@ use Illuminate\Support\Facades\Route;
 abstract Class CrudController extends Controller
 {
     use Crud;
+
 }

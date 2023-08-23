@@ -7,8 +7,7 @@ trait ShowTrait
     public function show(int|string $id)
     {
         $dataModel = $this->model()->findOrFail($id);
-        $dataModel->scaffold($dataModel);
-        return $dataModel->getDetailElements();
+        return $dataModel->getDetailScaffold();
     }
 
 }

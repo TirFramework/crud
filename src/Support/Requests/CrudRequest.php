@@ -40,7 +40,7 @@ class CrudRequest extends FormRequest
 
     private function getRules(): array
     {
-         $rules = [];
+        $rules = [];
         if ($this->method() == 'POST') {
             $rules =  $this->creationRules;
         }
@@ -52,16 +52,6 @@ class CrudRequest extends FormRequest
         return $rules;
     }
 
-
-    protected function failedValidation(Validator $validator)
-    {
-        throw new HttpResponseException(response()->json([
-            'status'  => 'error',
-            'error'   => 'validation_error',
-            'message' => $validator->errors()
-        ], 422
-        ));
-    }
 
     protected function prepareForValidation()
     {

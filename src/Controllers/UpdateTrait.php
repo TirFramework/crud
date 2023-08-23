@@ -13,22 +13,26 @@ trait UpdateTrait
 
     public function update(CrudRequest $request, int|string $id): JsonResponse
     {
+        return $this->updateCrud($request, $id);
+    }
+
+    final function updateCrud($request, $id): JsonResponse
+    {
         $item = $this->model()->findOrFail($id);
         $item = $this->updateTransaction($request, $item);
         return $this->updateResponse($item);
-
     }
 
     final function updateTransaction($request, $item)
     {
         return DB::transaction(function () use ($request, $item) { // Start the transaction
-            $item = $this->updateCrud($request, $item);
+            $item = $this->updateModel($request, $item);
             DB::commit();
             return $item;
         });
     }
 
-    final function updateCrud($request, $item)
+    final function updateModel($request, $item)
     {
 
         if( !$item->getFillable()){

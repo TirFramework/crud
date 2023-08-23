@@ -10,6 +10,7 @@ abstract class BaseField
     protected string $originalName;
     protected string $name;
     protected mixed $request;
+    protected string $page;
     protected string $valueType = 'string';
     protected mixed $value;
     protected string $display;
@@ -54,7 +55,11 @@ abstract class BaseField
     protected function init():void{
 
     }
-
+    public function page(string $page): BaseField
+    {
+        $this->page = $page;
+        return $this;
+    }
     public function display(string $value): BaseField
     {
         $this->display = $value;
@@ -132,7 +137,7 @@ abstract class BaseField
         return $this;
     }
 
-    public function showOnEditing(bool $callback = true): BaseField
+    public function showOnEditing($callback = true): BaseField
     {
         $this->showOnEditing = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : $callback;
@@ -199,17 +204,25 @@ abstract class BaseField
         return $this;
     }
 
-    public function onlyOnEditing(): BaseField
+    public function onlyOnEditing($callback = true): BaseField
     {
-        $this->showOnCreating = $this->showOnIndex = $this->showOnDetail = false;
-        $this->showOnEditing = true;
+        $this->showOnCreating = $this->showOnIndex = $this->showOnDetail = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
+            : !$callback;
+
+        $this->showOnEditing = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
+            : $callback;
+
         return $this;
     }
 
-    public function onlyOnDetail(): BaseField
+    public function onlyOnDetail($callback = true): BaseField
     {
-        $this->showOnCreating = $this->showOnEditing = $this->showOnIndex = false;
-        $this->showOnDetail = true;
+        $this->showOnCreating = $this->showOnIndex = $this->showOnEditing = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
+            : !$callback;
+
+        $this->showOnDetail = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
+            : $callback;
+
         return $this;
     }
 

@@ -15,13 +15,7 @@ trait BaseScaffold
     private string $moduleName;
     private array $fields = [];
     private array $buttons = [];
-    private array $actions = [
-        'index'   => true,
-        'create'  => true,
-        'edit'    => true,
-        'destroy' => true,
-        'show'    => true
-    ];
+    private array $actions = [];
 
 
     protected abstract function setModuleName(): string;
@@ -32,7 +26,7 @@ trait BaseScaffold
     {
         return [
             Button::make('back')->action('Cancel'),
-            Button::make('submit')->action('Submit'),
+            Button::make('submit')->display('panel.submit')->action('Submit')->hideFromDetail(),
         ];
     }
 
@@ -51,26 +45,37 @@ trait BaseScaffold
         return $this->moduleName;
     }
 
-    public function scaffold($dataModel = null): static
+
+    protected function setActions(): array
+    {
+        return [];
+    }
+
+    private function scaffold($page = ''): static
     {
         if ($this->isScaffolded) {
-            dd('You cannot make scaffold again');
+            return $this;
         }
-        $dataModel = $this;
         $this->scaffoldBoot();
         $this->moduleName = $this->setModuleName();
         $this->moduleTitle = $this->setModuleTitle();
         $this->actions = $this->setActions();
-        $this->addFieldsToScaffold($dataModel);
+        $this->initActions();
+        $this->addFieldsToScaffold($page);
         $this->addButtonsToScaffold();
         $this->isScaffolded = true;
         return $this;
     }
 
-    private function addFieldsToScaffold($dataModel): void
+    private function addFieldsToScaffold($page): void
     {
         foreach ($this->setFields() as $field) {
-            $this->fields[] = $field->get($dataModel);
+            $field->page($page);
+            if ($page === 'detail') {
+                $field->readonly();
+            }
+            //here $this is the Model with data
+            $this->fields[] = $field->get($this);
         }
     }
 
@@ -82,20 +87,47 @@ trait BaseScaffold
     private function getConfigs(): array
     {
         return [
+            'actions'      => $this->getActions(),
             'module_title' => $this->moduleTitle
         ];
     }
 
-    protected function setActions(): array
+    private function initActions(): void
     {
-        return [
-            'index'   => true,
-            'create'  => true,
-            'edit'    => true,
-            'destroy' => true,
-            'show'    => true
+        $baseActions = [
+            'index'       => true,
+            'create'      => true,
+            'show'        => true,
+            'edit'        => true,
+            'destroy'     => true,
+            'fullDestroy' => true,
         ];
+
+        $this->actions = array_merge($baseActions, $this->actions);
+        if($this->getAccessLevelStatus() && config('crud.accessLevelControl') != 'off') {
+            $checkerClass = config('crud.aclCheckerClass') ?? \Tir\Crud\Support\Acl\Access::Class;
+
+            if ($this->actions['index']){
+                $this->actions['index'] = ($checkerClass::check($this->moduleName, 'index') !== 'deny');
+            }
+            if ($this->actions['create']){
+                $this->actions['create'] = ($checkerClass::check($this->moduleName, 'create') !== 'deny');
+            }
+            if ($this->actions['show']){
+                $this->actions['show'] = ($checkerClass::check($this->moduleName, 'show') !== 'deny');
+            }
+            if ($this->actions['edit']){
+                $this->actions['edit'] = ($checkerClass::check($this->moduleName, 'edit') !== 'deny');
+            }
+            if ($this->actions['destroy']){
+                $this->actions['destroy'] = ($checkerClass::check($this->moduleName, 'destroy') !== 'deny');
+            }
+            if ($this->actions['fullDestroy']){
+                $this->actions['fullDestroy'] = ($checkerClass::check($this->moduleName, 'fullDestroy') !== 'deny');
+            }
+        }
     }
+
 
     final function getActions(): array
     {
@@ -104,7 +136,7 @@ trait BaseScaffold
 
     final function getModuleName(): string
     {
-        if(isset($this->moduleName)){
+        if (isset($this->moduleName)) {
             return $this->moduleName;
         }
         return $this->setModuleName();
@@ -117,6 +149,7 @@ trait BaseScaffold
 
     final function getIndexScaffold(): array
     {
+        $this->scaffold('index');
         return [
             'fields'  => $this->getIndexFields(),
             'buttons' => $this->getIndexButtons(),
@@ -126,6 +159,7 @@ trait BaseScaffold
 
     final function getCreateScaffold(): array
     {
+        $this->scaffold('create');
         return [
             'fields'        => $this->getCreateFields(),
             'buttons'       => $this->getCreateButtons(),
@@ -136,6 +170,8 @@ trait BaseScaffold
 
     final function getEditScaffold(): array
     {
+        $this->scaffold('edit');
+
         return [
             'fields'        => $this->getEditFields(),
             'buttons'       => $this->getEditButtons(),
@@ -146,10 +182,12 @@ trait BaseScaffold
 
     final function getDetailScaffold(): array
     {
+        $this->scaffold('detail');
         return [
-            'fields'  => $this->getDetailFields(),
-            'buttons' => $this->getDetailButtons(),
-            'config'  => []
+            'fields'        => $this->getDetailFields(),
+            'buttons'       => $this->getDetailButtons(),
+            'validationMsg' => $this->getValidationMsg(),
+            'configs'       => $this->getConfigs()
         ];
     }
 

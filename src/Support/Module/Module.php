@@ -58,6 +58,26 @@ class Module
             ],
             [
                 'page' => [
+                    'label' => trans('core::panel.detail'),
+                    'value' => 'show'
+                ],
+                'access' => [
+                    [
+                        'label' => trans('core::panel.allow'),
+                        'value' => 'allow',
+                    ],
+                    [
+                        'label' => trans('core::panel.operator'),
+                        'value' => 'operator',
+                    ],
+                    [
+                        'label' => trans('core::panel.deny'),
+                        'value' => 'deny',
+                    ]
+                ]
+            ],
+            [
+                'page' => [
                     'label' => trans('core::panel.edit'),
                     'value' => 'edit'
                 ],

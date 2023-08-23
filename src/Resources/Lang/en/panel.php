@@ -51,13 +51,14 @@ return [
     'owner'            => 'Owner',
     'operator'         => 'OPR',
     'deny'             => 'Deny',
-    'approve'             => 'Approve',
+    'approve'          => 'Approve',
     'index'            => 'Index',
     'pdf'              => 'Pdf',
     'upload'           => 'Upload',
     'download'         => 'Download',
     'delete-restore'   => 'Delete & Restore',
     'full-destroy'     => 'Destroy',
+    'detail'           => 'Detail',
 
     'status_val' => [
         '1' => 'published'
