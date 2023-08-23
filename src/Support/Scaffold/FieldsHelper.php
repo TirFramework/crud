@@ -18,6 +18,12 @@ trait FieldsHelper
 
     }
 
+    final function getAllFields()
+    {
+        $fields = $this->getFields();
+        $allFields = $this->getAllChildren($fields);
+        return collect($allFields)->values()->toArray();
+    }
 
     final function getAllDataFields()
     {
@@ -25,6 +31,10 @@ trait FieldsHelper
         $allFields = $this->getAllChildren($fields);
         return collect($allFields)->where('fillable', true)->values()->toArray();
     }
+
+
+
+
 
     final function getIndexFields(): array
     {
@@ -52,7 +62,7 @@ trait FieldsHelper
 
     final function getFieldByName($name)
     {
-        foreach ($this->getAllDataFields() as $field) {
+        foreach ($this->getAllFields() as $field) {
             if ($field->name == $name) {
                 return $field;
             }
@@ -69,6 +79,7 @@ trait FieldsHelper
         }
         return $fields;
     }
+
 
     private function getSubFields($fields, $allFields)
     {
