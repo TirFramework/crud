@@ -9,6 +9,7 @@ use Illuminate\Support\Carbon;
 class DatePicker extends BaseField
 {
     protected string $type = 'DatePicker';
+    protected array $timezone = [false, 'UTC'];
     private string $format = 'Y-m-d';
 
     public function format(string $stringType): DatePicker
@@ -18,6 +19,18 @@ class DatePicker extends BaseField
         return $this;
     }
 
+    public function showTime(string $format = 'H:i:s'): DatePicker
+    {
+        $this->options['showTime'] = $this->convertPHPToMomentFormat($format);
+        return $this;
+    }
+
+
+    public function timezone($status = true, $timezone = 'UTC'): DatePicker
+    {
+        $this->timezone = [$status, $timezone];
+        return $this;
+    }
 
     public function picker(string $type): DatePicker
     {
@@ -31,9 +44,9 @@ class DatePicker extends BaseField
             $date = Arr::get($model, $this->name);
             if (isset($date)) {
                 if (gettype($date) != 'object') {
-                    $date = Carbon::create($date);
+                    $date = Carbon::make($date);
                 }
-                $this->value = $date->format('Y-m-d');
+                $this->value = $date;
             }
         }
 
