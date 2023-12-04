@@ -17,7 +17,7 @@ trait DataTrait
     {
         $relations = $this->getRelationFields($this->model());
         $items = $this->dataQuery($relations);
-        $paginatedItems = $items->orderBy('created_at','DESC')->paginate(request()->input('result'));
+        $paginatedItems = $items->paginate(request()->input('result'));
         return Response::Json($paginatedItems, '200');
     }
 
@@ -58,7 +58,11 @@ trait DataTrait
 
         $query = $this->applySearch($query);
 
-        return $this->applyFilters($query);
+        $query = $this->applyFilters($query);
+
+        $query = $this->applySort($query);
+
+        return $query;
     }
 
     public function applySearch($query)
@@ -98,6 +102,23 @@ trait DataTrait
 
     }
 
+
+    public function applySort($query)
+    {
+        $req = request()->input('sorter');
+        if($req == null){
+           return $query->orderBy('created_at','DESC');
+        }
+
+        $sort = json_decode($req);
+
+        if(!isset($sort->field)){
+            return $query->orderBy('created_at','DESC');
+        }
+        $sort->order = $sort->order == 'ascend' ? 'ASC' : 'DESC';
+        $query->orderBy($sort->field, $sort->order);
+        return $query;
+    }
 
     private function getFilter($req):array
     {
