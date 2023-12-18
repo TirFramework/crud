@@ -2,6 +2,7 @@
 
 namespace Tir\Crud\Controllers;
 
+use App\Panels\Admin\Models\Candidate;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Response;
@@ -13,11 +14,13 @@ trait DataTrait
 
     private array $selectFields =[];
 
-    public function data(): JsonResponse
+    public function data()
     {
         $relations = $this->getRelationFields($this->model());
         $items = $this->dataQuery($relations);
         $paginatedItems = $items->paginate(request()->input('result'));
+//        $paginatedItems = $items->orderBy('created_at','ASC')->take(1)->get();
+
         return Response::Json($paginatedItems, '200');
     }
 
@@ -89,8 +92,13 @@ trait DataTrait
         }
 
         $filters = $this->getFilter($req);
-        foreach ($filters['original'] as $key => $value) {
-            $query->whereIn($key, $value);
+        foreach ($filters['original'] as $filter) {
+            if($filter['type'] == 'select') {
+                $query->whereIn($filter['column'], $filter['value']);
+            }elseif ($filter['type'] == 'range') {
+                $query->where($filter['column'], '>=', $filter['value'][0]);
+                $query->where($filter['column'], '<=', $filter['value'][1]);
+            }
         }
 
         foreach ($filters['relational'] as $filter){
@@ -147,8 +155,9 @@ trait DataTrait
                 }
 
                 $relational[] = ['relation' => $field->relation->name, 'value' => $value, 'primaryKey' => $primaryKey];
-            }else{
-                $original[$field->name] = $req->{$field->name};
+            }
+            else{
+                $original[] = ['column'=> $field->name, 'value'=> $req->{$field->name}, 'type'=> $field->filterType];
             }
         }
 

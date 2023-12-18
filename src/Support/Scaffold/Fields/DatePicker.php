@@ -9,6 +9,8 @@ use Illuminate\Support\Carbon;
 class DatePicker extends BaseField
 {
     protected string $type = 'DatePicker';
+    protected string $filterType = 'datepicker';
+
     protected array $timezone = [false, 'UTC'];
     private string $format = 'Y-m-d';
 

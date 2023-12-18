@@ -33,6 +33,7 @@ abstract class BaseField
     protected array $options = [];
     protected array $data = [];
     protected array $filter = [];
+    protected string $filterType = 'select';
     protected bool $filterable = false;
     protected bool $multiple = false;
     protected array $comment = [];
@@ -42,7 +43,7 @@ abstract class BaseField
 
 
 
-    public static function make(string $name):static
+    public static function make(string $name): static
     {
         $obj = new static;
         $obj->init();
@@ -52,8 +53,8 @@ abstract class BaseField
         return $obj;
     }
 
-    protected function init():void{
-
+    protected function init(): void
+    {
     }
     public function page(string $page): BaseField
     {
@@ -182,11 +183,11 @@ abstract class BaseField
     public function hideFromAll($callback = true): BaseField
     {
         $this->showOnCreating =
-        $this->showOnEditing =
-        $this->showOnIndex =
-        $this->showOnDetail =
+            $this->showOnEditing =
+            $this->showOnIndex =
+            $this->showOnDetail =
             is_callable($callback) ? !call_user_func_array($callback, func_get_args())
-                : !$callback;
+            : !$callback;
         return $this;
     }
 
@@ -262,7 +263,7 @@ abstract class BaseField
     public function data(...$data): BaseField
     {
         $this->data = $data;
-        $this->dataSet = collect($data)->pluck('label','value');
+        $this->dataSet = collect($data)->pluck('label', 'value');
         return $this;
     }
 
@@ -282,16 +283,21 @@ abstract class BaseField
         }
 
         return $this;
-
     }
+
+    public function filterType(string $type): BaseField
+    {
+        $this->filterType = $type;
+        return $this;
+    }
+
 
     protected function setValue($model): void
     {
-        if(isset($model)){
+        if (isset($model)) {
             $value = Arr::get($model, $this->name);
-            if($value)
-            {
-                $this->value = $value ;
+            if ($value) {
+                $this->value = $value;
             }
         }
     }
@@ -301,5 +307,4 @@ abstract class BaseField
         $this->setValue($dataModel);
         return (object) get_object_vars($this);
     }
-
 }

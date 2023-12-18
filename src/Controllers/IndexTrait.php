@@ -24,8 +24,9 @@ trait IndexTrait
                 'type'    => $field->type,
                 'field' => $field,
             ];
-            if(count($field->filter)){
+            if($field->filterable){
                 $cols[$index]['filters'] = $field->filter;
+                $cols[$index]['filterType'] = $field->filterType;
             }
         }
 
