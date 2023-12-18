@@ -3,7 +3,7 @@
 namespace Tir\Crud\Support\Scaffold\Fields;
 
 use Illuminate\Support\Arr;
-use Tir\Support\Enums\FilterType;
+use Tir\Crud\Support\Enums\FilterType;
 
 abstract class BaseField
 {

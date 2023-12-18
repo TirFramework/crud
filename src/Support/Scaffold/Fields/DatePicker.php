@@ -5,7 +5,7 @@ namespace Tir\Crud\Support\Scaffold\Fields;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
-use Tir\Support\Enums\FilterType;
+use Tir\Crud\Support\Enums\FilterType;
 
 class DatePicker extends BaseField
 {

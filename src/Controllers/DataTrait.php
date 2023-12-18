@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Arr;
-use Tir\Support\Enums\FilterType;
+use Tir\Crud\Support\Enums\FilterType;
 
 
 trait DataTrait

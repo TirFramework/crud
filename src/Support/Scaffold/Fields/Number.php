@@ -3,7 +3,7 @@
 namespace Tir\Crud\Support\Scaffold\Fields;
 
 
-use Tir\Support\Enums\FilterType;
+use Tir\Crud\Support\Enums\FilterType;
 
 class Number extends BaseField
 {

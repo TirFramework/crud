@@ -1,6 +1,6 @@
 <?php
 
-namespace Tir\Support\Enums;
+namespace Tir\Crud\Support\Enums;
 
 enum FilterType
 {
