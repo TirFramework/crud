@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Arr;
+use Tir\Support\Enums\FilterType;
 
 
 trait DataTrait
@@ -93,11 +94,16 @@ trait DataTrait
 
         $filters = $this->getFilter($req);
         foreach ($filters['original'] as $filter) {
-            if($filter['type'] == 'select') {
+            if($filter['type'] === FilterType::Select) {
                 $query->whereIn($filter['column'], $filter['value']);
-            }elseif ($filter['type'] == 'range') {
+            }elseif ($filter['type'] === FilterType::Range) {
                 $query->where($filter['column'], '>=', $filter['value'][0]);
                 $query->where($filter['column'], '<=', $filter['value'][1]);
+            }elseif ($filter['type'] === FilterType::DatePicker) {
+                $query->whereDate($filter['column'], '>=', $filter['value'][0]);
+                $query->whereDate($filter['column'], '<=', $filter['value'][1]);
+            }elseif($filter['type'] === FilterType::Search) {
+                $query->where($filter['column'], 'like', "%".$filter['value']."%");
             }
         }
 

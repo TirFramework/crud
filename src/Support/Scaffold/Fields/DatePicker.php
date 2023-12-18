@@ -5,11 +5,12 @@ namespace Tir\Crud\Support\Scaffold\Fields;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Tir\Support\Enums\FilterType;
 
 class DatePicker extends BaseField
 {
     protected string $type = 'DatePicker';
-    protected string $filterType = 'datepicker';
+    protected FilterType|string $filterType = FilterType::DatePicker;
 
     protected array $timezone = [false, 'UTC'];
     private string $format = 'Y-m-d';

@@ -3,6 +3,7 @@
 namespace Tir\Crud\Support\Scaffold\Fields;
 
 use Illuminate\Support\Arr;
+use Tir\Support\Enums\FilterType;
 
 abstract class BaseField
 {
@@ -33,7 +34,7 @@ abstract class BaseField
     protected array $options = [];
     protected array $data = [];
     protected array $filter = [];
-    protected string $filterType = 'select';
+    protected FilterType | string $filterType = FilterType::Select;
     protected bool $filterable = false;
     protected bool $multiple = false;
     protected array $comment = [];
@@ -285,7 +286,8 @@ abstract class BaseField
         return $this;
     }
 
-    public function filterType(string $type): BaseField
+
+    public function filterType(FilterType | string $type): BaseField
     {
         $this->filterType = $type;
         return $this;
