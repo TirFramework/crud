@@ -2,10 +2,10 @@
 
 namespace Tir\Crud\Support\Enums;
 
-enum FilterType
+enum FilterType: string
 {
-    case Slider;
-    case Select;
-    case DatePicker;
-    case Search;
+    case Slider = 'Slider';
+    case Select = 'Select';
+    case DatePicker = 'DatePicker';
+    case Search = 'Search';
 }
