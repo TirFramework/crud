@@ -96,7 +96,7 @@ trait DataTrait
         foreach ($filters['original'] as $filter) {
             if($filter['type'] === FilterType::Select) {
                 $query->whereIn($filter['column'], $filter['value']);
-            }elseif ($filter['type'] === FilterType::Range) {
+            }elseif ($filter['type'] === FilterType::Slider) {
                 $query->where($filter['column'], '>=', $filter['value'][0]);
                 $query->where($filter['column'], '<=', $filter['value'][1]);
             }elseif ($filter['type'] === FilterType::DatePicker) {
