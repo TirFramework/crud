@@ -21,6 +21,8 @@ trait IndexTrait
                 'comment'   => $field->comment,
                 'dataSet' => $field->dataSet,
                 'dataKey' => $field->relation->key ?? null,
+                'dataField' => $field->relation->field ?? null,
+                'relational' => isset($field->relation),
                 'type'    => $field->type,
                 'field' => $field,
             ];

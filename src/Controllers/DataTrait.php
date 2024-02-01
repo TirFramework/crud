@@ -45,21 +45,46 @@ trait DataTrait
     }
 
 
+    public function getRelations($query)
+    {
+        foreach ($this->model()->getIndexFields() as $field) {
+            if(isset($field->relation)) {
+                if($this->model()->getConnection()->getName() == 'mongodb') {
+                    // mongoDB need foreign key
+                    $foreignKey = $this->model()->{$field->relation->name}()->getForeignKey();
+                    $otherKey = $this->model()->{$field->relation->name}()->getRelated()->getKeyName();
+                    $query = $query->with($field->relation->name, function ($q) use ($field, $foreignKey, $otherKey) {
+                        $q->select($foreignKey, $otherKey, $field->relation->field);
+                    });
+                }else{
+                    $query = $query->with($field->relation->name.':'.$field->relation->field);
+                }
+            }
+        }
+        return $query;
+    }
+
     /**
      * This function return an eloquent select with relationship
      */
     public function dataQuery($relation): object
     {
 
-
-
-        $query = $this->model()->select($this->model()->getTable() . '.*')->with($relation);
-
         if($this->model()->getConnection()->getName() == 'mongodb') {
             $this->selectFields = array_merge($this->selectFields, collect($this->model()->getIndexFields())->pluck('name')->toArray());
-            $query = $this->model()->select($this->selectFields)->with($relation);
+        }else{
+            $this->selectFields[] = $this->model()->getTable().'.'.$this->model()->getKeyName();
+            foreach ($this->model()->getIndexFields() as $field) {
+                //Check if field is many to many relation or not
+                if(!isset($field->relation) || !$field->multiple){
+                    $this->selectFields[] = $this->model()->getTable().'.'.$field->name;
+                }
+            }
         }
 
+        $query = $this->model->select($this->selectFields);
+
+        $query = $this->getRelations($query);
         $query = $this->applySearch($query);
 
         $query = $this->applyFilters($query);
@@ -94,15 +119,15 @@ trait DataTrait
 
         $filters = $this->getFilter($req);
         foreach ($filters['original'] as $filter) {
-            if($filter['type'] === FilterType::Select) {
+            if($filter['type'] == FilterType::Select) {
                 $query->whereIn($filter['column'], $filter['value']);
-            }elseif ($filter['type'] === FilterType::Slider) {
+            }elseif ($filter['type'] == FilterType::Slider) {
                 $query->where($filter['column'], '>=', $filter['value'][0]);
                 $query->where($filter['column'], '<=', $filter['value'][1]);
-            }elseif ($filter['type'] === FilterType::DatePicker) {
+            }elseif ($filter['type'] == FilterType::DatePicker) {
                 $query->whereDate($filter['column'], '>=', $filter['value'][0]);
                 $query->whereDate($filter['column'], '<=', $filter['value'][1]);
-            }elseif($filter['type'] === FilterType::Search) {
+            }elseif($filter['type'] == FilterType::Search) {
                 $query->where($filter['column'], 'like', "%".$filter['value']."%");
             }
         }
@@ -121,7 +146,7 @@ trait DataTrait
     {
         $req = request()->input('sorter');
         if($req == null){
-           return $query->orderBy('created_at','DESC');
+            return $query->orderBy('created_at','DESC');
         }
 
         $sort = json_decode($req);

@@ -88,7 +88,8 @@ trait BaseScaffold
     {
         return [
             'actions'      => $this->getActions(),
-            'module_title' => $this->moduleTitle
+            'module_title' => $this->moduleTitle,
+            'primary_key'  => $this->getKeyName(),
         ];
     }
 
