@@ -50,12 +50,20 @@ trait DataTrait
         foreach ($this->model()->getIndexFields() as $field) {
             if(isset($field->relation)) {
                 if($this->model()->getConnection()->getName() == 'mongodb') {
-                    // mongoDB need foreign key
-                    $foreignKey = $this->model()->{$field->relation->name}()->getForeignKey();
-                    $otherKey = $this->model()->{$field->relation->name}()->getRelated()->getKeyName();
-                    $query = $query->with($field->relation->name, function ($q) use ($field, $foreignKey, $otherKey) {
-                        $q->select($foreignKey, $otherKey, $field->relation->field);
-                    });
+                    if($field->multiple){
+                        // mongoDB need foreign key in many-to-many relation
+                        $foreignKey = $this->model()->{$field->relation->name}()->getForeignKey();
+                        $otherKey = $this->model()->{$field->relation->name}()->getRelated()->getKeyName();
+                        $query = $query->with($field->relation->name, function ($q) use ($field, $foreignKey, $otherKey) {
+                            $q->select($foreignKey, $otherKey, $field->relation->field);
+                        });
+                    }else {
+                        $otherKey = $this->model()->{$field->relation->name}()->getRelated()->getKeyName();
+                        $query = $query->with($field->relation->name, function ($q) use ($field, $otherKey) {
+                            $q->select($otherKey, $field->relation->field);
+                        });
+                    }
+
                 }else{
                     $query = $query->with($field->relation->name.':'.$field->relation->field);
                 }
