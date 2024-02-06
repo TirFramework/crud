@@ -63,7 +63,6 @@ trait DataTrait
                             $q->select($otherKey, $field->relation->field);
                         });
                     }
-
                 }else{
                     $query = $query->with($field->relation->name.':'.$field->relation->field);
                 }
