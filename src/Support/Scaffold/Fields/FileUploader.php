@@ -11,6 +11,7 @@ class FileUploader extends BaseField
     protected string $type = 'FileUploader';
     protected string $postUrl;
     protected string $basePath;
+    protected string $fileRules;
     protected int $maxCount = 1;
 
     public function uploadUrl($url): static
@@ -29,6 +30,12 @@ class FileUploader extends BaseField
     public function maxCount(int $value): static
     {
         $this->maxCount = $value;
+        return $this;
+    }
+
+    public function fileRules($rule)
+    {
+        $this->fileRules = $rule;
         return $this;
     }
 }

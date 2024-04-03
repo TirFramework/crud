@@ -3,6 +3,7 @@
 namespace Tir\Crud\Controllers;
 
 use App\Panels\Admin\Models\Candidate;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Response;
@@ -132,8 +133,21 @@ trait DataTrait
                 $query->where($filter['column'], '>=', $filter['value'][0]);
                 $query->where($filter['column'], '<=', $filter['value'][1]);
             }elseif ($filter['type'] == FilterType::DatePicker) {
-                $query->whereDate($filter['column'], '>=', $filter['value'][0]);
-                $query->whereDate($filter['column'], '<=', $filter['value'][1]);
+                if($this->model()->getConnection()->getName() == 'mongodb'){
+
+                    $query->where(function($query) use ($filter){
+                        $query->where($filter['column'], '>=', new \MongoDB\BSON\UTCDateTime(Carbon::make($filter['value'][0])->startOfDay()));
+                        $query->orWhere($filter['column'], '>=', Carbon::make($filter['value'][0])->startOfDay()->toDateString());
+                    });
+                    $query->where(function($query) use ($filter){
+                        $query->where($filter['column'], '<=', new \MongoDB\BSON\UTCDateTime(Carbon::make($filter['value'][1])->endOfDay()));
+                        $query->orWhere($filter['column'], '<=', Carbon::make($filter['value'][1])->endOfDay()->toDateString());
+                    });
+
+                }else {
+                    $query->whereDate($filter['column'], '>=', Carbon::make($filter['value'][0])->startOfDay());
+                    $query->whereDate($filter['column'], '<=', Carbon::make($filter['value'][1])->endOfDay());
+                }
             }elseif($filter['type'] == FilterType::Search) {
                 $query->where($filter['column'], 'like', "%".$filter['value']."%");
             }

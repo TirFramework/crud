@@ -47,6 +47,7 @@ trait EditTrait
             $item->fillable($fields);
         }
         $item->update($request->all());
+
         $this->updateRelations($request, $item);
 
         return $item;
