@@ -41,6 +41,7 @@ abstract class BaseField
     protected $dataSet = [];
     protected bool $additional = false;
     protected bool $fillable = true;
+    protected mixed $filterQuery;
 
 
 
@@ -290,6 +291,12 @@ abstract class BaseField
     public function filterType(FilterType | string $type): BaseField
     {
         $this->filterType = $type;
+        return $this;
+    }
+
+    public function filterQuery($queryFunction)
+    {
+        $this->filterQuery = $queryFunction;
         return $this;
     }
 

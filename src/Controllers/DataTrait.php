@@ -125,8 +125,11 @@ trait DataTrait
             return $query;
         }
 
+
         $filters = $this->getFilter($req);
+
         foreach ($filters['original'] as $filter) {
+
             if($filter['type'] == FilterType::Select) {
                 $query->whereIn($filter['column'], $filter['value']);
             }elseif ($filter['type'] == FilterType::Slider) {
@@ -158,6 +161,19 @@ trait DataTrait
                 $q->whereIn($filter['primaryKey'], $filter['value']);
             });
         }
+
+        foreach ($filters['customQuery'] as $filter){
+
+            //  Here we call the callback function from the field definition
+            //  It's like this:
+            //   $model->query(function($query, $value){
+            //       return $query->where('column', $value);
+            //   })
+
+            // the filter value comes from the request and the query comes form field definition
+
+            $query = $filter['query']($query, $filter['req']);
+        }
         return $query;
 
     }
@@ -183,14 +199,19 @@ trait DataTrait
     private function getFilter($req):array
     {
 
-        $filters =['original'=>[],'relational'=>[]];
+        $filters =['original'=>[],'relational'=>[], 'customQuery' => []];
 
         $original = [];
         $relational = [];
+        $customQuery = [];
 
         foreach ($req as $filter => $value) {
             $field = $this->model()->getFieldByName($filter);
-
+            if(isset($field->filterQuery)){
+                $customQuery[] = ['query'=>$field->filterQuery, 'req'=>$value];
+                //if it has filterQuery, we escape rest of the code
+                continue;
+            }
             //if filter is manyToMany relation
             if(isset($field->relation) && $field->multiple ?? null == true)
             {
@@ -215,6 +236,7 @@ trait DataTrait
 
         $filters['original'] = $original;
         $filters['relational'] = $relational;
+        $filters['customQuery'] = $customQuery;
 
         return $filters;
     }
