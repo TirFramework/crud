@@ -305,7 +305,7 @@ abstract class BaseField
     {
         if (isset($model)) {
             $value = Arr::get($model, $this->name);
-            if ($value) {
+            if (isset($value)) {
                 $this->value = $value;
             }
         }
