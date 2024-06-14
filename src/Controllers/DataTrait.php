@@ -89,8 +89,9 @@ trait DataTrait
                 }
             }
         }
-
-        $query = $this->model->select($this->selectFields);
+        //get selectable columns from model and merge with selectFields
+        $selecable = array_merge($this->model()->getAppendedSelectableColumns(), $this->selectFields);
+        $query = $this->model->select($selecable);
 
         $query = $this->getRelations($query);
         $query = $this->applySearch($query);

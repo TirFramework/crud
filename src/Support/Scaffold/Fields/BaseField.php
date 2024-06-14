@@ -265,7 +265,7 @@ abstract class BaseField
     public function data(...$data): BaseField
     {
         $this->data = $data;
-        $this->dataSet = collect($data)->pluck('label', 'value');
+        $this->dataSet = collect($data)->pluck('label', 'value')->toArray();
         return $this;
     }
 
@@ -305,7 +305,7 @@ abstract class BaseField
     {
         if (isset($model)) {
             $value = Arr::get($model, $this->name);
-            if ($value) {
+            if (isset($value)) {
                 $this->value = $value;
             }
         }
