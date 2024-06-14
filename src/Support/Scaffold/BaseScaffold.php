@@ -45,11 +45,6 @@ trait BaseScaffold
         return $this->moduleName;
     }
 
-    protected function appendSelectableColumns(): array
-    {
-        return [];
-    }
-
 
     protected function setActions(): array
     {
@@ -87,11 +82,6 @@ trait BaseScaffold
     public function getAccessLevelStatus(): bool
     {
         return $this->setAcl();
-    }
-
-    public function getAppendedSelectableColumns()
-    {
-        return $this->appendSelectableColumns();
     }
 
     private function getConfigs(): array

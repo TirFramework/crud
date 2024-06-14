@@ -41,13 +41,9 @@ trait EditTrait
     final function updateModel($request, $item)
     {
 
-        if( !$item->getFillable()){
-            $fields = collect($this->model()->getAllDataFields())
-                ->pluck('request')->flatten()->unique()->toArray();
-            $item->fillable($fields);
-        }
-        $item->update($request->all());
+        $item->fillable($this->model()->getFillableColumns());
 
+        $item->update($request->all());
         $this->updateRelations($request, $item);
 
         return $item;

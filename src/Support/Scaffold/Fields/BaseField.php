@@ -41,6 +41,7 @@ abstract class BaseField
     protected $dataSet = [];
     protected bool $additional = false;
     protected bool $fillable = true;
+    protected bool $requestable = true;
     protected mixed $filterQuery;
 
 
@@ -265,7 +266,7 @@ abstract class BaseField
     public function data(...$data): BaseField
     {
         $this->data = $data;
-        $this->dataSet = collect($data)->pluck('label', 'value')->toArray();
+        $this->dataSet = collect($data)->pluck('label', 'value');
         return $this;
     }
 

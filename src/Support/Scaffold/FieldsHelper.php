@@ -29,9 +29,19 @@ trait FieldsHelper
     {
         $fields = $this->getFields();
         $allFields = $this->getAllChildren($fields);
-        return collect($allFields)->where('fillable', true)->values()->toArray();
+        return collect($allFields)->where('requestable', true)->values()->toArray();
     }
 
+
+    final function getFillableColumns()
+    {
+        $modelFillable = $this->getFillable();
+        $scafoldFillable =  collect($this->getAllDataFields())->where('fillable',true)->pluck('request')->flatten()->unique()->toArray();
+        $fillables = array_merge($scafoldFillable, $modelFillable);
+        $modelGaured = $this->getGuarded();
+        $finalFillables = array_diff($fillables, $modelGaured);
+        return $finalFillables;
+    }
 
 
 
@@ -84,9 +94,9 @@ trait FieldsHelper
     private function getSubFields($fields, $allFields)
     {
         foreach ($fields as $field) {
-            if (isset($field->children) && !$field->fillable) {
+            if (isset($field->children) && !$field->requestable) {
                 $allFields = $this->getSubFields($field->subFields, $allFields);
-            } elseif ($field->fillable) {
+            } elseif ($field->requestable) {
                 $allFields[] = $field;
             }
         }
