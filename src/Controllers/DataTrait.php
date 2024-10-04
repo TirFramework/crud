@@ -65,8 +65,11 @@ trait DataTrait
                         });
                     }
                 }else{
-                    $query = $query->with($field->relation->name.':'.$field->relation->field);
-                }
+                    $relationTable = $this->model()->{$field->relation->name}()->getRelated()->getTable();
+                    $relationKey = $relationTable . '.' . $field->relation->key;
+                    $query = $query->with($field->relation->name, function ($q) use ($field, $relationKey) {
+                        $q->select($relationKey, $field->relation->field);
+                    });                }
             }
         }
         return $query;
