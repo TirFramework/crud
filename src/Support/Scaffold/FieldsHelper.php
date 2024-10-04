@@ -29,7 +29,7 @@ trait FieldsHelper
     {
         $fields = $this->getFields();
         $allFields = $this->getAllChildren($fields);
-        return collect($allFields)->where('requestable', true)->values()->toArray();
+        return collect($allFields)->where('fillable', true)->values()->toArray();
     }
 
 

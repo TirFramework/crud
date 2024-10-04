@@ -266,7 +266,7 @@ abstract class BaseField
     public function data(...$data): BaseField
     {
         $this->data = $data;
-        $this->dataSet = collect($data)->pluck('label', 'value');
+        $this->dataSet = collect($data)->pluck('label', 'value')->toArray();
         return $this;
     }
 

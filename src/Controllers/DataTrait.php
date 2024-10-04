@@ -65,11 +65,7 @@ trait DataTrait
                         });
                     }
                 }else{
-                    $relationTable = $this->model()->{$field->relation->name}()->getRelated()->getTable();
-                    $relationKey = $relationTable . '.' . $field->relation->key;
-                    $query = $query->with($field->relation->name, function ($q) use ($field, $relationKey) {
-                        $q->select($relationKey, $field->relation->field);
-                    });
+                    $query = $query->with($field->relation->name.':'.$field->relation->field);
                 }
             }
         }
@@ -93,8 +89,9 @@ trait DataTrait
                 }
             }
         }
-
-        $query = $this->model->select($this->selectFields);
+        //get selectable columns from model and merge with selectFields
+        $selecable = array_merge($this->model()->getAppendedSelectableColumns(), $this->selectFields);
+        $query = $this->model->select($selecable);
 
         $query = $this->getRelations($query);
         $query = $this->applySearch($query);
