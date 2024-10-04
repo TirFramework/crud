@@ -8,7 +8,9 @@ class Group extends BaseField
     protected string $type = 'Group';
     protected array $subFields = [];
     protected array $children = [];
+    protected bool $fillable = false;
     protected bool $requestable = false;
+
 
     public function children(...$inputs):Group
     {

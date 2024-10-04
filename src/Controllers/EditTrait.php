@@ -44,6 +44,7 @@ trait EditTrait
         $item->fillable($this->model()->getFillableColumns());
 
         $item->update($request->all());
+
         $this->updateRelations($request, $item);
 
         return $item;
