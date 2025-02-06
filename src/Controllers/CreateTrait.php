@@ -45,11 +45,8 @@ trait CreateTrait
     final function storeModel($request)
     {
         // Store model
-        if (!$this->model()->getFillable()) {
-            $fields = collect($this->model()->getAllDataFields())
-                ->pluck('request')->flatten()->unique()->toArray();
-            $this->model()->fillable($fields);
-        }
+        $this->model()->fillable($this->model()->getFillableColumns());
+
         $this->model()->fill($request->all());
         $this->model()->save();
         //Store relations

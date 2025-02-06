@@ -45,6 +45,11 @@ trait BaseScaffold
         return $this->moduleName;
     }
 
+    protected function appendSelectableColumns(): array
+    {
+        return [];
+    }
+
 
     protected function setActions(): array
     {
@@ -84,11 +89,17 @@ trait BaseScaffold
         return $this->setAcl();
     }
 
+    public function getAppendedSelectableColumns()
+    {
+        return $this->appendSelectableColumns();
+    }
+
     private function getConfigs(): array
     {
         return [
             'actions'      => $this->getActions(),
-            'module_title' => $this->moduleTitle
+            'module_title' => $this->moduleTitle,
+            'primary_key'  => $this->getKeyName(),
         ];
     }
 

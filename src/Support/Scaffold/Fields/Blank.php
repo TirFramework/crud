@@ -7,6 +7,8 @@ class Blank extends BaseField
 {
     protected string $type = 'Blank';
     protected bool $fillable = false;
+    protected bool $requestable = false;
+
 
     public function value(string $value): BaseField
     {
