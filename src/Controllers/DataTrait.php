@@ -35,8 +35,10 @@ trait DataTrait
 //                $relation = $field->relation->name . ':' . $field->relation->key . ',' . $field->relation->field. ' as text';
                 $relation = $field->relation->name . ':' . $field->relation->key;
 
-                if($model->getConnection()->getName() == 'mongodb'){
-                    $relation = $field->relation->name;
+                if(!$field->virtual){
+                    if(!isset($field->relation) || !$field->multiple){
+                        $this->selectFields[] = $this->model()->getTable().'.'.$field->name;
+                    }
                 }
                 $relations[] = $relation;
             }
