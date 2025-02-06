@@ -42,6 +42,7 @@ abstract class BaseField
     protected bool $additional = false;
     protected bool $fillable = true;
     protected bool $requestable = true;
+    protected bool $virtual = false;
     protected mixed $filterQuery;
 
 
@@ -124,6 +125,13 @@ abstract class BaseField
     public function default(mixed $value): BaseField
     {
         $this->defaultValue = $value;
+        return $this;
+    }
+
+
+    public function virtual(bool $value = true): BaseField
+    {
+        $this->virtual = $value;
         return $this;
     }
 
