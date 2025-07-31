@@ -4,11 +4,12 @@ namespace Tir\Crud\Support\Scaffold;
 
 use Tir\Crud\Support\Scaffold\Fields\Button;
 
-trait BaseScaffold
+abstract class BaseScaffolder
 {
     use FieldsHelper;
     use ButtonsHelper;
     use RulesHelper;
+    use FieldImports; // Added for easier field access
 
     private string $moduleTitle;
     public bool $isScaffolded = false;
@@ -16,11 +17,14 @@ trait BaseScaffold
     private array $fields = [];
     private array $buttons = [];
     private array $actions = [];
+    protected mixed $currentModel = null;
 
 
     protected abstract function setModuleName(): string;
 
     protected abstract function setFields(): array;
+
+    protected abstract function setModel(): string;
 
     protected function setButtons(): array
     {
@@ -56,23 +60,57 @@ trait BaseScaffold
         return [];
     }
 
-    private function scaffold($page = ''): static
+    // Magic method to access current model properties
+    public function __get($property)
+    {
+        if ($this->currentModel && property_exists($this->currentModel, $property)) {
+            return $this->currentModel->$property;
+        }
+        return null;
+    }
+
+    public function __isset($property)
+    {
+        return $this->currentModel && isset($this->currentModel->$property);
+    }
+
+    // Helper methods for better readability
+    protected function hasValue($property): bool
+    {
+        return $this->currentModel && isset($this->currentModel->$property);
+    }
+
+    protected function getValue($property, $default = null)
+    {
+        return $this->currentModel->$property ?? $default;
+    }
+
+    protected function currentModel()
+    {
+        return $this->currentModel;
+    }
+
+    private function scaffold($page = '', $model = null): static
     {
         if ($this->isScaffolded) {
             return $this;
         }
         $this->scaffoldBoot();
+
+        // Set current model for magic method access
+        $this->currentModel = $model;
+
         $this->moduleName = $this->setModuleName();
         $this->moduleTitle = $this->setModuleTitle();
         $this->actions = $this->setActions();
         $this->initActions();
-        $this->addFieldsToScaffold($page);
+        $this->addFieldsToScaffold($page, $model);
         $this->addButtonsToScaffold();
         $this->isScaffolded = true;
         return $this;
     }
 
-    private function addFieldsToScaffold($page): void
+    private function addFieldsToScaffold($page, $model): void
     {
         foreach ($this->setFields() as $field) {
             $field->page($page);
@@ -80,7 +118,7 @@ trait BaseScaffold
                 $field->readonly();
             }
             //here $this is the Model with data
-            $this->fields[] = $field->get($this);
+            $this->fields[] = $field->get($model);
         }
     }
 
@@ -96,10 +134,12 @@ trait BaseScaffold
 
     private function getConfigs(): array
     {
+        $m =  $this->model();
+        $model = new $m;
         return [
             'actions'      => $this->getActions(),
             'module_title' => $this->moduleTitle,
-            'primary_key'  => $this->getKeyName(),
+            'primary_key'  => $model->getKeyName(),
         ];
     }
 
@@ -139,13 +179,18 @@ trait BaseScaffold
         }
     }
 
+    final function model(): string
+    {
+        return $this->setModel();
+    }
+
 
     final function getActions(): array
     {
         return $this->actions;
     }
 
-    final function getModuleName(): string
+    final function moduleName(): string
     {
         if (isset($this->moduleName)) {
             return $this->moduleName;
@@ -179,9 +224,9 @@ trait BaseScaffold
         ];
     }
 
-    final function getEditScaffold(): array
+    final function getEditScaffold($model): array
     {
-        $this->scaffold('edit');
+        $this->scaffold('edit', $model);
 
         return [
             'fields'        => $this->getEditFields(),
