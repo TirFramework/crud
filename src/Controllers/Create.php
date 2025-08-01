@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Tir\Crud\Support\Requests\CrudRequest;
 
-trait CreateTrait
+trait Create
 {
 
     public function create(): JsonResponse

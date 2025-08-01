@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Tir\Crud\Support\Requests\CrudRequest;
 
-trait EditTrait
+trait Edit
 {
     public function edit(int|string $id)
     {

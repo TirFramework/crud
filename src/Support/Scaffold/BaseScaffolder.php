@@ -90,7 +90,7 @@ abstract class BaseScaffolder
         return $this->currentModel;
     }
 
-    private function scaffold($page = '', $model = null): static
+    public function scaffold($page = '', $model = null): static
     {
         if ($this->isScaffolded) {
             return $this;

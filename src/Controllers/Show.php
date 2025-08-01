@@ -2,7 +2,7 @@
 
 namespace Tir\Crud\Controllers;
 
-trait ShowTrait
+trait Show
 {
     public function show(int|string $id)
     {

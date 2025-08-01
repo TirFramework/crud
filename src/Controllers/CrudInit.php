@@ -2,12 +2,15 @@
 
 namespace Tir\Crud\Controllers;
 
+use Tir\Crud\Support\HasCrudHooks;
 use Illuminate\Support\Facades\Route;
 use Tir\Crud\Support\Requests\CrudRequest;
 use Tir\Crud\Support\Response\CrudResponse;
 
-trait CrudInitTrait
+trait CrudInit
 {
+    use HasCrudHooks;
+
 
     private mixed $model;
     private mixed $scaffolder;
@@ -20,23 +23,28 @@ trait CrudInitTrait
         // $this->checkAccess();
         $this->CrudRequestInjector();
         $this->crudInit();
+
+        // Auto setup crud hooks if method exists
+        if (method_exists($this, 'setup')) {
+            $this->setup();
+        }
     }
 
-    public function model()
+    protected function model()
     {
         return $this->model;
     }
 
-    public function scaffolder()
+    protected function scaffolder()
     {
         return $this->scaffolder;
     }
-    public function setRequest(): string
+    protected function setRequest(): string
     {
         return '';
     }
 
-    public function setResponse(): string
+    protected function setResponse(): string
     {
         return CrudResponse::class;
     }

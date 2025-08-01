@@ -4,7 +4,7 @@ namespace Tir\Crud\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Response;
-trait DestroyTrait
+trait Destroy
 {
 
     public function destroy($id): JsonResponse

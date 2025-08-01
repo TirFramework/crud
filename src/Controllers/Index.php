@@ -5,8 +5,9 @@ namespace Tir\Crud\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Response;
 
-trait IndexTrait
+trait Index
 {
+    use Data;
 
     public function index(): JsonResponse
     {

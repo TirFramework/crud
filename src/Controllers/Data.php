@@ -2,52 +2,54 @@
 
 namespace Tir\Crud\Controllers;
 
-use App\Panels\Admin\Models\Candidate;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Arr;
 use Tir\Crud\Support\Enums\FilterType;
 
 
-trait DataTrait
+trait Data
 {
-
     private array $selectFields = [];
+    private mixed $query;
 
-    public function data()
+    public final function data()
     {
-        $relations = $this->getRelationFields($this->model());
-        $items = $this->dataQuery($relations);
-        $paginatedItems = $items->paginate(request()->input('result'));
-        //        $paginatedItems = $items->orderBy('created_at','ASC')->take(1)->get();
+        // $relations = $this->getRelationFields($this->model());
+        $query = $this->dataQuery();
+        $paginatedItems = $this->applyPagination($query);
 
-        return Response::Json($paginatedItems, '200');
+        return Response::Json($paginatedItems, 200);
     }
 
-
-    public function getRelationFields($model): array
+    private function applyPagination($query)
     {
-        $relations = [];
-        foreach ($this->scaffolder()->getIndexFields() as $field) {
-            if (isset($field->relation)) {
-                //                $relation = $field->relation->name . ':' . $field->relation->key . ',' . $field->relation->field. ' as text';
-                $relation = $field->relation->name . ':' . $field->relation->key;
-
-                if ($model->getConnection()->getName() == 'mongodb') {
-                    $relation = $field->relation->name;
-                }
-                $relations[] = $relation;
+        // Check if there's a custom pagination hook
+        if (isset($this->crudHookCallbacks['modifyPaginate'])) {
+            $customPagination = call_user_func($this->crudHookCallbacks['modifyPaginate'], $query);
+            if ($customPagination !== null) {
+                return $customPagination;
             }
         }
 
-        return $relations;
+        // Default pagination behavior
+        return $query->paginate(request()->input('result'));
     }
 
 
-    public function getRelations($query)
+
+
+    private function getRelations($query)
     {
+        // Check if there's a custom modify method
+        if (isset($this->crudHookCallbacks['modifyRelations'])) {
+            $customResult = call_user_func($this->crudHookCallbacks['modifyRelations'], $query);
+            if ($customResult !== null) {
+                return $customResult;
+            }
+        }
+
+        // Default behavior
         foreach ($this->scaffolder()->getIndexFields() as $field) {
             if (isset($field->relation)) {
                 if ($this->model()->getConnection()->getName() == 'mongodb') {
@@ -77,11 +79,31 @@ trait DataTrait
     }
 
     /**
-     * This function return an eloquent select with relationship
+     * Build the main data query with all modifications
      */
-    public function dataQuery($relation): object
+    private function dataQuery(): Builder
     {
+        $columns = $this->selectColumns();
 
+        return $this->initQuery()
+            ->select($columns)
+            ->tap(fn($query) => $this->getRelations($query))
+            ->tap(fn($query) => $this->applySearch($query))
+            ->tap(fn($query) => $this->applyFilters($query))
+            ->tap(fn($query) => $this->applySort($query));
+    }
+
+    private function selectColumns()
+    {
+        // Check if there's a custom modify method
+        if (isset($this->crudHookCallbacks['modifyColumns'])) {
+            $customColumns = call_user_func($this->crudHookCallbacks['modifyColumns']);
+            if ($customColumns !== null) {
+                return $customColumns;
+            }
+        }
+
+        // Default behavior
         if ($this->model()->getConnection()->getName() == 'mongodb') {
             $this->selectFields = array_merge($this->selectFields, collect($this->model()->getIndexFields())->pluck('name')->toArray());
         } else {
@@ -95,22 +117,46 @@ trait DataTrait
                 }
             }
         }
-        //get selectable columns from model and merge with selectFields
+
         $selecable = array_merge($this->scaffolder()->getAppendedSelectableColumns(), $this->selectFields);
-        $query = $this->model->select($selecable);
+        return $selecable;
 
-        $query = $this->getRelations($query);
-        $query = $this->applySearch($query);
-
-        $query = $this->applyFilters($query);
-
-        $query = $this->applySort($query);
-
-        return $query;
     }
 
-    public function applySearch($query)
+    private function initQuery()
     {
+        // Check if there's a custom modify method
+        if (isset($this->crudHookCallbacks['modifyInitQuery'])) {
+            $customQuery = call_user_func($this->crudHookCallbacks['modifyInitQuery']);
+            if ($customQuery !== null) {
+                return $customQuery;
+            }
+        }
+
+        // Default behavior
+        return $this->model()->query();
+    }
+
+
+
+    private function selectQuery($query, $columns): Builder
+    {
+        return $this->model()->select($columns);
+    }
+
+
+
+    private function applySearch($query)
+    {
+        // Check if there's a custom modify method
+        if (isset($this->crudHookCallbacks['modifySearch'])) {
+            $customQuery = call_user_func($this->crudHookCallbacks['modifySearch'], $query);
+            if ($customQuery !== null) {
+                return $customQuery;
+            }
+        }
+
+        // Default behavior
         $req = request()->input('search');
         if ($req == null) {
             return $query;
@@ -127,6 +173,15 @@ trait DataTrait
 
     private function applyFilters($query)
     {
+        // Check if there's a custom modify method
+        if (isset($this->crudHookCallbacks['modifyFilters'])) {
+            $customQuery = call_user_func($this->crudHookCallbacks['modifyFilters'], $query);
+            if ($customQuery !== null) {
+                return $customQuery;
+            }
+        }
+
+        // Default behavior
         $req = json_decode(request()->input('filters'));
         if ($req == null) {
             return $query;
@@ -184,8 +239,17 @@ trait DataTrait
     }
 
 
-    public function applySort($query)
+    private function applySort($query)
     {
+        // Check if there's a custom modify method
+        if (isset($this->crudHookCallbacks['modifySort'])) {
+            $customQuery = call_user_func($this->crudHookCallbacks['modifySort'], $query);
+            if ($customQuery !== null) {
+                return $customQuery;
+            }
+        }
+
+        // Default behavior
         $req = request()->input('sorter');
         if ($req == null) {
             return $query->orderBy('created_at', 'DESC');
@@ -211,7 +275,7 @@ trait DataTrait
         $customQuery = [];
 
         foreach ($req as $filter => $value) {
-            $field = $this->model()->getFieldByName($filter);
+            $field = $this->scaffolder()->getFieldByName($filter);
             if (isset($field->filterQuery)) {
                 $customQuery[] = ['query' => $field->filterQuery, 'req' => $value];
                 //if it has filterQuery, we escape rest of the code
@@ -242,5 +306,25 @@ trait DataTrait
         $filters['customQuery'] = $customQuery;
 
         return $filters;
+    }
+
+
+
+    private function getRelationFields($model): array
+    {
+        $relations = [];
+        foreach ($this->scaffolder()->getIndexFields() as $field) {
+            if (isset($field->relation)) {
+                //                $relation = $field->relation->name . ':' . $field->relation->key . ',' . $field->relation->field. ' as text';
+                $relation = $field->relation->name . ':' . $field->relation->key;
+
+                if ($model->getConnection()->getName() == 'mongodb') {
+                    $relation = $field->relation->name;
+                }
+                $relations[] = $relation;
+            }
+        }
+
+        return $relations;
     }
 }
