@@ -2,29 +2,49 @@
 
 namespace Tir\Crud\Support\Scaffold;
 
+use Tir\Crud\Support\Scaffold\Actions;
 use Tir\Crud\Support\Scaffold\Fields\Button;
+use Tir\Crud\Support\Scaffold\Traits\RulesHelper;
+use Tir\Crud\Support\Scaffold\Traits\FieldImports;
+use Tir\Crud\Support\Scaffold\Traits\FieldsHelper;
+use Tir\Crud\Support\Scaffold\Traits\ButtonsHelper;
+use Tir\Crud\Support\Scaffold\Traits\ModelIntegration;
+use Tir\Crud\Support\Scaffold\FieldsHandler;
 
 abstract class BaseScaffolder
 {
     use FieldsHelper;
     use ButtonsHelper;
     use RulesHelper;
-    use FieldImports; // Added for easier field access
+    use FieldImports;
+    use ModelIntegration;
 
     private string $moduleTitle;
-    public bool $isScaffolded = false;
     private string $moduleName;
-    private array $fields = [];
-    private array $buttons = [];
-    private array $actions = [];
-    protected mixed $currentModel = null;
 
+    public bool $isScaffolded = false;
+    private $actions = [];
+    private $fieldsHandler = null;
 
     protected abstract function setModuleName(): string;
 
     protected abstract function setFields(): array;
 
     protected abstract function setModel(): string;
+
+
+
+    public function __construct()
+    {
+        // Initialize the scaffolder with the model and module name
+
+        $this->moduleName = $this->setModuleName();
+        $this->moduleTitle = $this->setModuleTitle();
+        $this->actions = $this->setActions();
+
+        $this->currentModel = $this->model();
+
+    }
 
     protected function setButtons(): array
     {
@@ -34,156 +54,73 @@ abstract class BaseScaffolder
         ];
     }
 
-    protected function scaffoldBoot(): void
-    {
-        //
-    }
-
-    protected function setAcl(): bool
-    {
-        return true;
-    }
-
     protected function setModuleTitle(): string
     {
         return $this->moduleName;
     }
 
-    protected function appendSelectableColumns(): array
-    {
-        return [];
-    }
-
-
+    /**
+     * Configure which actions are available for this resource
+     *
+     * Override this method to customize available actions using the type-safe ActionType enum.
+     *
+     * @return array<string, bool> Actions configuration
+     *
+     * @example return Actions::all();                                    // All actions enabled
+     * @example return Actions::basic();                                  // Basic CRUD without soft deletes
+     * @example return Actions::readOnly();                               // Only index and show
+     * @example return Actions::only(ActionType::INDEX, ActionType::SHOW); // Specific actions only
+     * @example return Actions::except(ActionType::DESTROY);              // All except specific actions
+     */
     protected function setActions(): array
     {
-        return [];
+        // Default: all actions enabled
+        return Actions::all();
     }
 
-    // Magic method to access current model properties
-    public function __get($property)
-    {
-        if ($this->currentModel && property_exists($this->currentModel, $property)) {
-            return $this->currentModel->$property;
-        }
-        return null;
-    }
 
-    public function __isset($property)
-    {
-        return $this->currentModel && isset($this->currentModel->$property);
-    }
 
-    // Helper methods for better readability
-    protected function hasValue($property): bool
-    {
-        return $this->currentModel && isset($this->currentModel->$property);
-    }
-
-    protected function getValue($property, $default = null)
-    {
-        return $this->currentModel->$property ?? $default;
-    }
-
-    protected function currentModel()
-    {
-        return $this->currentModel;
-    }
 
     public function scaffold($page = '', $model = null): static
     {
         if ($this->isScaffolded) {
             return $this;
         }
-        $this->scaffoldBoot();
 
-        // Set current model for magic method access
         $this->currentModel = $model;
 
-        $this->moduleName = $this->setModuleName();
-        $this->moduleTitle = $this->setModuleTitle();
-        $this->actions = $this->setActions();
-        $this->initActions();
-        $this->addFieldsToScaffold($page, $model);
+        $this->fieldsHandler = new FieldsHandler($this->setFields(), $page, $model);
+
+
         $this->addButtonsToScaffold();
         $this->isScaffolded = true;
         return $this;
     }
 
-    private function addFieldsToScaffold($page, $model): void
+
+
+    // Getters functions:
+    public final function getModuleName(): string
     {
-        foreach ($this->setFields() as $field) {
-            $field->page($page);
-            if ($page === 'detail') {
-                $field->readonly();
-            }
-            //here $this is the Model with data
-            $this->fields[] = $field->get($model);
-        }
+        return $this->moduleName;
     }
 
-    public function getAccessLevelStatus(): bool
-    {
-        return $this->setAcl();
-    }
-
-    public function getAppendedSelectableColumns()
-    {
-        return $this->appendSelectableColumns();
-    }
 
     private function getConfigs(): array
     {
-        $m =  $this->model();
-        $model = new $m;
+        $modelClass = $this->model();
+
         return [
             'actions'      => $this->getActions(),
             'module_title' => $this->moduleTitle,
-            'primary_key'  => $model->getKeyName(),
+            'primary_key'  => (new $modelClass)->getKeyName(),
         ];
-    }
-
-    private function initActions(): void
-    {
-        $baseActions = [
-            'index'       => true,
-            'create'      => true,
-            'show'        => true,
-            'edit'        => true,
-            'destroy'     => true,
-            'fullDestroy' => true,
-        ];
-
-        $this->actions = array_merge($baseActions, $this->actions);
-        if($this->getAccessLevelStatus() && config('crud.accessLevelControl') != 'off') {
-            $checkerClass = config('crud.aclCheckerClass') ?? \Tir\Crud\Support\Acl\Access::Class;
-
-            if ($this->actions['index']){
-                $this->actions['index'] = ($checkerClass::check($this->moduleName, 'index') !== 'deny');
-            }
-            if ($this->actions['create']){
-                $this->actions['create'] = ($checkerClass::check($this->moduleName, 'create') !== 'deny');
-            }
-            if ($this->actions['show']){
-                $this->actions['show'] = ($checkerClass::check($this->moduleName, 'show') !== 'deny');
-            }
-            if ($this->actions['edit']){
-                $this->actions['edit'] = ($checkerClass::check($this->moduleName, 'edit') !== 'deny');
-            }
-            if ($this->actions['destroy']){
-                $this->actions['destroy'] = ($checkerClass::check($this->moduleName, 'destroy') !== 'deny');
-            }
-            if ($this->actions['fullDestroy']){
-                $this->actions['fullDestroy'] = ($checkerClass::check($this->moduleName, 'fullDestroy') !== 'deny');
-            }
-        }
     }
 
     final function model(): string
     {
         return $this->setModel();
     }
-
 
     final function getActions(): array
     {
@@ -192,20 +129,60 @@ abstract class BaseScaffolder
 
     final function moduleName(): string
     {
-        if (isset($this->moduleName)) {
-            return $this->moduleName;
-        }
-        return $this->setModuleName();
+        return $this->moduleName;
     }
 
-    final function getRouteName(): string
+
+    final function getIndexFields(): array
     {
-        return $this->routeName;
+        $this->scaffold('index');
+
+        if (!$this->fieldsHandler) {
+            throw new \RuntimeException('Fields handler not initialized. Call scaffold() first.');
+        }
+
+        return $this->fieldsHandler->getIndexFields();
     }
+
+    final function getCreateFields(): array
+    {
+        $this->scaffold('create');
+
+        if (!$this->fieldsHandler) {
+            throw new \RuntimeException('Fields handler not initialized. Call scaffold() first.');
+        }
+
+        return $this->fieldsHandler->getCreateFields();
+    }
+
+    final function getEditFields(): array
+    {
+        $this->scaffold('edit');
+
+        if (!$this->fieldsHandler) {
+            throw new \RuntimeException('Fields handler not initialized. Call scaffold() first.');
+        }
+
+        return $this->fieldsHandler->getEditFields();
+    }
+
+    final function getDetailFields(): array
+    {
+        $this->scaffold('detail');
+
+        if (!$this->fieldsHandler) {
+            throw new \RuntimeException('Fields handler not initialized. Call scaffold() first.');
+        }
+
+        return $this->fieldsHandler->getDetailFields();
+    }
+
+
 
     final function getIndexScaffold(): array
     {
         $this->scaffold('index');
+
         return [
             'fields'  => $this->getIndexFields(),
             'buttons' => $this->getIndexButtons(),
@@ -236,9 +213,9 @@ abstract class BaseScaffolder
         ];
     }
 
-    final function getDetailScaffold(): array
+    final function getDetailScaffold($model): array
     {
-        $this->scaffold('detail');
+        $this->scaffold('detail', $model);
         return [
             'fields'        => $this->getDetailFields(),
             'buttons'       => $this->getDetailButtons(),
@@ -246,5 +223,6 @@ abstract class BaseScaffolder
             'configs'       => $this->getConfigs()
         ];
     }
+
 
 }
