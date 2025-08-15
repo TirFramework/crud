@@ -50,7 +50,7 @@ class FieldsHandler
     {
         $fields = $this->getFields();
         $allFields = $this->getAllChildren($fields);
-        return collect($allFields)->where('requestable', true)->values()->toArray();
+        return collect($allFields)->where('virtual', '!=', true)->values()->toArray();
     }
 
 
@@ -180,7 +180,7 @@ class FieldsHandler
         $allFields = [];
         foreach ($fields as $field) {
             if ($field->{$page}) {
-                if (isset($field->children) && $field->type != 'Additional') {
+                if (isset($field->children) && isset($field->shouldGetChildren)) {
                     $field->children = collect($field->children)->where($page, true)->values()->toArray();
                     $field->children = $this->getChildren($field->children, $page);
                 }
@@ -201,7 +201,7 @@ class FieldsHandler
     {
         $allFields = [];
         foreach ($fields as $field) {
-            if (isset($field->children) && $field->type !== 'Additional') {
+            if (isset($field->children) && isset($field->shouldGetChildren)) {
                 $children = $field->children;
                 $allFields[] = $field;
                 $allFields = array_merge($allFields, $this->getAllChildren($children));

@@ -22,7 +22,7 @@ trait ProcessRequest
                 $request = $req;
             }
 
-            $dataFields = collect($this->scaffolder()->getAllDataFields())
+            $dataFields = collect($this->scaffolder()->fieldsHandler()->getAllDataFields())
                 ->pluck('request')->flatten()->unique()->toArray();
 
             //get only request that has equal field in scaffold
@@ -41,7 +41,6 @@ trait ProcessRequest
             $unDoted = Arr::undot($clearedRequest);
 
             $request->merge($unDoted);
-
             return $request;
         };
 

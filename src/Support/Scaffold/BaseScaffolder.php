@@ -4,19 +4,17 @@ namespace Tir\Crud\Support\Scaffold;
 
 use Tir\Crud\Support\Scaffold\Actions;
 use Tir\Crud\Support\Scaffold\Fields\Button;
+use Tir\Crud\Support\Scaffold\Traits\FieldHelper;
 use Tir\Crud\Support\Scaffold\Traits\RulesHelper;
-use Tir\Crud\Support\Scaffold\Traits\FieldImports;
-use Tir\Crud\Support\Scaffold\Traits\FieldsHelper;
 use Tir\Crud\Support\Scaffold\Traits\ButtonsHelper;
 use Tir\Crud\Support\Scaffold\Traits\ModelIntegration;
 use Tir\Crud\Support\Scaffold\FieldsHandler;
 
 abstract class BaseScaffolder
 {
-    use FieldsHelper;
     use ButtonsHelper;
     use RulesHelper;
-    use FieldImports;
+    use FieldHelper;
     use ModelIntegration;
 
     private string $moduleTitle;
@@ -132,6 +130,15 @@ abstract class BaseScaffolder
         return $this->moduleName;
     }
 
+    final function fieldsHandler(): FieldsHandler
+    {
+        $this->scaffold();
+
+        if (!$this->fieldsHandler) {
+            throw new \RuntimeException('Fields handler not initialized. Call scaffold() first.');
+        }
+        return $this->fieldsHandler;
+    }
 
     final function getIndexFields(): array
     {

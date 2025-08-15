@@ -138,7 +138,7 @@ class DataService
 
             foreach ($this->scaffolder()->getIndexFields() as $field) {
                 if (isset($field->relation)) {
-                    $query = $adapter->configureRelations($query, $field);
+                    $query = $adapter->configureRelations($query, $field, $this->model());
                 }
             }
 
@@ -341,7 +341,7 @@ class DataService
     {
         // Use database adapter for column selection
         $adapter = DatabaseAdapterFactory::create($this->model()->getConnection());
-        $this->selectFields = $adapter->getSelectColumns($this->model(), $this->scaffolder()->getIndexFields());
+        $this->selectFields = $adapter->getSelectColumns($this->model(), $this->scaffolder()->fieldsHandler()->getIndexFields());
 
         return $this->selectFields;
     }

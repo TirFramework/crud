@@ -9,6 +9,8 @@ class Additional extends BaseField
 {
     protected string $type = 'Additional';
     protected array $children = [];
+
+    protected bool $shouldGetChildren = false;
     protected array $template = [];
     protected bool $defaultChild = false;
 

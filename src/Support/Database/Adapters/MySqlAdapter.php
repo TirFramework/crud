@@ -29,18 +29,14 @@ class MySqlAdapter implements DatabaseAdapterInterface
         return $requestData;
     }
 
-    public function configureRelations($query, $field): mixed
+    public function configureRelations($query, $field, $model): mixed
     {
         // Standard SQL relation handling
-        if (isset($field->relation)) {
-            if ($field->multiple) {
-                // Standard many-to-many eager loading
-                $query->with($field->relation->name);
-            } else {
-                // Standard belongs-to eager loading
-                $query->with($field->relation->name);
-            }
-        }
+        $relationTable = $model->{$field->relation->name}()->getRelated()->getTable();
+        $relationKey = $relationTable . '.' . $field->relation->key;
+        $query = $query->with($field->relation->name, function ($q) use ($field, $relationKey) {
+            $q->select($relationKey . ' as value', $field->relation->field . ' as label');
+        });
 
         return $query;
     }

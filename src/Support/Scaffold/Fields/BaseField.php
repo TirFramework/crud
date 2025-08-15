@@ -17,7 +17,6 @@ abstract class BaseField
     protected string $display;
     protected string $placeholder = '';
     protected string $class = '';
-    protected string $group = 'all';
     protected int $col = 24;
     protected bool $disable = false;
     protected bool $readonly = false;
@@ -41,7 +40,6 @@ abstract class BaseField
     protected $dataSet = [];
     protected bool $additional = false;
     protected bool $fillable = true;
-    protected bool $requestable = true;
     protected bool $virtual = false;
     protected mixed $filterQuery;
     protected object $relation;
@@ -327,7 +325,7 @@ abstract class BaseField
         return $this;
     }
 
-    public function filterQuery($queryFunction)
+    public function filterQuery(mixed $queryFunction)
     {
         $this->filterQuery = $queryFunction;
         return $this;
@@ -353,6 +351,7 @@ abstract class BaseField
         $this->relation = (object)['name' => $name, 'field' => $field, 'key' => $primaryKey];
         $this->name = $this->relation->name;
         $this->multiple(true);
+        $this->fillable(false);
 
         return $this;
     }

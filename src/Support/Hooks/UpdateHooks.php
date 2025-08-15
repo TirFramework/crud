@@ -15,6 +15,14 @@ trait UpdateHooks
         return $this;
     }
 
+    /**
+     * Set custom hook for getting model for update
+     */
+    protected function onGetModelForUpdate(callable $callback): self
+    {
+        $this->crudHookCallbacks['onGetModelForUpdate'] = $callback;
+        return $this;
+    }
 
     /**
      * Set custom hook for filling model for update

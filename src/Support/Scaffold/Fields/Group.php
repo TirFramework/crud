@@ -6,10 +6,15 @@ namespace Tir\Crud\Support\Scaffold\Fields;
 class Group extends BaseField
 {
     protected string $type = 'Group';
-    protected array $subFields = [];
     protected array $children = [];
     protected bool $fillable = false;
-    protected bool $requestable = false;
+
+    protected bool $virtual = true;
+
+    protected bool $showOnIndex = false;
+
+    protected bool $shouldGetChildren = true;
+
 
 
     public function children(...$inputs):Group

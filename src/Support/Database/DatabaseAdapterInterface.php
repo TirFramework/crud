@@ -31,7 +31,7 @@ interface DatabaseAdapterInterface
      * Configure query relations for this database type
      * Handle any database-specific relation logic
      */
-    public function configureRelations($query, $field): mixed;
+    public function configureRelations($query, $field, $model): mixed;
 
     /**
      * Handle many-to-many relation filtering for this database type
