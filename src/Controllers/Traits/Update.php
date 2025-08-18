@@ -29,7 +29,7 @@ trait Update
 
         $item = $this->updateCrud($processedRequest, $id);
 
-        return $this->updateResponse($item, $this->scaffolder());
+        return $this->updateResponse($item);
 
 
     }
@@ -65,7 +65,7 @@ trait Update
     }
 
 
-    private function updateResponse($item, $scaffolder): JsonResponse
+    private function updateResponse($item): JsonResponse
     {
         // Define the default response behavior as a closure
         $defaultResponse = function($i = null) use ($item) {
@@ -75,11 +75,12 @@ trait Update
 
             $moduleName = $this->scaffolder()->getModuleName();
             $message = trans('core::message.item-updated', ['item' => trans("message.item.$moduleName")]);
-
+            $scaffolder = $this->scaffolder()->scaffold('edit', $item)->getEditScaffold();
         return Response::Json(
             [
                 'id'      => $item->id,
                 'changes' => $item->getChanges(),
+                'scaffolder' => $scaffolder,
                 'updated' => true,
                 'message' => $message,
             ]

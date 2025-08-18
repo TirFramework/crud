@@ -14,7 +14,7 @@ trait Index
         // Access check is now handled automatically in callAction()
 
         $cols = [];
-        $scaffold = $this->scaffolder()->getIndexScaffold();
+        $scaffold = $this->scaffolder()->scaffold('index')->getIndexScaffold();
 
         // Override actions with access-filtered ones
         $scaffold['configs']['actions'] = $this->getAvailableActions();

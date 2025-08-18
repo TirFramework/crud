@@ -22,7 +22,7 @@ trait ProcessRequest
                 $request = $req;
             }
 
-            $dataFields = collect($this->scaffolder()->fieldsHandler()->getAllDataFields())
+            $dataFields = collect($this->scaffolder()->scaffold('edit')->fieldsHandler()->getAllDataFields())
                 ->pluck('request')->flatten()->unique()->toArray();
 
             //get only request that has equal field in scaffold

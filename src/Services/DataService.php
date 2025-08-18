@@ -341,7 +341,7 @@ class DataService
     {
         // Use database adapter for column selection
         $adapter = DatabaseAdapterFactory::create($this->model()->getConnection());
-        $this->selectFields = $adapter->getSelectColumns($this->model(), $this->scaffolder()->fieldsHandler()->getIndexFields());
+        $this->selectFields = $adapter->getSelectColumns($this->model(), $this->scaffolder()->scaffold('data-index')->fieldsHandler()->getIndexFields());
 
         return $this->selectFields;
     }

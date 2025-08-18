@@ -41,7 +41,7 @@ trait Edit
             if ($model !== null) {
                 $dataModel = $model;
             }
-            $scaffold = $this->scaffolder()->getEditScaffold($dataModel);
+            $scaffold = $this->scaffolder()->scaffold('edit', $dataModel)->getEditScaffold();
 
             // Override actions with access-filtered ones
             $scaffold['configs']['actions'] = $this->getAvailableActions();

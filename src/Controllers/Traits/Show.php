@@ -9,7 +9,7 @@ use Tir\Crud\Support\Hooks\ShowHooks;
 trait Show
 {
     use ShowHooks;
-    
+
 
     public final function show($id): JsonResponse
     {
@@ -35,7 +35,7 @@ trait Show
             if ($model !== null) {
                 $dataModel = $model;
             }
-            $scaffold = $this->scaffolder()->getDetailScaffold($dataModel);
+            $scaffold = $this->scaffolder()->scaffold('detail', $dataModel)->getDetailScaffold();
             return Response::json($scaffold, 200);
         };
 
