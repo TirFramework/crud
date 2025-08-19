@@ -34,6 +34,21 @@ trait Update
 
     }
 
+    public final function inlineUpdate(Request $request, int|string $id): JsonResponse
+    {
+        // First process the request data
+        $processedRequest = $this->processRequest($request);
+
+        // Then validate the request
+        $this->validateUpdateRequest($processedRequest, $id);
+
+        // Update the item
+        $item = $this->updateCrud($processedRequest, $id);
+
+        // Return the response
+        return $this->updateResponse($item);
+    }
+
     private function updateCrud($request, $id){
         $defaultUpdate = function($req = null, $modelId = null) use ($request, $id) {
             if ($req !== null) {

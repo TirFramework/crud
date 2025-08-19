@@ -26,6 +26,20 @@ trait RulesHelper
 
     }
 
+    final function getInlineUpdateRules(): array
+    {
+        $rules = [];
+        foreach ($this->fieldsHandler()->getAllDataFields() as $field) {
+            if ($field->showOnIndex) {
+                if ($field->updateRules){
+                    $rules[$field->name] = $field->updateRules;
+                }
+            }
+        }
+        return $rules;
+
+    }
+
     private function getValidationMsg(): array
     {
         return [

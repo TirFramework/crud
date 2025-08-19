@@ -1,6 +1,6 @@
 <?php
 
-namespace Tir\Crud\Support\Scaffold;
+namespace Tir\Crud\Support\Enums;
 
 /**
  * Enum defining all available CRUD actions
@@ -19,6 +19,7 @@ enum ActionType: string
     case CREATE = 'create';
     case SHOW = 'show';
     case EDIT = 'edit';
+    case INLINE_EDIT = 'inlineEdit';
     case DESTROY = 'destroy';
     case FORCE_DELETE = 'forceDelete';
     case RESTORE = 'restore';
@@ -44,6 +45,7 @@ enum ActionType: string
             self::CREATE => 'Create New',
             self::SHOW => 'View Details',
             self::EDIT => 'Edit/Update',
+            self::INLINE_EDIT => 'Inline Edit/Update',
             self::DESTROY => 'Soft Delete',
             self::FORCE_DELETE => 'Permanent Delete',
             self::RESTORE => 'Restore Deleted',

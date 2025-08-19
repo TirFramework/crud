@@ -325,7 +325,7 @@ abstract class BaseField
         return $this;
     }
 
-    public function filterQuery(mixed $queryFunction)
+    public function filterQuery(mixed $queryFunction): BaseField
     {
         $this->filterQuery = $queryFunction;
         return $this;
@@ -338,7 +338,7 @@ abstract class BaseField
      * @param bool $check
      * @return $this
      */
-    public function multiple(bool $check = true): Select
+    public function multiple(bool $check = true): BaseField
     {
         $this->multiple = $check;
         $this->valueType = 'array';
@@ -346,7 +346,7 @@ abstract class BaseField
         return $this;
     }
 
-    public function relation(string $name, string $field, string $primaryKey = 'id'): Select
+    public function relation(string $name, string $field, string $primaryKey = null): BaseField
     {
         $this->relation = (object)['name' => $name, 'field' => $field, 'key' => $primaryKey];
         $this->name = $this->relation->name;

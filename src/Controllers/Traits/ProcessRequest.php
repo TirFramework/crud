@@ -115,6 +115,35 @@ trait ProcessRequest
         return $defaultUpdateValidation();
     }
 
+
+    private function validateInlineUpdateRequest(Request $request, $id, $options = [])
+    {
+        // Define the default behavior as a closure
+        $defaultInlineUpdateValidation = function($req = null, $modelId = null) use ($request, $id) {
+            if ($req !== null) {
+                $request = $req;
+            }
+            if ($modelId !== null) {
+                $id = $modelId;
+            }
+
+            $rules = $this->scaffolder()->getInlineUpdateRules();
+            $validator = Validator::make($request->all(), $rules);
+            $validator->validate();
+
+            return true;
+        };
+
+        // Pass the closure to the hook
+        $customInlineUpdateValidation = $this->callHook('onInlineUpdateValidation', $defaultInlineUpdateValidation, $request, $id);
+        if($customInlineUpdateValidation !== null) {
+            return $customInlineUpdateValidation;
+        }
+
+        // Otherwise, return the result directly
+        return $defaultInlineUpdateValidation();
+    }
+
     private function passedValidation($request)
     {
         // Use database adapter for database-specific request processing

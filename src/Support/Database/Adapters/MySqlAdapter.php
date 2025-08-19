@@ -2,6 +2,9 @@
 
 namespace Tir\Crud\Support\Database\Adapters;
 
+use Illuminate\Support\Str;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Connection;
 use Tir\Crud\Support\Database\DatabaseAdapterInterface;
 
@@ -29,16 +32,54 @@ class MySqlAdapter implements DatabaseAdapterInterface
         return $requestData;
     }
 
+    // public function configureRelations($query, $field, $model): mixed
+    // {
+    //     // Standard SQL relation handling
+    //     $relationTable = $model->{$field->relation->name}()->getRelated()->getTable();
+    //     $relationKey = $relationTable . '.' . $field->relation->key;
+    //     $query = $query->with($field->relation->name, function ($q) use ($field, $relationKey) {
+    //         $q->select($relationKey . ' as value', $field->relation->field . ' as label');
+    //     });
+
+    //     return $query;
+    // }
+
     public function configureRelations($query, $field, $model): mixed
     {
+        $relName   = $field->relation->name;       // ex: users
+        $relation  = $model->{$relName}();
+
+        $pivotTable   = $relation->getTable();                 // ex: minimal_example_user
+        $parentTable  = $relation->getParent()->getTable();    // ex: minimal_examples
+        $relationTable = $relation->getRelated()->getTable();   // ex: users
+        $parentKey = $field->relation->key ?? $relation->getParentKeyName(); // ex: id
+
+
+        if($field->type === 'Select'){
+
+            $pivotForeignCol = Str::after($relation->getForeignPivotKeyName(), '.'); // ex: 'minimal_example_id'
+            $pivotRelatedCol = Str::after($relation->getRelatedPivotKeyName(), '.'); // ex: 'user_id'
+
+            $aggExpr = "CAST(CONCAT('[', IFNULL(GROUP_CONCAT(DISTINCT {$pivotTable}.{$pivotRelatedCol} ORDER BY {$pivotTable}.{$pivotRelatedCol} SEPARATOR ','), ''), ']') AS JSON)";
+
+
+            $sub = DB::table($pivotTable)
+                ->whereColumn("{$pivotTable}.{$pivotForeignCol}", "{$parentTable}.{$parentKey}")
+                ->selectRaw($aggExpr);
+
+
+            return $query->selectSub($sub, $relName)->withCasts([$relName => 'array']);
+        }
+
+
         // Standard SQL relation handling
-        $relationTable = $model->{$field->relation->name}()->getRelated()->getTable();
-        $relationKey = $relationTable . '.' . $field->relation->key;
-        $query = $query->with($field->relation->name, function ($q) use ($field, $relationKey) {
+        $relationKey = $relationTable . '.' . $parentKey;
+        $query = $query->with($relName, function ($q) use ($field, $relationKey) {
             $q->select($relationKey . ' as value', $field->relation->field . ' as label');
         });
 
         return $query;
+
     }
 
     public function handleManyToManyFilter($query, $field, $value, $model): mixed
