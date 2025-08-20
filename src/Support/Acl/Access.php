@@ -47,7 +47,7 @@ class Access
 
     private function getCrudAction(string $action): string
     {
-        $baseActions = ['data'=>'index', 'select'=>'index', 'store'=>'create', 'update'=>'edit', 'restore'=>'destroy'];
+        $baseActions = ['data'=>'index', 'select'=>'index', 'store'=>'create', 'update'=>'edit', 'inlineEdit'=>'edit', 'restore'=>'destroy', 'forceDelete'=>'forceDelete'];
         if(isset($baseActions[$action])){
             return $baseActions[$action];
         }

@@ -68,8 +68,11 @@ class DataService
             $this->query  = $this->applyFilters($this->query);
             $this->query  = $this->applySort($this->query);
             $this->query = $this->applyModifiedQuery($this->query);
+
+                    $adapter = DatabaseAdapterFactory::create($this->model()->getConnection());
             Log::debug('Data query initialized', [
-                'query' => $this->query->toSql(),
+
+                'query' =>  $adapter->getSql($this->query),
             ]);
             $this->query = $this->applyPaginate($this->query);
 

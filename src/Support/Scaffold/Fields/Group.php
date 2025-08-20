@@ -17,7 +17,7 @@ class Group extends BaseField
 
 
 
-    public function children(...$inputs):Group
+    public function children(...$inputs):static
     {
         $this->children = $inputs;
         return $this;

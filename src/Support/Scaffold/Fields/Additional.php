@@ -14,17 +14,17 @@ class Additional extends BaseField
     protected array $template = [];
     protected bool $defaultChild = false;
 
-    public function defaultChild($status = true):Additional {
+    public function defaultChild($status = true):static {
         $this->defaultChild = $status;
         return $this;
     }
-    public function children(...$inputs):Additional
+    public function children(...$inputs):static
     {
         $this->children = $inputs;
         return $this;
     }
 
-    public function request(...$schema): Additional
+    public function request(...$schema):static
     {
         $this->request = $schema;
         return $this;

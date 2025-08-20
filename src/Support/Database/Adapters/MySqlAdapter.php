@@ -26,6 +26,11 @@ class MySqlAdapter implements DatabaseAdapterInterface
         return in_array($connection->getDriverName(), ['mysql', 'mariadb']);
     }
 
+    public function setRequestFieldName(mixed $field): mixed
+    {
+        return $field->name;
+    }
+
     public function processRequestData(array $requestData): array
     {
         // MySQL doesn't need special request processing
@@ -140,5 +145,12 @@ class MySqlAdapter implements DatabaseAdapterInterface
         }
 
         return $selectFields;
+    }
+
+
+    public function getSql($query): array
+    {
+        // MySQL specific: Get the raw query string
+        return $query->toSql();
     }
 }

@@ -15,27 +15,27 @@ class DatePicker extends BaseField
     protected array $timezone = [false, 'UTC'];
     private string $format = 'Y-m-d';
 
-    public function format(string $stringType): DatePicker
+    public function format(string $stringType): static
     {
         $this->format = $stringType;
         $this->options['dateFormat'] = $this->convertPHPToMomentFormat($stringType);
         return $this;
     }
 
-    public function showTime(string $format = 'H:i:s'): DatePicker
+    public function showTime(string $format = 'H:i:s'): static
     {
         $this->options['showTime'] = $this->convertPHPToMomentFormat($format);
         return $this;
     }
 
 
-    public function timezone($status = true, $timezone = 'UTC'): DatePicker
+    public function timezone($status = true, $timezone = 'UTC'): static
     {
         $this->timezone = [$status, $timezone];
         return $this;
     }
 
-    public function picker(string $type): DatePicker
+    public function picker(string $type): static
     {
         $this->options['picker'] = $type;
         return $this;

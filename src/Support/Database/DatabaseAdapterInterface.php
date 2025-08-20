@@ -25,6 +25,9 @@ interface DatabaseAdapterInterface
      * Process request data for this database type
      * Handle any database-specific request transformations
      */
+
+    public function setRequestFieldName(mixed $field): mixed;
+
     public function processRequestData(array $requestData): array;
 
     /**
@@ -54,4 +57,6 @@ interface DatabaseAdapterInterface
      * Handle database-specific column selection logic
      */
     public function getSelectColumns($model, array $indexFields): array;
+
+    public function getSql($query): array;
 }

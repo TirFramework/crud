@@ -13,7 +13,7 @@ class Link extends BaseField
      * @param string $value It will be value attribute of input
      * @return $this
      */
-    public function path(string $value): BaseField
+    public function path(string $value): static
     {
         $this->path = $value;
         return $this;

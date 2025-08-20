@@ -21,7 +21,7 @@ trait Index
         foreach ($scaffold['fields'] as $index => $field) {
             $cols[$index] = [
                 'title'      => $field->display,
-                'dataIndex'  => $this->dataIndex($field),
+                'dataIndex'  => $field->name,
                 'fieldName'  => $field->name,
                 'valueType'  => $field->valueType,
                 'comment'    => $field->comment,
@@ -48,12 +48,4 @@ trait Index
         return Response::json($data, '200');
     }
 
-    private function dataIndex($field)
-    {
-        if(isset($field->relation) && $field->multiple){
-            return $field->relation->name;
-        }else{
-            return $field->name;
-        }
-    }
 }

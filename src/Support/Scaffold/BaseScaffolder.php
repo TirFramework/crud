@@ -112,7 +112,6 @@ abstract class BaseScaffolder
     private function getConfigs(): array
     {
         $modelClass = $this->model();
-
         return [
             'actions'      => $this->getActions(),
             'module_title' => $this->moduleTitle,
