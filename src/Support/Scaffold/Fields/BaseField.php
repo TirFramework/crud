@@ -347,8 +347,11 @@ abstract class BaseField
         return $this;
     }
 
-    public function relation(string $name, string $field, string $primaryKey = null): static
+    public function relation(string $field, string $name = null, string $primaryKey = 'id'): static
     {
+        if ($name === null) {
+            $name = $this->originalName;
+        }
         $this->relation = (object)['name' => $name, 'field' => $field, 'key' => $primaryKey];
         $this->multiple(true);
         $this->fillable(false);
@@ -359,6 +362,13 @@ abstract class BaseField
 
     private function setRelationalValue($model)
     {
+        if (!isset($this->relation->name)) {
+            throw new \Exception('Relation is not defined for field: ' . $this->name);
+        }
+
+        if(!isset($model->{$this->relation->name})) {
+            throw new \Exception('For the field :' . $this->name . ' The Relation "' . $this->relation->name . '" not found on model');
+        }
         return $model->{$this->relation->name}->map(function ($value) {
             return $value->{$this->relation->key};
         })->toArray();

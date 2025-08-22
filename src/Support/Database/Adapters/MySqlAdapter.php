@@ -151,6 +151,6 @@ class MySqlAdapter implements DatabaseAdapterInterface
     public function getSql($query): array
     {
         // MySQL specific: Get the raw query string
-        return $query->toSql();
+        return [$query->toSql()];
     }
 }
