@@ -33,7 +33,7 @@ abstract class BaseField
     protected array $options = [];
     protected array $data = [];
     protected array $filter = [];
-    protected FilterType | string $filterType = FilterType::Select;
+    protected FilterType|string $filterType = FilterType::Select;
     protected bool $filterable = false;
     protected bool $multiple = false;
     protected array $comment = [];
@@ -320,7 +320,7 @@ abstract class BaseField
     }
 
 
-    public function filterType(FilterType | string $type): static
+    public function filterType(FilterType|string $type): static
     {
         $this->filterType = $type;
         return $this;
@@ -333,7 +333,7 @@ abstract class BaseField
     }
 
 
-        /**
+    /**
      * Add multiple option to select box
      *
      * @param bool $check
@@ -349,10 +349,10 @@ abstract class BaseField
 
     public function relation(string $field, string $name = null, string $primaryKey = 'id'): static
     {
-        if ($name === null) {
+        if (is_null($name)) {
             $name = $this->originalName;
         }
-        $this->relation = (object)['name' => $name, 'field' => $field, 'key' => $primaryKey];
+        $this->relation = (object) ['name' => $name, 'field' => $field, 'key' => $primaryKey];
         $this->multiple(true);
         $this->fillable(false);
 
@@ -366,14 +366,13 @@ abstract class BaseField
             throw new \Exception('Relation is not defined for field: ' . $this->name);
         }
 
-        if(!isset($model->{$this->relation->name})) {
+        if (!isset($model->{$this->relation->name})) {
             throw new \Exception('For the field :' . $this->name . ' The Relation "' . $this->relation->name . '" not found on model');
         }
         return $model->{$this->relation->name}->map(function ($value) {
             return $value->{$this->relation->key};
         })->toArray();
     }
-
     protected function setValue($model): void
     {
         if (isset($model)) {
