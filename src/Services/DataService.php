@@ -31,16 +31,16 @@ class DataService
     /**
      * Set hooks from controller
      */
-    public function setHooks(array $hooks): void
+    public final function setHooks(array $hooks): void
     {
         $this->crudHookCallbacks = $hooks;
     }
 
-    public function getData($onlyTrashed = false)
+    public final function getData($onlyTrashed = false)
     {
         // Store the trash mode for use in initQuery
         $this->onlyTrashed = $onlyTrashed;
-        $this->query =  $this->dataQuery();
+        $this->query = $this->dataQuery();
         return $this->query;
 
     }
@@ -60,24 +60,24 @@ class DataService
      */
     private function dataQuery(): mixed
     {
-                // Define the default behavior as a closure
-            $this->query = $this->initQuery();
-            $this->query  = $this->select($this->query);
-            $this->query  = $this->getRelations($this->query);
-            $this->query  = $this->applySearch($this->query);
-            $this->query  = $this->applyFilters($this->query);
-            $this->query  = $this->applySort($this->query);
-            $this->query = $this->applyModifiedQuery($this->query);
+        // Define the default behavior as a closure
+        $this->query = $this->initQuery();
+        $this->query = $this->select($this->query);
+        $this->query = $this->getRelations($this->query);
+        $this->query = $this->applySearch($this->query);
+        $this->query = $this->applyFilters($this->query);
+        $this->query = $this->applySort($this->query);
+        $this->query = $this->applyModifiedQuery($this->query);
 
-                    $adapter = DatabaseAdapterFactory::create($this->model()->getConnection());
-            Log::debug('Data query initialized', [
+        $adapter = DatabaseAdapterFactory::create($this->model()->getConnection());
+        Log::debug('Data query initialized', [
 
-                'query' =>  $adapter->getSql($this->query),
-            ]);
-            $this->query = $this->applyPaginate($this->query);
+            'query' => $adapter->getSql($this->query),
+        ]);
+        $this->query = $this->applyPaginate($this->query);
 
 
-            return $this->query;
+        return $this->query;
     }
 
 
@@ -85,7 +85,7 @@ class DataService
     {
 
         // Define the default behavior as a closure
-        $defaultInitQuery = function() {
+        $defaultInitQuery = function () {
             $query = $this->model()->query();
             if ($this->onlyTrashed) {
                 $query = $query->onlyTrashed();
@@ -95,7 +95,7 @@ class DataService
 
         // Pass the closure to the hook
         $customQuery = $this->callHook('onInitQuery', $defaultInitQuery);
-        if($customQuery === null) {
+        if ($customQuery === null) {
             return $defaultInitQuery();
         }
 
@@ -105,11 +105,10 @@ class DataService
     }
 
 
-
     private function select($query): mixed
     {
         // Define the default behavior as a closure
-        $defaultSelect = function($q = null) use ($query) {
+        $defaultSelect = function ($q = null) use ($query) {
             if ($q !== null) {
                 $query = $q;
             }
@@ -119,7 +118,7 @@ class DataService
 
         // Pass the closure to the hook
         $customSelect = $this->callHook('onSelect', $defaultSelect, $query);
-        if($customSelect !== null) {
+        if ($customSelect !== null) {
             return $customSelect;
         }
 
@@ -131,7 +130,7 @@ class DataService
     private function getRelations($query)
     {
         // Define the default behavior as a closure
-        $defaultRelations = function($q = null) use ($query) {
+        $defaultRelations = function ($q = null) use ($query) {
             if ($q !== null) {
                 $query = $q;
             }
@@ -150,7 +149,7 @@ class DataService
 
         // Pass the closure to the hook
         $customRelations = $this->callHook('onRelation', $defaultRelations, $query);
-        if($customRelations !== null) {
+        if ($customRelations !== null) {
             return $customRelations;
         }
 
@@ -161,11 +160,10 @@ class DataService
     }
 
 
-
     private function applySearch($query): mixed
     {
 
-        $defaultSearch = function($q = null) use ($query) {
+        $defaultSearch = function ($q = null) use ($query) {
             if ($q !== null) {
                 $query = $q;
             }
@@ -173,7 +171,8 @@ class DataService
             if ($req == null) {
                 return $query;
             }
-            $searchableFields = $this->scaffolder()->getSearchableFields();
+            $searchableFields = $this->scaffolder()->fieldsHandler()->getSearchableFields();
+
             if (empty($searchableFields)) {
                 return $query;
             }
@@ -186,7 +185,7 @@ class DataService
 
         // Pass the closure to the hook
         $customSearch = $this->callHook('onSearch', $defaultSearch, $query);
-        if($customSearch !== null) {
+        if ($customSearch !== null) {
             return $customSearch;
         }
 
@@ -195,11 +194,10 @@ class DataService
         return $defaultSearch();
     }
 
-
     private function applyFilters($query): mixed
     {
 
-        $defaultFilters = function($q = null)use ($query) {
+        $defaultFilters = function ($q = null) use ($query) {
             if ($q !== null) {
                 $query = $q;
             }
@@ -210,22 +208,22 @@ class DataService
 
             $filters = $this->getFilter($req);
 
-        // Use database adapter for filtering
-        $adapter = DatabaseAdapterFactory::create($this->model()->getConnection());
+            // Use database adapter for filtering
+            $adapter = DatabaseAdapterFactory::create($this->model()->getConnection());
 
-        foreach ($filters['original'] as $filter) {
-            if ($filter['type'] == FilterType::Select) {
-                $query->whereIn($filter['column'], $filter['value']);
-            } elseif ($filter['type'] == FilterType::Slider) {
-                $query->where($filter['column'], '>=', $filter['value'][0]);
-                $query->where($filter['column'], '<=', $filter['value'][1]);
-            } elseif ($filter['type'] == FilterType::DatePicker) {
-                $query = $adapter->applyDateFilter($query, $filter['column'], $filter['value']);
-            } elseif ($filter['type'] == FilterType::Search) {
-                $query->where($filter['column'], 'like', "%" . $filter['value'] . "%");
-            }
-        }            foreach ($filters['relational'] as $filter) {
-                $query->whereHas($filter['relation'], function (Builder  $q) use ($filter) {
+            foreach ($filters['original'] as $filter) {
+                if ($filter['type'] == FilterType::Select) {
+                    $query->whereIn($filter['column'], $filter['value']);
+                } elseif ($filter['type'] == FilterType::Slider) {
+                    $query->where($filter['column'], '>=', $filter['value'][0]);
+                    $query->where($filter['column'], '<=', $filter['value'][1]);
+                } elseif ($filter['type'] == FilterType::DatePicker) {
+                    $query = $adapter->applyDateFilter($query, $filter['column'], $filter['value']);
+                } elseif ($filter['type'] == FilterType::Search) {
+                    $query->where($filter['column'], 'like', "%" . $filter['value'] . "%");
+                }
+            }foreach ($filters['relational'] as $filter) {
+                $query->whereHas($filter['relation'], function (Builder $q) use ($filter) {
                     $q->whereIn($filter['primaryKey'], $filter['value']);
                 });
             }
@@ -239,21 +237,20 @@ class DataService
 
         // Pass the closure to the hook
         $customFilters = $this->callHook('onFilter', $defaultFilters, $query);
-        if($customFilters !== null) {
+        if ($customFilters !== null) {
             return $customFilters;
         }
 
 
 
-       // Otherwise, return the result directly
+        // Otherwise, return the result directly
         return $defaultFilters();
     }
-
 
     private function applySort($query): mixed
     {
         // Define the default behavior as a closure
-        $defaultSort = function($q = null) use ($query) {
+        $defaultSort = function ($q = null) use ($query) {
 
             if ($q !== null) {
                 $query = $q;
@@ -275,7 +272,7 @@ class DataService
 
         // Pass the closure to the hook
         $customSort = $this->callHook('onSort', $defaultSort, $query);
-        if($customSort !== null) {
+        if ($customSort !== null) {
             return $customSort;
         }
 
@@ -286,7 +283,7 @@ class DataService
     private function applyModifiedQuery($query): mixed
     {
         // Define the default behavior as a closure
-        $defaultModifiedQuery = function($q = null) use ($query) {
+        $defaultModifiedQuery = function ($q = null) use ($query) {
             if ($q !== null) {
                 $query = $q;
             }
@@ -294,7 +291,7 @@ class DataService
         };
 
         $customModifiedQuery = $this->callHook('onModifyQuery', $defaultModifiedQuery, $query);
-        if($customModifiedQuery !== null) {
+        if ($customModifiedQuery !== null) {
             return $customModifiedQuery;
         }
 
@@ -303,7 +300,7 @@ class DataService
 
     private function applyPaginate($query): mixed
     {
-        $defaultPagination = function($q = null) use ($query) {
+        $defaultPagination = function ($q = null) use ($query) {
             if ($q !== null) {
                 $query = $q;
             }
@@ -321,7 +318,7 @@ class DataService
     private function indexResponse($items): mixed
     {
         // Define the default behavior as a closure
-        $defaultResponse = function($i = null) use ($items) {
+        $defaultResponse = function ($i = null) use ($items) {
             if ($i !== null) {
                 $items = $i;
             }
@@ -331,14 +328,13 @@ class DataService
         // Pass the closure to the hook
         $customResponse = $this->callHook('onIndexResponse', $defaultResponse, $items);
 
-        if($customResponse !== null) {
+        if ($customResponse !== null) {
             return $customResponse;
         }
 
         // Otherwise, return the result directly
         return $defaultResponse();
     }
-
 
     private function selectColumns(): array
     {
@@ -359,7 +355,7 @@ class DataService
         $customQuery = [];
 
         foreach ($req as $filter => $value) {
-            $field = $this->scaffolder()->getFieldByName($filter);
+            $field = $this->scaffolder()->fieldsHandler()->getFieldByName($filter);
             if (isset($field->filterQuery)) {
                 $customQuery[] = ['query' => $field->filterQuery, 'req' => $value];
                 //if it has filterQuery, we escape rest of the code
@@ -384,23 +380,4 @@ class DataService
         return $filters;
     }
 
-    private function getRelationFields($model): array
-    {
-        $relations = [];
-        $adapter = DatabaseAdapterFactory::create($model->getConnection());
-
-        foreach ($this->scaffolder()->getIndexFields() as $field) {
-            if (isset($field->relation)) {
-                // Different databases handle relations differently
-                if ($adapter->getDriverName() === 'mongodb') {
-                    $relation = $field->relation->name;
-                } else {
-                    $relation = $field->relation->name . ':' . $field->relation->key;
-                }
-                $relations[] = $relation;
-            }
-        }
-
-        return $relations;
-    }
 }

@@ -51,16 +51,16 @@ class MySqlAdapter implements DatabaseAdapterInterface
 
     public function configureRelations($query, $field, $model): mixed
     {
-        $relName   = $field->relation->name;       // ex: users
-        $relation  = $model->{$relName}();
+        $relName = $field->relation->name;       // ex: users
+        $relation = $model->{$relName}();
 
-        $pivotTable   = $relation->getTable();                 // ex: minimal_example_user
-        $parentTable  = $relation->getParent()->getTable();    // ex: minimal_examples
+        $pivotTable = $relation->getTable();                 // ex: minimal_example_user
+        $parentTable = $relation->getParent()->getTable();    // ex: minimal_examples
         $relationTable = $relation->getRelated()->getTable();   // ex: users
         $parentKey = $field->relation->key ?? $relation->getParentKeyName(); // ex: id
 
 
-        if($field->type === 'Select'){
+        if ($field->type === 'Select') {
 
             $pivotForeignCol = Str::after($relation->getForeignPivotKeyName(), '.'); // ex: 'minimal_example_id'
             $pivotRelatedCol = Str::after($relation->getRelatedPivotKeyName(), '.'); // ex: 'user_id'
