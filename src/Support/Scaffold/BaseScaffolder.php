@@ -40,7 +40,6 @@ abstract class BaseScaffolder
         // Initialize the scaffolder with the model and module name
 
         $this->moduleName = $this->setModuleName();
-        $this->moduleTitle = $this->setModuleTitle();
         $this->actions = $this->setActions();
 
         $this->currentModel = $this->model();
@@ -79,14 +78,21 @@ abstract class BaseScaffolder
         return Actions::all();
     }
 
+    protected function scaffolderInit(): void
+    {
+        // Initialize any additional scaffolder settings here
+        // This method can be overridden in child classes for custom initialization
+    }
+
 
 
 
     public function scaffold($page = '', $model = null): static
     {
+        $this->scaffolderInit();
 
-        if(isset($this->scaffoldedModel) && isset($this->scaffoldedPage)){
-            if($this->scaffoldedModel === $model && $this->scaffoldedPage === $page){
+        if (isset($this->scaffoldedModel) && isset($this->scaffoldedPage)) {
+            if ($this->scaffoldedModel === $model && $this->scaffoldedPage === $page) {
                 // If the model and page are the same, return the current instance
                 return $this;
             }
@@ -94,6 +100,7 @@ abstract class BaseScaffolder
         Log::debug('Scaffolder: Re-initializing for model: ' . ($model ? get_class($model) : 'null') . ' and page: ' . $page . ' ' . 'Item ID: ' . ($model ? $model->getKey() : 'null'));
         $this->scaffoldedModel = $model;
         $this->scaffoldedPage = $page;
+        $this->moduleTitle = $this->setModuleTitle();
 
         $this->fieldsHandler = new FieldsHandler($this->setFields(), $page, $model);
         $this->addButtonsToScaffold();
@@ -103,6 +110,7 @@ abstract class BaseScaffolder
 
 
     // Getters functions:
+    //Added for legacy support
     public final function getModuleName(): string
     {
         return $this->moduleName;
@@ -113,9 +121,9 @@ abstract class BaseScaffolder
     {
         $modelClass = $this->model();
         return [
-            'actions'      => $this->getActions(),
+            'actions' => $this->getActions(),
             'module_title' => $this->moduleTitle,
-            'primary_key'  => (new $modelClass)->getKeyName(),
+            'primary_key' => (new $modelClass)->getKeyName(),
         ];
     }
 
@@ -189,7 +197,7 @@ abstract class BaseScaffolder
     {
 
         return [
-            'fields'  => $this->getIndexFields(),
+            'fields' => $this->getIndexFields(),
             'buttons' => $this->getIndexButtons(),
             'configs' => $this->getConfigs()
         ];
@@ -198,10 +206,10 @@ abstract class BaseScaffolder
     final function getCreateScaffold(): array
     {
         return [
-            'fields'        => $this->getCreateFields(),
-            'buttons'       => $this->getCreateButtons(),
+            'fields' => $this->getCreateFields(),
+            'buttons' => $this->getCreateButtons(),
             'validationMsg' => $this->getValidationMsg(),
-            'configs'       => $this->getConfigs()
+            'configs' => $this->getConfigs()
         ];
     }
 
@@ -209,20 +217,20 @@ abstract class BaseScaffolder
     {
 
         return [
-            'fields'        => $this->getEditFields(),
-            'buttons'       => $this->getEditButtons(),
+            'fields' => $this->getEditFields(),
+            'buttons' => $this->getEditButtons(),
             'validationMsg' => $this->getValidationMsg(),
-            'configs'       => $this->getConfigs()
+            'configs' => $this->getConfigs()
         ];
     }
 
     final function getDetailScaffold(): array
     {
         return [
-            'fields'        => $this->getDetailFields(),
-            'buttons'       => $this->getDetailButtons(),
+            'fields' => $this->getDetailFields(),
+            'buttons' => $this->getDetailButtons(),
             'validationMsg' => $this->getValidationMsg(),
-            'configs'       => $this->getConfigs()
+            'configs' => $this->getConfigs()
         ];
     }
 
