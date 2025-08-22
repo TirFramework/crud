@@ -15,8 +15,8 @@ trait Create
         // Access check is now handled automatically in callAction()
 
         // Define the default behavior as a closure
-        $defaultCreate = function() {
-            $scaffold = $this->scaffolder()->getCreateScaffold();
+        $defaultCreate = function () {
+            $scaffold = $this->scaffolder()->scaffold('create')->getCreateScaffold();
 
             // Override actions with access-filtered ones
             $scaffold['configs']['actions'] = $this->getAvailableActions();
@@ -26,7 +26,7 @@ trait Create
 
         // Pass the closure to the hook
         $customCreate = $this->callHook('onCreate', $defaultCreate);
-        if($customCreate !== null) {
+        if ($customCreate !== null) {
             $fields = $customCreate;
         } else {
             $fields = $defaultCreate();
@@ -39,7 +39,7 @@ trait Create
     private function createResponse($fields): JsonResponse
     {
         // Define the default response behavior as a closure
-        $defaultResponse = function($fieldsData = null) use ($fields) {
+        $defaultResponse = function ($fieldsData = null) use ($fields) {
             if ($fieldsData !== null) {
                 $fields = $fieldsData;
             }
@@ -48,7 +48,7 @@ trait Create
 
         // Pass the closure to the response hook
         $customResponse = $this->callHook('onCreateResponse', $defaultResponse, $fields);
-        if($customResponse !== null) {
+        if ($customResponse !== null) {
             return $customResponse;
         }
 

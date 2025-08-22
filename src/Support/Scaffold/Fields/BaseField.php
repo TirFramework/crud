@@ -31,8 +31,8 @@ abstract class BaseField
     protected array $creationRules = [];
     protected array $updateRules = [];
     protected array $options = [];
-    protected array $data = [];
-    protected array $filter = [];
+    protected array|object $data = [];
+    protected array|object $filter = [];
     protected FilterType|string $filterType = FilterType::Select;
     protected bool $filterable = false;
     protected bool $multiple = false;
@@ -256,10 +256,10 @@ abstract class BaseField
      * Helper method to normalize variadic arguments
      * Handles both array and individual parameters
      */
-    private function normalizeVariadicArgs(...$args): array
+    private function normalizeVariadicArgs(...$args): array|object
     {
         // Handle single array input: ->method(['item1', 'item2'])
-        if (count($args) === 1 && is_array($args[0])) {
+        if (count($args) === 1 && (is_array($args[0]) || is_object($args[0]))) {
             return $args[0];
         }
 
