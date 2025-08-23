@@ -20,7 +20,7 @@ abstract class BaseField
     protected int $col = 24;
     protected bool $disable = false;
     protected bool $readonly = false;
-    protected string $defaultValue;
+    protected mixed $defaultValue;
     protected bool $showOnIndex = true;
     protected bool $showOnDetail = true;
     protected bool $showOnCreating = true;

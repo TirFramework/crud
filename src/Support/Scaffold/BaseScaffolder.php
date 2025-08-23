@@ -21,6 +21,8 @@ abstract class BaseScaffolder
     private string $moduleTitle;
     private string $moduleName;
 
+    private mixed $model;
+
     private $actions = [];
     private $fieldsHandler = null;
 
@@ -41,8 +43,6 @@ abstract class BaseScaffolder
 
         $this->moduleName = $this->setModuleName();
         $this->actions = $this->setActions();
-
-        $this->currentModel = $this->model();
 
     }
 
@@ -102,6 +102,10 @@ abstract class BaseScaffolder
         $this->scaffoldedPage = $page;
         $this->moduleTitle = $this->setModuleTitle();
 
+        // CRITICAL FIX: Set currentModel BEFORE creating FieldsHandler
+        // because FieldsHandler constructor calls setFields() which needs currentModel
+        $this->currentModel = $model;
+
         $this->fieldsHandler = new FieldsHandler($this->setFields(), $page, $model);
         $this->addButtonsToScaffold();
         return $this;
@@ -119,15 +123,30 @@ abstract class BaseScaffolder
 
     private function getConfigs(): array
     {
-        $modelClass = $this->model();
+        $model = $this->model();
+        if (!isset($model)) {
+            $modelClass = $this->modelClass();
+            $model = new $modelClass;
+        }
+
         return [
             'actions' => $this->getActions(),
             'module_title' => $this->moduleTitle,
-            'primary_key' => (new $modelClass)->getKeyName(),
+            'primary_key' => $model->getKeyName(),
         ];
     }
 
-    final function model(): string
+    final function model(): mixed
+    {
+        if ($this->currentModel !== null) {
+            return $this->currentModel;
+        }
+
+        return null;
+
+    }
+
+    final function modelClass(): string
     {
         return $this->setModel();
     }
