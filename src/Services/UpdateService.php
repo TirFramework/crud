@@ -16,7 +16,7 @@ class UpdateService
     public function __construct($scaffolder)
     {
         $this->scaffolder = $scaffolder;
-        $this->model = $scaffolder->model();
+        $this->model = $scaffolder->modelClass();
     }
 
 
