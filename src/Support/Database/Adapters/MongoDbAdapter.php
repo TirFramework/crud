@@ -27,31 +27,37 @@ class MongoDbAdapter implements DatabaseAdapterInterface
         return $connection->getDriverName() === 'mongodb';
     }
 
+    public function setRequestFieldName(mixed $field): mixed
+    {
+        return $field->originalName;
+    }
+
     public function processRequestData(array $requestData): array
     {
         // MongoDB specific: Group array items with numeric indexes
         return $this->groupByNumber($requestData);
     }
 
-    public function configureRelations($query, $field): mixed
+    public function configureRelations($query, $field, $model): mixed
     {
         // MongoDB specific relation handling
-        if (isset($field->relation)) {
-            if ($field->multiple) {
-                // MongoDB needs foreign key in many-to-many relation
-                $foreignKey = $query->getModel()->{$field->relation->name}()->getForeignKey();
-                $otherKey = $query->getModel()->{$field->relation->name}()->getRelated()->getKeyName();
+        // if (isset($field->relation)) {
+        //     if ($field->multiple) {
+        //         // MongoDB needs foreign key in many-to-many relation
+        //         $foreignKey = $query->getModel()->{$field->relation->name}()->getForeignKey();
+        //         $otherKey = $query->getModel()->{$field->relation->name}()->getRelated()->getKeyName();
 
-                $query->with([$field->relation->name => function ($q) use ($foreignKey, $otherKey) {
-                    // MongoDB specific relation configuration if needed
-                }]);
-            } else {
-                // Standard relation for MongoDB
-                $query->with($field->relation->name);
-            }
-        }
+        //         $query->with([$field->relation->name => function ($q) use ($foreignKey, $otherKey) {
+        //             // MongoDB specific relation configuration if needed
+        //         }]);
+        //     } else {
+        //         // Standard relation for MongoDB
+        //         $query->with($field->relation->name);
+        //     }
+        // }
 
         return $query;
+
     }
 
     public function handleManyToManyFilter($query, $field, $value, $model): mixed
@@ -114,6 +120,13 @@ class MongoDbAdapter implements DatabaseAdapterInterface
         return collect($indexFields)->pluck('name')->toArray();
     }
 
+
+    public function getSql($query): array
+    {
+        // MongoDB specific: Get the raw query string
+        return $query->toMql();
+    }
+
     /**
      * Group array items with numeric indexes
      * This is MongoDB specific logic that was scattered in ProcessRequest
@@ -142,4 +155,6 @@ class MongoDbAdapter implements DatabaseAdapterInterface
 
         return $result;
     }
+
+
 }

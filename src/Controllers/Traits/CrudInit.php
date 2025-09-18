@@ -38,7 +38,7 @@ trait CrudInit
         $s = $this->setScaffolder();
         $this->scaffolder = new $s;
 
-        $m = $this->scaffolder->model();
+        $m = $this->scaffolder->modelClass();
         $this->model = new $m;
     }
 

@@ -53,6 +53,9 @@ trait ButtonsHelper
 
     private function addButtonsToScaffold(): void
     {
+        if ($this->buttons) {
+            return; // Buttons already added
+        }
         foreach ($this->setButtons() as $button) {
             $this->buttons[] = $button->get(null);
         }

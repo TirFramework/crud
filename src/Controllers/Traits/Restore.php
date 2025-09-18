@@ -9,13 +9,13 @@ use Tir\Crud\Support\Hooks\RestoreHooks;
 trait Restore
 {
     use RestoreHooks;
-    
 
-    public final function restore($id): JsonResponse
+
+    public function restore($id)
     {
 
         // Define the default behavior as a closure
-        $defaultRestore = function($modelId = null) use ($id) {
+        $defaultRestore = function ($modelId = null) use ($id) {
             if ($modelId !== null) {
                 $id = $modelId;
             }
@@ -26,7 +26,7 @@ trait Restore
 
         // Pass the closure to the hook
         $customRestore = $this->callHook('onRestore', $defaultRestore, $id);
-        if($customRestore !== null) {
+        if ($customRestore !== null) {
             $restoredItem = $customRestore;
         } else {
             $restoredItem = $defaultRestore();
@@ -36,10 +36,10 @@ trait Restore
         return $this->restoreResponse($restoredItem);
     }
 
-    private function restoreResponse($restoredItem): JsonResponse
+    private function restoreResponse($restoredItem): mixed
     {
         // Define the default response behavior as a closure
-        $defaultResponse = function($item = null) use ($restoredItem) {
+        $defaultResponse = function ($item = null) use ($restoredItem) {
             if ($item !== null) {
                 $restoredItem = $item;
             }
@@ -55,7 +55,7 @@ trait Restore
 
         // Pass the closure to the response hook
         $customResponse = $this->callHook('onRestoreResponse', $defaultResponse, $restoredItem);
-        if($customResponse !== null) {
+        if ($customResponse !== null) {
             return $customResponse;
         }
 

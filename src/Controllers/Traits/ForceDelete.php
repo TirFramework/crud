@@ -9,13 +9,13 @@ use Tir\Crud\Support\Hooks\ForceDeleteHooks;
 trait ForceDelete
 {
     use ForceDeleteHooks;
-    
 
-    public final function forceDelete($id): JsonResponse
+
+    public function forceDelete($id)
     {
 
         // Define the default behavior as a closure
-        $defaultForceDelete = function($modelId = null) use ($id) {
+        $defaultForceDelete = function ($modelId = null) use ($id) {
             if ($modelId !== null) {
                 $id = $modelId;
             }
@@ -26,7 +26,7 @@ trait ForceDelete
 
         // Pass the closure to the hook
         $customForceDelete = $this->callHook('onForceDelete', $defaultForceDelete, $id);
-        if($customForceDelete !== null) {
+        if ($customForceDelete !== null) {
             $deletedItem = $customForceDelete;
         } else {
             $deletedItem = $defaultForceDelete();
@@ -36,10 +36,10 @@ trait ForceDelete
         return $this->forceDeleteResponse($deletedItem);
     }
 
-    private function forceDeleteResponse($deletedItem): JsonResponse
+    private function forceDeleteResponse($deletedItem): mixed
     {
         // Define the default response behavior as a closure
-        $defaultResponse = function($item = null) use ($deletedItem) {
+        $defaultResponse = function ($item = null) use ($deletedItem) {
             if ($item !== null) {
                 $deletedItem = $item;
             }
@@ -55,7 +55,7 @@ trait ForceDelete
 
         // Pass the closure to the response hook
         $customResponse = $this->callHook('onForceDeleteResponse', $defaultResponse, $deletedItem);
-        if($customResponse !== null) {
+        if ($customResponse !== null) {
             return $customResponse;
         }
 
@@ -66,7 +66,7 @@ trait ForceDelete
     public final function emptyTrash(): JsonResponse
     {
         // Define the default behavior as a closure
-        $defaultEmptyTrash = function() {
+        $defaultEmptyTrash = function () {
             $count = $this->model()::onlyTrashed()->count();
             $this->model()::onlyTrashed()->forceDelete();
             return $count;
@@ -74,7 +74,7 @@ trait ForceDelete
 
         // Pass the closure to the hook
         $customEmptyTrash = $this->callHook('onEmptyTrash', $defaultEmptyTrash);
-        if($customEmptyTrash !== null) {
+        if ($customEmptyTrash !== null) {
             $deletedCount = $customEmptyTrash;
         } else {
             $deletedCount = $defaultEmptyTrash();
@@ -87,7 +87,7 @@ trait ForceDelete
     private function emptyTrashResponse($deletedCount): JsonResponse
     {
         // Define the default response behavior as a closure
-        $defaultResponse = function($count = null) use ($deletedCount) {
+        $defaultResponse = function ($count = null) use ($deletedCount) {
             if ($count !== null) {
                 $deletedCount = $count;
             }
@@ -107,7 +107,7 @@ trait ForceDelete
 
         // Pass the closure to the response hook
         $customResponse = $this->callHook('onEmptyTrashResponse', $defaultResponse, $deletedCount);
-        if($customResponse !== null) {
+        if ($customResponse !== null) {
             return $customResponse;
         }
 

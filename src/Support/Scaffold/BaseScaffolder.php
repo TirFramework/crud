@@ -2,29 +2,32 @@
 
 namespace Tir\Crud\Support\Scaffold;
 
+use Illuminate\Support\Facades\Log;
 use Tir\Crud\Support\Scaffold\Actions;
 use Tir\Crud\Support\Scaffold\Fields\Button;
+use Tir\Crud\Support\Scaffold\FieldsHandler;
+use Tir\Crud\Support\Scaffold\Traits\FieldHelper;
 use Tir\Crud\Support\Scaffold\Traits\RulesHelper;
-use Tir\Crud\Support\Scaffold\Traits\FieldImports;
-use Tir\Crud\Support\Scaffold\Traits\FieldsHelper;
 use Tir\Crud\Support\Scaffold\Traits\ButtonsHelper;
 use Tir\Crud\Support\Scaffold\Traits\ModelIntegration;
-use Tir\Crud\Support\Scaffold\FieldsHandler;
 
 abstract class BaseScaffolder
 {
-    use FieldsHelper;
     use ButtonsHelper;
     use RulesHelper;
-    use FieldImports;
+    use FieldHelper;
     use ModelIntegration;
 
     private string $moduleTitle;
     private string $moduleName;
 
-    public bool $isScaffolded = false;
+    private mixed $model;
+
     private $actions = [];
     private $fieldsHandler = null;
+
+    private $scaffoldedModel;
+    private $scaffoldedPage;
 
     protected abstract function setModuleName(): string;
 
@@ -39,18 +42,15 @@ abstract class BaseScaffolder
         // Initialize the scaffolder with the model and module name
 
         $this->moduleName = $this->setModuleName();
-        $this->moduleTitle = $this->setModuleTitle();
         $this->actions = $this->setActions();
-
-        $this->currentModel = $this->model();
 
     }
 
     protected function setButtons(): array
     {
         return [
-            Button::make('back')->action('Cancel'),
-            Button::make('submit')->display('panel.submit')->action('Submit')->hideFromDetail(),
+            Button::make('back')->display(trans('core::panel.back'))->action('Cancel'),
+            Button::make('submit')->display(trans('core::panel.submit'))->action('Submit')->hideFromDetail(),
         ];
     }
 
@@ -78,28 +78,43 @@ abstract class BaseScaffolder
         return Actions::all();
     }
 
+    protected function scaffolderInit(): void
+    {
+        // Initialize any additional scaffolder settings here
+        // This method can be overridden in child classes for custom initialization
+    }
+
 
 
 
     public function scaffold($page = '', $model = null): static
     {
-        if ($this->isScaffolded) {
-            return $this;
-        }
+        $this->scaffolderInit();
 
+        if (isset($this->scaffoldedModel) && isset($this->scaffoldedPage)) {
+            if ($this->scaffoldedModel === $model && $this->scaffoldedPage === $page) {
+                // If the model and page are the same, return the current instance
+                return $this;
+            }
+        }
+        Log::debug('Scaffolder: Re-initializing for model: ' . ($model ? get_class($model) : 'null') . ' and page: ' . $page . ' ' . 'Item ID: ' . ($model ? $model->getKey() : 'null'));
+        $this->scaffoldedModel = $model;
+        $this->scaffoldedPage = $page;
+        $this->moduleTitle = $this->setModuleTitle();
+
+        // CRITICAL FIX: Set currentModel BEFORE creating FieldsHandler
+        // because FieldsHandler constructor calls setFields() which needs currentModel
         $this->currentModel = $model;
 
         $this->fieldsHandler = new FieldsHandler($this->setFields(), $page, $model);
-
-
         $this->addButtonsToScaffold();
-        $this->isScaffolded = true;
         return $this;
     }
 
 
 
     // Getters functions:
+    //Added for legacy support
     public final function getModuleName(): string
     {
         return $this->moduleName;
@@ -108,16 +123,30 @@ abstract class BaseScaffolder
 
     private function getConfigs(): array
     {
-        $modelClass = $this->model();
+        $model = $this->model();
+        if (!isset($model)) {
+            $modelClass = $this->modelClass();
+            $model = new $modelClass;
+        }
 
         return [
-            'actions'      => $this->getActions(),
+            'actions' => $this->getActions(),
             'module_title' => $this->moduleTitle,
-            'primary_key'  => (new $modelClass)->getKeyName(),
+            'primary_key' => $model->getKeyName(),
         ];
     }
 
-    final function model(): string
+    final function model(): mixed
+    {
+        if ($this->currentModel !== null) {
+            return $this->currentModel;
+        }
+
+        return null;
+
+    }
+
+    final function modelClass(): string
     {
         return $this->setModel();
     }
@@ -132,10 +161,17 @@ abstract class BaseScaffolder
         return $this->moduleName;
     }
 
+    final function fieldsHandler(): FieldsHandler
+    {
+
+        if (!$this->fieldsHandler) {
+            throw new \RuntimeException('Fields handler not initialized. Call scaffold() first.');
+        }
+        return $this->fieldsHandler;
+    }
 
     final function getIndexFields(): array
     {
-        $this->scaffold('index');
 
         if (!$this->fieldsHandler) {
             throw new \RuntimeException('Fields handler not initialized. Call scaffold() first.');
@@ -146,7 +182,6 @@ abstract class BaseScaffolder
 
     final function getCreateFields(): array
     {
-        $this->scaffold('create');
 
         if (!$this->fieldsHandler) {
             throw new \RuntimeException('Fields handler not initialized. Call scaffold() first.');
@@ -157,7 +192,6 @@ abstract class BaseScaffolder
 
     final function getEditFields(): array
     {
-        $this->scaffold('edit');
 
         if (!$this->fieldsHandler) {
             throw new \RuntimeException('Fields handler not initialized. Call scaffold() first.');
@@ -168,7 +202,6 @@ abstract class BaseScaffolder
 
     final function getDetailFields(): array
     {
-        $this->scaffold('detail');
 
         if (!$this->fieldsHandler) {
             throw new \RuntimeException('Fields handler not initialized. Call scaffold() first.');
@@ -181,10 +214,9 @@ abstract class BaseScaffolder
 
     final function getIndexScaffold(): array
     {
-        $this->scaffold('index');
 
         return [
-            'fields'  => $this->getIndexFields(),
+            'fields' => $this->getIndexFields(),
             'buttons' => $this->getIndexButtons(),
             'configs' => $this->getConfigs()
         ];
@@ -192,35 +224,32 @@ abstract class BaseScaffolder
 
     final function getCreateScaffold(): array
     {
-        $this->scaffold('create');
         return [
-            'fields'        => $this->getCreateFields(),
-            'buttons'       => $this->getCreateButtons(),
+            'fields' => $this->getCreateFields(),
+            'buttons' => $this->getCreateButtons(),
             'validationMsg' => $this->getValidationMsg(),
-            'configs'       => $this->getConfigs()
+            'configs' => $this->getConfigs()
         ];
     }
 
-    final function getEditScaffold($model): array
+    final function getEditScaffold(): array
     {
-        $this->scaffold('edit', $model);
 
         return [
-            'fields'        => $this->getEditFields(),
-            'buttons'       => $this->getEditButtons(),
+            'fields' => $this->getEditFields(),
+            'buttons' => $this->getEditButtons(),
             'validationMsg' => $this->getValidationMsg(),
-            'configs'       => $this->getConfigs()
+            'configs' => $this->getConfigs()
         ];
     }
 
-    final function getDetailScaffold($model): array
+    final function getDetailScaffold(): array
     {
-        $this->scaffold('detail', $model);
         return [
-            'fields'        => $this->getDetailFields(),
-            'buttons'       => $this->getDetailButtons(),
+            'fields' => $this->getDetailFields(),
+            'buttons' => $this->getDetailButtons(),
             'validationMsg' => $this->getValidationMsg(),
-            'configs'       => $this->getConfigs()
+            'configs' => $this->getConfigs()
         ];
     }
 

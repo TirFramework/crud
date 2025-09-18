@@ -50,12 +50,13 @@ class FieldsHandler
     {
         $fields = $this->getFields();
         $allFields = $this->getAllChildren($fields);
-        return collect($allFields)->where('requestable', true)->values()->toArray();
+        return collect($allFields)->where('virtual', '!=', true)->values()->toArray();
     }
 
 
     /**
      * Get fillable columns by merging scaffold and model fillable arrays
+     * WITH SECURITY PROTECTION against sensitive fields
      *
      * @param array $modelFillable Fillable fields from model
      * @param array $modelGuarded Guarded fields from model
@@ -63,6 +64,21 @@ class FieldsHandler
      */
     final function getFillableColumns(array $modelFillable = [], array $modelGuarded = []): array
     {
+        // SECURITY: Define blacklist of sensitive fields that should NEVER be auto-fillable
+        $securityBlacklist = [
+            'id',
+            'password',
+            'remember_token',
+            'email_verified_at',
+            'api_token',
+            'created_at',
+            'updated_at',
+            'deleted_at',
+        ];
+
+        // Add any fields matching sensitive patterns
+        $patternBlacklist = ['*_token', '*_secret', '*_key', '*_hash'];
+
         $scaffoldFillable = collect($this->getAllDataFields())
             ->where('fillable', true)
             ->pluck('request')
@@ -70,7 +86,24 @@ class FieldsHandler
             ->unique()
             ->toArray();
 
-        $fillables = array_merge($scaffoldFillable, $modelFillable);
+        // SECURITY: Remove any blacklisted fields from scaffold fillable
+        $safeFillable = array_filter($scaffoldFillable, function($field) use ($securityBlacklist, $patternBlacklist) {
+            // Check exact matches
+            if (in_array($field, $securityBlacklist)) {
+                return false;
+            }
+            
+            // Check pattern matches
+            foreach ($patternBlacklist as $pattern) {
+                if (fnmatch($pattern, $field)) {
+                    return false;
+                }
+            }
+            
+            return true;
+        });
+
+        $fillables = array_merge($safeFillable, $modelFillable);
         $finalFillables = array_diff($fillables, $modelGuarded);
 
         return $finalFillables;
@@ -180,7 +213,7 @@ class FieldsHandler
         $allFields = [];
         foreach ($fields as $field) {
             if ($field->{$page}) {
-                if (isset($field->children) && $field->type != 'Additional') {
+                if (isset($field->children) && isset($field->shouldGetChildren)) {
                     $field->children = collect($field->children)->where($page, true)->values()->toArray();
                     $field->children = $this->getChildren($field->children, $page);
                 }
@@ -201,7 +234,7 @@ class FieldsHandler
     {
         $allFields = [];
         foreach ($fields as $field) {
-            if (isset($field->children) && $field->type !== 'Additional') {
+            if (isset($field->children) && isset($field->shouldGetChildren)) {
                 $children = $field->children;
                 $allFields[] = $field;
                 $allFields = array_merge($allFields, $this->getAllChildren($children));

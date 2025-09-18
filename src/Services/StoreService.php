@@ -63,7 +63,7 @@ class StoreService
         $model = $this->model();
 
         // Fillable columns from scaffolder and model
-        $model = $model->fillable($this->scaffolder()->getFillableColumns($modelFillable, $modelGuarded));
+        $model = $model->fillable($this->scaffolder()->fieldsHandler()->getFillableColumns($modelFillable, $modelGuarded));
 
         // Fill the model with request data
         $model = $this->fill($request, $model);
@@ -106,7 +106,7 @@ class StoreService
                 $model = $mdl;
             }
 
-            foreach ($this->scaffolder()->getAllDataFields() as $field) {
+            foreach ($this->scaffolder()->fieldsHandler()->getAllDataFields() as $field) {
                 if (isset($field->relation) && $field->multiple) {
                     $data = $request->input($field->name);
                     if (isset($data)) {

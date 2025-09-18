@@ -13,7 +13,7 @@ trait Data
     use IndexDataHooks;
 
 
-    public final function data(): mixed
+    public function data()
     {
         $CrudService = new DataService($this->scaffolder(), $this->model());
 
@@ -33,7 +33,7 @@ trait Data
     private function indexResponse($items): mixed
     {
         // Define the default behavior as a closure
-        $defaultResponse = function($i = null) use ($items) {
+        $defaultResponse = function ($i = null) use ($items) {
             if ($i !== null) {
                 $items = $i;
             }
@@ -43,7 +43,7 @@ trait Data
         // Pass the closure to the hook
         $customResponse = $this->callHook('onIndexResponse', $defaultResponse, $items);
 
-        if($customResponse !== null) {
+        if ($customResponse !== null) {
             return $customResponse;
         }
 

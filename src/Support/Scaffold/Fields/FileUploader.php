@@ -33,7 +33,7 @@ class FileUploader extends BaseField
         return $this;
     }
 
-    public function fileRules($rule)
+    public function fileRules($rule): static
     {
         $this->fileRules = $rule;
         return $this;

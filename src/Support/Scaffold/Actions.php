@@ -1,6 +1,7 @@
 <?php
 
 namespace Tir\Crud\Support\Scaffold;
+use Tir\Crud\Support\Enums\ActionType;
 
 /**
  * Actions Configuration Manager
@@ -25,6 +26,7 @@ class Actions
             ActionType::CREATE->value => true,
             ActionType::SHOW->value => true,
             ActionType::EDIT->value => true,
+            ActionType::INLINE_EDIT->value => true,
             ActionType::DESTROY->value => true,
             ActionType::FORCE_DELETE->value => true,
             ActionType::RESTORE->value => true,
@@ -328,7 +330,7 @@ class Actions
     {
         return [
             'read' => [ActionType::INDEX, ActionType::SHOW],
-            'write' => [ActionType::CREATE, ActionType::EDIT],
+            'write' => [ActionType::CREATE, ActionType::EDIT, ActionType::INLINE_EDIT],
             'delete' => [ActionType::DESTROY, ActionType::FORCE_DELETE, ActionType::RESTORE],
         ];
     }

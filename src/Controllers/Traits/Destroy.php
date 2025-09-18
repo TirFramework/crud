@@ -11,13 +11,13 @@ trait Destroy
     use DestroyHooks;
     use Restore;
     use ForceDelete;
-    
 
-    public final function destroy($id): JsonResponse
+
+    public function destroy($id)
     {
 
         // Define the default behavior as a closure
-        $defaultDestroy = function($modelId = null) use ($id) {
+        $defaultDestroy = function ($modelId = null) use ($id) {
             if ($modelId !== null) {
                 $id = $modelId;
             }
@@ -28,7 +28,7 @@ trait Destroy
 
         // Pass the closure to the hook
         $customDestroy = $this->callHook('onDestroy', $defaultDestroy, $id);
-        if($customDestroy !== null) {
+        if ($customDestroy !== null) {
             $deletedItem = $customDestroy;
         } else {
             $deletedItem = $defaultDestroy();
@@ -41,7 +41,7 @@ trait Destroy
     private function destroyResponse($deletedItem): JsonResponse
     {
         // Define the default response behavior as a closure
-        $defaultResponse = function($item = null) use ($deletedItem) {
+        $defaultResponse = function ($item = null) use ($deletedItem) {
             if ($item !== null) {
                 $deletedItem = $item;
             }
@@ -56,7 +56,7 @@ trait Destroy
 
         // Pass the closure to the response hook
         $customResponse = $this->callHook('onDestroyResponse', $defaultResponse, $deletedItem);
-        if($customResponse !== null) {
+        if ($customResponse !== null) {
             return $customResponse;
         }
 

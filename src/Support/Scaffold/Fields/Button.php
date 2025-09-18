@@ -14,13 +14,13 @@ class Button extends BaseField
        //do not set value
     }
 
-    public function action(string $name): Button
+    public function action(string $name): static
     {
         $this->action = $name;
         return $this;
     }
 
-    public function path(string $value): Button
+    public function path(string $value): static
     {
         $this->path = $value;
         return $this;

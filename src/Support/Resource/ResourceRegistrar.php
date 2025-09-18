@@ -13,7 +13,7 @@ class ResourceRegistrar extends OriginalRegistrar
      *
      * @var array
      */
-    protected $resourceDefaults =['index', 'create', 'store', 'edit', 'update', 'destroy',
+    protected $resourceDefaults =['index', 'create', 'store', 'edit', 'inlineEdit', 'update', 'destroy',
                                  'trash','data','select','trashData', 'restore' ,'fullDestroy' ,'action','reorder', 'show'];
 
 
@@ -77,6 +77,27 @@ class ResourceRegistrar extends OriginalRegistrar
 
         return $this->router->get($uri, $action);
     }
+
+
+
+        /**
+     * Add the data method for a resourceful route.
+     *
+     * @param  string  $name
+     * @param  string  $base
+     * @param  string  $controller
+     * @param  array   $options
+     * @return \Illuminate\Routing\Route
+     */
+    protected function addResourceInlineEdit($name, $base, $controller, $options)
+    {
+        $uri = $this->getResourceUri($name) .'/{'.$base.'}/'. 'inlineEdit';
+
+        $action = $this->getResourceAction($name, $controller, 'inlineUpdate', $options);
+
+        return $this->router->put($uri, $action);
+    }
+
 
 
 

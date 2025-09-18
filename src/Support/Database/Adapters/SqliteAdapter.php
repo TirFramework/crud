@@ -29,7 +29,7 @@ class SqliteAdapter implements DatabaseAdapterInterface
         return $requestData;
     }
 
-    public function configureRelations($query, $field): mixed
+    public function configureRelations($query, $field, $model): mixed
     {
         // Standard SQL relation handling (same as MySQL)
         if (isset($field->relation)) {
@@ -99,5 +99,11 @@ class SqliteAdapter implements DatabaseAdapterInterface
         }
 
         return $selectFields;
+    }
+
+    public function getSql($query): array
+    {
+        // SQLite specific: Get the raw query string
+        return $query->toSql();
     }
 }

@@ -15,7 +15,7 @@ trait Store
     use StoreHooks;
     use RequestHooks;
 
-    public final function store(Request $request): JsonResponse
+    public function store(Request $request)
     {
         // Access check is now handled automatically in callAction()
 
@@ -29,10 +29,10 @@ trait Store
         return $this->storeCrud($processedRequest);
     }
 
-    private function storeCrud($request): JsonResponse
+    private function storeCrud($request): mixed
     {
         // Define the default behavior as a closure
-        $defaultStore = function($req = null) use ($request) {
+        $defaultStore = function ($req = null) use ($request) {
             if ($req !== null) {
                 $request = $req;
             }
@@ -51,7 +51,7 @@ trait Store
 
         // Pass the closure to the hook
         $customStore = $this->callHook('onStore', $defaultStore, $request);
-        if($customStore !== null) {
+        if ($customStore !== null) {
             $model = $customStore;
         } else {
             $model = $defaultStore();
@@ -61,10 +61,10 @@ trait Store
         return $this->storeResponse($model);
     }
 
-    private function storeResponse($model): JsonResponse
+    private function storeResponse($model): mixed
     {
         // Define the default response behavior as a closure
-        $defaultResponse = function($m = null) use ($model) {
+        $defaultResponse = function ($m = null) use ($model) {
             if ($m !== null) {
                 $model = $m;
             }
@@ -73,7 +73,7 @@ trait Store
             $message = trans('core::message.item-created', ['item' => trans("message.item.$moduleName")]);
 
             return Response::json([
-                'id'      => $model->id,
+                'id' => $model->id,
                 'created' => true,
                 'message' => $message,
             ], 200);
@@ -81,7 +81,7 @@ trait Store
 
         // Pass the closure to the response hook
         $customResponse = $this->callHook('onStoreResponse', $defaultResponse, $model);
-        if($customResponse !== null) {
+        if ($customResponse !== null) {
             return $customResponse;
         }
 

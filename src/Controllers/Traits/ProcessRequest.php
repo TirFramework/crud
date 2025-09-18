@@ -22,7 +22,7 @@ trait ProcessRequest
                 $request = $req;
             }
 
-            $dataFields = collect($this->scaffolder()->getAllDataFields())
+            $dataFields = collect($this->scaffolder()->scaffold('edit')->fieldsHandler()->getAllDataFields())
                 ->pluck('request')->flatten()->unique()->toArray();
 
             //get only request that has equal field in scaffold
@@ -41,7 +41,6 @@ trait ProcessRequest
             $unDoted = Arr::undot($clearedRequest);
 
             $request->merge($unDoted);
-
             return $request;
         };
 
@@ -114,6 +113,35 @@ trait ProcessRequest
 
         // Otherwise, return the result directly
         return $defaultUpdateValidation();
+    }
+
+
+    private function validateInlineUpdateRequest(Request $request, $id, $options = [])
+    {
+        // Define the default behavior as a closure
+        $defaultInlineUpdateValidation = function($req = null, $modelId = null) use ($request, $id) {
+            if ($req !== null) {
+                $request = $req;
+            }
+            if ($modelId !== null) {
+                $id = $modelId;
+            }
+
+            $rules = $this->scaffolder()->getInlineUpdateRules();
+            $validator = Validator::make($request->all(), $rules);
+            $validator->validate();
+
+            return true;
+        };
+
+        // Pass the closure to the hook
+        $customInlineUpdateValidation = $this->callHook('onInlineUpdateValidation', $defaultInlineUpdateValidation, $request, $id);
+        if($customInlineUpdateValidation !== null) {
+            return $customInlineUpdateValidation;
+        }
+
+        // Otherwise, return the result directly
+        return $defaultInlineUpdateValidation();
     }
 
     private function passedValidation($request)

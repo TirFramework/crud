@@ -8,7 +8,7 @@ trait RulesHelper
     final function getCreationRules(): array
     {
         $rules = [];
-        foreach ($this->getAllDataFields() as $field) {
+        foreach ($this->fieldsHandler()->getAllDataFields() as $field) {
             if ($field->creationRules)
                 $rules[$field->name] = $field->creationRules;
         }
@@ -18,9 +18,23 @@ trait RulesHelper
     final function getUpdateRules(): array
     {
         $rules = [];
-        foreach ($this->getAllDataFields() as $field) {
+        foreach ($this->fieldsHandler()->getAllDataFields() as $field) {
             if ($field->updateRules)
                 $rules[$field->name] = $field->updateRules;
+        }
+        return $rules;
+
+    }
+
+    final function getInlineUpdateRules(): array
+    {
+        $rules = [];
+        foreach ($this->fieldsHandler()->getAllDataFields() as $field) {
+            if ($field->showOnIndex) {
+                if ($field->updateRules){
+                    $rules[$field->name] = $field->updateRules;
+                }
+            }
         }
         return $rules;
 

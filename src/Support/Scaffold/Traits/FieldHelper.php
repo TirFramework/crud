@@ -168,4 +168,44 @@ trait FieldHelper
     {
         return \Tir\Crud\Support\Scaffold\Fields\Custom::make($name);
     }
+
+    // =================================================================
+    // FIELD MANAGEMENT HELPERS - Clean API for common operations
+    // =================================================================
+
+    /**
+     * Get all data fields from this scaffolder
+     * Clean alternative to: $this->fieldsHandler()->getAllDataFields()
+     */
+    // protected function getAllDataFields(): array
+    // {
+    //     return $this->fieldsHandler()->getAllDataFields();
+    // }
+
+    // /**
+    //  * Get fields displayed on index page
+    //  * Clean alternative to: $this->fieldsHandler()->getIndexFields()
+    //  */
+    // protected function getIndexFields(): array
+    // {
+    //     return $this->fieldsHandler()->getIndexFields();
+    // }
+
+    // /**
+    //  * Get fields displayed on edit/create forms
+    //  * Clean alternative to: $this->fieldsHandler()->getEditFields()
+    //  */
+    // protected function getEditFields(): array
+    // {
+    //     return $this->fieldsHandler()->getEditFields();
+    // }
+
+    // /**
+    //  * Get fillable fields for model operations
+    //  * Clean alternative to: $this->fieldsHandler()->getFillableFields()
+    //  */
+    // protected function getFillableFields(): array
+    // {
+    //     return $this->fieldsHandler()->getFillableFields();
+    // }
 }

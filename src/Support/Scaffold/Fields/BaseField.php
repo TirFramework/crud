@@ -17,11 +17,10 @@ abstract class BaseField
     protected string $display;
     protected string $placeholder = '';
     protected string $class = '';
-    protected string $group = 'all';
     protected int $col = 24;
     protected bool $disable = false;
     protected bool $readonly = false;
-    protected string $defaultValue;
+    protected mixed $defaultValue;
     protected bool $showOnIndex = true;
     protected bool $showOnDetail = true;
     protected bool $showOnCreating = true;
@@ -32,19 +31,19 @@ abstract class BaseField
     protected array $creationRules = [];
     protected array $updateRules = [];
     protected array $options = [];
-    protected array $data = [];
-    protected array $filter = [];
-    protected FilterType | string $filterType = FilterType::Select;
+    protected array|object $data = [];
+    protected array|object $filter = [];
+    protected FilterType|string $filterType = FilterType::Select;
     protected bool $filterable = false;
     protected bool $multiple = false;
     protected array $comment = [];
     protected $dataSet = [];
     protected bool $additional = false;
     protected bool $fillable = true;
-    protected bool $requestable = true;
     protected bool $virtual = false;
     protected mixed $filterQuery;
     protected object $relation;
+    protected string $className;
 
 
 
@@ -62,36 +61,36 @@ abstract class BaseField
     protected function init(): void
     {
     }
-    public function page(string $page): BaseField
+    public function page(string $page): static
     {
         $this->page = $page;
         return $this;
     }
-    public function display(string $value): BaseField
+    public function display(string $value): static
     {
         $this->display = $value;
         return $this;
     }
 
-    public function class(string $name): BaseField
+    public function class(string $name): static
     {
         $this->class = $this->class . ' ' . $name;
         return $this;
     }
 
-    public function placeholder(string $text): BaseField
+    public function placeholder(string $text): static
     {
         $this->placeholder = $text;
         return $this;
     }
 
-    public function col(string $number): BaseField
+    public function col(string $number): static
     {
         $this->col = $number;
         return $this;
     }
 
-    public function comment(string $content, string $title = ''): BaseField
+    public function comment(string $content, string $title = ''): static
     {
         $this->comment = [
             'title' => $title,
@@ -100,101 +99,101 @@ abstract class BaseField
         return $this;
     }
 
-    public function disable(bool $option = true): BaseField
+    public function disable(bool $option = true): static
     {
         $this->disable = $option;
         return $this;
     }
 
-    public function readonly(bool $option = true): BaseField
+    public function readonly(bool $option = true): static
     {
         $this->readonly = $option;
         return $this;
     }
 
-    public function fillable(bool $option = true): BaseField
+    public function fillable(bool $option = true): static
     {
         $this->fillable = $option;
         return $this;
     }
 
-    public function options($options = []): BaseField
+    public function options($options = []): static
     {
         $this->options = $this->options + $options;
         return $this;
     }
 
-    public function default(mixed $value): BaseField
+    public function default(mixed $value): static
     {
         $this->defaultValue = $value;
         return $this;
     }
 
 
-    public function virtual(bool $value = true): BaseField
+    public function virtual(bool $value = true): static
     {
         $this->virtual = $value;
         $this->fillable = !$value;
         return $this;
     }
 
-    public function showOnIndex($callback = true): BaseField
+    public function showOnIndex($callback = true): static
     {
         $this->showOnIndex = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : $callback;
         return $this;
     }
 
-    public function showOnCreating($callback = true): BaseField
+    public function showOnCreating($callback = true): static
     {
         $this->showOnCreating = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : $callback;
         return $this;
     }
 
-    public function showOnEditing($callback = true): BaseField
+    public function showOnEditing($callback = true): static
     {
         $this->showOnEditing = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : $callback;
         return $this;
     }
 
-    public function showOnDetail(bool $callback = true): BaseField
+    public function showOnDetail(bool $callback = true): static
     {
         $this->showOnEditing = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : $callback;
         return $this;
     }
 
-    public function hideFromIndex(bool $callback = true): BaseField
+    public function hideFromIndex(bool $callback = true): static
     {
         $this->showOnIndex = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : !$callback;
         return $this;
     }
 
-    public function hideWhenCreating(bool $callback = true): BaseField
+    public function hideWhenCreating(bool $callback = true): static
     {
         $this->showOnCreating = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : !$callback;
         return $this;
     }
 
-    public function hideWhenEditing($callback = true): BaseField
+    public function hideWhenEditing($callback = true): static
     {
         $this->showOnEditing = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : !$callback;
         return $this;
     }
 
-    public function hideFromDetail($callback = true): BaseField
+    public function hideFromDetail($callback = true): static
     {
         $this->showOnDetail = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : !$callback;
         return $this;
     }
 
-    public function hideFromAll($callback = true): BaseField
+    public function hideFromAll($callback = true): static
     {
         $this->showOnCreating =
             $this->showOnEditing =
@@ -205,21 +204,21 @@ abstract class BaseField
         return $this;
     }
 
-    public function onlyOnIndex(): BaseField
+    public function onlyOnIndex(): static
     {
         $this->showOnCreating = $this->showOnEditing = $this->showOnDetail = false;
         $this->showOnIndex = true;
         return $this;
     }
 
-    public function onlyOnCreating(): BaseField
+    public function onlyOnCreating(): static
     {
         $this->showOnIndex = $this->showOnEditing = $this->showOnDetail = false;
         $this->showOnCreating = true;
         return $this;
     }
 
-    public function onlyOnEditing($callback = true): BaseField
+    public function onlyOnEditing($callback = true): static
     {
         $this->showOnCreating = $this->showOnIndex = $this->showOnDetail = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : !$callback;
@@ -230,7 +229,7 @@ abstract class BaseField
         return $this;
     }
 
-    public function onlyOnDetail($callback = true): BaseField
+    public function onlyOnDetail($callback = true): static
     {
         $this->showOnCreating = $this->showOnIndex = $this->showOnEditing = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : !$callback;
@@ -241,13 +240,13 @@ abstract class BaseField
         return $this;
     }
 
-    public function sortable(bool $check = true): BaseField
+    public function sortable(bool $check = true): static
     {
         $this->sortable = $check;
         return $this;
     }
 
-    public function searchable(bool $check = true): BaseField
+    public function searchable(bool $check = true): static
     {
         $this->searchable = $check;
         return $this;
@@ -257,10 +256,10 @@ abstract class BaseField
      * Helper method to normalize variadic arguments
      * Handles both array and individual parameters
      */
-    private function normalizeVariadicArgs(...$args): array
+    private function normalizeVariadicArgs(...$args): array|object
     {
         // Handle single array input: ->method(['item1', 'item2'])
-        if (count($args) === 1 && is_array($args[0])) {
+        if (count($args) === 1 && (is_array($args[0]) || is_object($args[0]))) {
             return $args[0];
         }
 
@@ -268,7 +267,7 @@ abstract class BaseField
         return $args;
     }
 
-    public function rules(...$rules): BaseField
+    public function rules(...$rules): static
     {
         $flattenedRules = $this->normalizeVariadicArgs(...$rules);
 
@@ -278,21 +277,21 @@ abstract class BaseField
         return $this;
     }
 
-    public function creationRules(...$rules): BaseField
+    public function creationRules(...$rules): static
     {
         $normalizedRules = $this->normalizeVariadicArgs(...$rules);
         $this->creationRules = array_merge($this->rules, $normalizedRules);
         return $this;
     }
 
-    public function updateRules(...$rules): BaseField
+    public function updateRules(...$rules): static
     {
         $normalizedRules = $this->normalizeVariadicArgs(...$rules);
         $this->updateRules = array_merge($this->rules, $normalizedRules);
         return $this;
     }
 
-    public function data(...$data): BaseField
+    public function data(...$data): static
     {
         $normalizedData = $this->normalizeVariadicArgs(...$data);
         $this->data = $normalizedData;
@@ -301,7 +300,7 @@ abstract class BaseField
     }
 
 
-    public function filter(...$items): BaseField
+    public function filter(...$items): static
     {
         $this->filterable = true;
 
@@ -321,26 +320,26 @@ abstract class BaseField
     }
 
 
-    public function filterType(FilterType | string $type): BaseField
+    public function filterType(FilterType|string $type): static
     {
         $this->filterType = $type;
         return $this;
     }
 
-    public function filterQuery($queryFunction)
+    public function filterQuery(mixed $queryFunction): static
     {
         $this->filterQuery = $queryFunction;
         return $this;
     }
 
 
-        /**
+    /**
      * Add multiple option to select box
      *
      * @param bool $check
      * @return $this
      */
-    public function multiple(bool $check = true): Select
+    public function multiple(bool $check = true): static
     {
         $this->multiple = $check;
         $this->valueType = 'array';
@@ -348,11 +347,14 @@ abstract class BaseField
         return $this;
     }
 
-    public function relation(string $name, string $field, string $primaryKey = 'id'): Select
+    public function relation(string $field, string $name = null, string $primaryKey = 'id'): static
     {
-        $this->relation = (object)['name' => $name, 'field' => $field, 'key' => $primaryKey];
-        $this->name = $this->relation->name;
+        if (is_null($name)) {
+            $name = $this->originalName;
+        }
+        $this->relation = (object) ['name' => $name, 'field' => $field, 'key' => $primaryKey];
         $this->multiple(true);
+        $this->fillable(false);
 
         return $this;
     }
@@ -360,11 +362,17 @@ abstract class BaseField
 
     private function setRelationalValue($model)
     {
+        if (!isset($this->relation->name)) {
+            throw new \Exception('Relation is not defined for field: ' . $this->name);
+        }
+
+        if (!isset($model->{$this->relation->name})) {
+            throw new \Exception('For the field :' . $this->name . ' The Relation "' . $this->relation->name . '" not found on model');
+        }
         return $model->{$this->relation->name}->map(function ($value) {
             return $value->{$this->relation->key};
         })->toArray();
     }
-
     protected function setValue($model): void
     {
         if (isset($model)) {
