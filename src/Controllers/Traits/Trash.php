@@ -11,9 +11,9 @@ use Tir\Crud\Support\Hooks\TrashHooks;
 trait Trash
 {
     use TrashHooks;
-    
 
-    public final function trashData(): JsonResponse
+
+    public function trashData()
     {
 
         // Create DataService with trash mode
@@ -31,10 +31,10 @@ trait Trash
         return $this->trashResponse($items);
     }
 
-    private function trashResponse($items): JsonResponse
+    private function trashResponse($items): mixed
     {
         // Define the default response behavior as a closure
-        $defaultResponse = function($i = null) use ($items) {
+        $defaultResponse = function ($i = null) use ($items) {
             if ($i !== null) {
                 $items = $i;
             }
@@ -43,7 +43,7 @@ trait Trash
 
         // Pass the closure to the response hook
         $customResponse = $this->callHook('onTrashResponse', $defaultResponse, $items);
-        if($customResponse !== null) {
+        if ($customResponse !== null) {
             return $customResponse;
         }
 

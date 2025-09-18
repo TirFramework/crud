@@ -10,7 +10,7 @@ trait Create
 {
     use CreateHooks;
 
-    public final function create(): JsonResponse
+    public function create()
     {
         // Access check is now handled automatically in callAction()
 

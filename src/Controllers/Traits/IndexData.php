@@ -31,16 +31,11 @@ trait IndexData
 
     }
 
-    public function query(): mixed
-    {
-        return $this->query;
-    }
-
 
     private function indexResponse($items): mixed
     {
         // Define the default behavior as a closure
-        $defaultResponse = function($i = null) use ($items) {
+        $defaultResponse = function ($i = null) use ($items) {
             if ($i !== null) {
                 $items = $i;
             }
@@ -50,7 +45,7 @@ trait IndexData
         // Pass the closure to the hook
         $customResponse = $this->callHook('onIndexResponse', $defaultResponse, $items);
 
-        if($customResponse !== null) {
+        if ($customResponse !== null) {
             return $customResponse;
         }
 

@@ -10,12 +10,12 @@ trait Edit
 {
     use EditHooks;
 
-    public final function edit(int|string $id): JsonResponse
+    public function edit(int|string $id)
     {
         // Access check is now handled automatically in callAction()
 
         // Define the default behavior as a closure
-        $defaultEdit = function($modelId = null) use ($id) {
+        $defaultEdit = function ($modelId = null) use ($id) {
             if ($modelId !== null) {
                 $id = $modelId;
             }
@@ -24,7 +24,7 @@ trait Edit
 
         // Pass the closure to the hook
         $customEdit = $this->callHook('onEdit', $defaultEdit, $id);
-        if($customEdit !== null) {
+        if ($customEdit !== null) {
             $dataModel = $customEdit;
         } else {
             $dataModel = $defaultEdit();
@@ -34,10 +34,10 @@ trait Edit
         return $this->editResponse($dataModel);
     }
 
-    private function editResponse($dataModel): JsonResponse
+    private function editResponse($dataModel): mixed
     {
         // Define the default response behavior as a closure
-        $defaultResponse = function($model = null) use ($dataModel) {
+        $defaultResponse = function ($model = null) use ($dataModel) {
             if ($model !== null) {
                 $dataModel = $model;
             }
@@ -51,7 +51,7 @@ trait Edit
 
         // Pass the closure to the response hook
         $customResponse = $this->callHook('onEditResponse', $defaultResponse, $dataModel);
-        if($customResponse !== null) {
+        if ($customResponse !== null) {
             return $customResponse;
         }
 

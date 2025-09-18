@@ -3,10 +3,8 @@
 namespace Tir\Crud\Controllers\Traits;
 
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 use Tir\Crud\Services\UpdateService;
 use Illuminate\Support\Facades\Response;
-
 use Tir\Crud\Support\Hooks\UpdateHooks;
 use Tir\Crud\Support\Hooks\RequestHooks;
 
@@ -18,7 +16,7 @@ trait Update
 
 
 
-    public final function update(Request $request, int|string $id): mixed
+    public function update(Request $request, int|string $id)
     {
 
         // First process the request data
@@ -34,7 +32,7 @@ trait Update
 
     }
 
-    public final function inlineUpdate(Request $request, int|string $id): JsonResponse
+    public function inlineUpdate(Request $request, int|string $id)
     {
         // First process the request data
         $processedRequest = $this->processRequest($request);
@@ -49,8 +47,9 @@ trait Update
         return $this->updateResponse($item);
     }
 
-    private function updateCrud($request, $id){
-        $defaultUpdate = function($req = null, $modelId = null) use ($request, $id) {
+    private function updateCrud($request, $id)
+    {
+        $defaultUpdate = function ($req = null, $modelId = null) use ($request, $id) {
             if ($req !== null) {
                 $request = $req;
             }
@@ -71,7 +70,7 @@ trait Update
         };
 
         $customUpdate = $this->callHook('onUpdate', $defaultUpdate, $request, $id);
-        if($customUpdate !== null) {
+        if ($customUpdate !== null) {
             return $customUpdate;
         }
 
@@ -80,10 +79,10 @@ trait Update
     }
 
 
-    private function updateResponse($item): JsonResponse
+    private function updateResponse($item): mixed
     {
         // Define the default response behavior as a closure
-        $defaultResponse = function($i = null) use ($item) {
+        $defaultResponse = function ($i = null) use ($item) {
             if ($i !== null) {
                 $item = $i;
             }
@@ -91,20 +90,22 @@ trait Update
             $moduleName = $this->scaffolder()->getModuleName();
             $message = trans('core::message.item-updated', ['item' => trans("message.item.$moduleName")]);
             $scaffolder = $this->scaffolder()->scaffold('edit', $item)->getEditScaffold();
-        return Response::Json(
-            [
-                'id'      => $item->id,
-                'changes' => $item->getChanges(),
-                'scaffolder' => $scaffolder,
-                'updated' => true,
-                'message' => $message,
-            ]
-            , 200);
+            return Response::Json(
+                [
+                    'id' => $item->id,
+                    'changes' => $item->getChanges(),
+                    'scaffolder' => $scaffolder,
+                    'updated' => true,
+                    'message' => $message,
+                ]
+                ,
+                200
+            );
         };
 
-                // Pass the closure to the response hook
+        // Pass the closure to the response hook
         $customResponse = $this->callHook('onUpdateResponse', $defaultResponse, $item);
-        if($customResponse !== null) {
+        if ($customResponse !== null) {
             return $customResponse;
         }
 
