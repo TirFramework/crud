@@ -15,6 +15,7 @@ trait Index
 
         $cols = [];
         $scaffold = $this->scaffolder()->scaffold('index')->getIndexScaffold();
+        $scaffold = $this->scaffolder()->scaffold('index')->getIndexScaffold();
 
         // Override actions with access-filtered ones
         $scaffold['configs']['actions'] = $this->getAvailableActions();

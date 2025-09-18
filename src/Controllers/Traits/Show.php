@@ -2,13 +2,13 @@
 
 namespace Tir\Crud\Controllers\Traits;
 
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Response;
 use Tir\Crud\Support\Hooks\ShowHooks;
 
 trait Show
 {
     use ShowHooks;
+
 
 
     public function show($id)

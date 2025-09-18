@@ -3,6 +3,7 @@
 namespace Tir\Crud\Controllers\Traits;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Tir\Crud\Services\UpdateService;
 use Illuminate\Support\Facades\Response;
