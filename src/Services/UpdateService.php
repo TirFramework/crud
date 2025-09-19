@@ -5,6 +5,7 @@ namespace Tir\Crud\Services;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Tir\Crud\Support\Hooks\UpdateHooks;
+use Tir\Crud\Support\Database\DatabaseAdapterFactory;
 
 class UpdateService
 {
@@ -84,15 +85,17 @@ class UpdateService
 
     private function updateModel($request, $item): mixed
     {
-        // Store model
-        $modelFillable = $item->getFillable();
-        $modelGuarded = $item->getGuarded();
+        // Use database adapter for database-specific fillable handling
+        $adapter = DatabaseAdapterFactory::create($item->getConnection());
 
-        // Fillable columns from scaffolder and model
-        $item->fillable($this->scaffolder()->fieldsHandler()->getFillableColumns($modelFillable, $modelGuarded));
+        // Get scaffolder fields for filtering
+        $scaffolderFields = $this->scaffolder()->fieldsHandler()->getAllDataFields();
 
-        // Fill the model with request data
-        $item = $this->fillForUpdate($request, $item);
+        // Process fillable data using database-specific logic
+        $filteredData = $adapter->processFillableData($request->all(), $scaffolderFields, $item);
+
+        // Let each adapter handle its own fillModel logic with scaffolder field context
+        $item = $adapter->fillModel($item, $filteredData, $scaffolderFields);
 
         // Save the model
         $item = $this->saveForUpdate($request, $item);

@@ -12,7 +12,7 @@ trait ProcessRequest
 {
     use RequestHooks;
     /**
-     * Process the request data
+     * Process the request data using database adapters
      */
     private function processRequest(Request $request)
     {
@@ -22,25 +22,17 @@ trait ProcessRequest
                 $request = $req;
             }
 
-            $dataFields = collect($this->scaffolder()->scaffold('edit')->fieldsHandler()->getAllDataFields())
-                ->pluck('request')->flatten()->unique()->toArray();
+            // Use database adapter for request processing
+            $adapter = DatabaseAdapterFactory::create($this->model->getConnection());
+            $scaffolderFields = $this->scaffolder()->scaffold('edit')->fieldsHandler()->getAllDataFields();
 
-            //get only request that has equal field in scaffold
-            $clearedRequest = [];
-            $requestAll = $request->all();
-            foreach ($requestAll as $key => $value) {
-                if (in_array($key, $dataFields)) {
-                    $clearedRequest[$key] = $value;
-                }
-            }
+            // Let adapter handle field filtering and format conversion
+            $processedData = $adapter->processRequestData($request->all(), $scaffolderFields);
 
-            // Replace request data with an empty array
+            // Replace request with processed data
             $request->replace([]);
+            $request->merge($processedData);
 
-            //convert dot string request to array
-            $unDoted = Arr::undot($clearedRequest);
-
-            $request->merge($unDoted);
             return $request;
         };
 
@@ -146,18 +138,8 @@ trait ProcessRequest
 
     private function passedValidation($request)
     {
-        // Use database adapter for database-specific request processing
-        $adapter = DatabaseAdapterFactory::create($this->model->getConnection());
-
-        $requestData = $request->all();
-        $processedData = $adapter->processRequestData($requestData);
-
-        // Clear and merge the processed data
-        foreach ($request->all() as $offset => $value) {
-            $request->offsetUnset($offset);
-        }
-        $request->merge($processedData);
-
+        // ProcessRequest now handles all request processing
+        // No additional processing needed here
         return $request;
     }
 }

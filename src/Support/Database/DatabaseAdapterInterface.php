@@ -23,12 +23,9 @@ interface DatabaseAdapterInterface
 
     /**
      * Process request data for this database type
-     * Handle any database-specific request transformations
+     * Handle field filtering, format conversion, and database-specific transformations
      */
-
-    public function setRequestFieldName(mixed $field): mixed;
-
-    public function processRequestData(array $requestData): array;
+    public function processRequestData(array $requestData, array $scaffolderFields = []): array;
 
     /**
      * Configure query relations for this database type
@@ -57,6 +54,21 @@ interface DatabaseAdapterInterface
      * Handle database-specific column selection logic
      */
     public function getSelectColumns($model, array $indexFields): array;
+
+    /**
+     * Process fillable data for database-specific mass assignment handling
+     * Handle nested field filtering and fillable rules
+     */
+    public function processFillableData(array $requestData, array $scaffolderFields, $model): array;
+
+    /**
+     * Apply filtered data to model with database-specific logic
+     * Bypass or enhance Laravel's fillable mechanism as needed
+     * @param mixed $model The model instance to fill
+     * @param array $filteredData The data to fill the model with
+     * @param array $scaffolderFields The scaffolder field definitions for fallback fillable rules
+     */
+    public function fillModel($model, array $filteredData, array $scaffolderFields = []): mixed;
 
     public function getSql($query): array;
 }

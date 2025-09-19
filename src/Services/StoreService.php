@@ -5,6 +5,7 @@ namespace Tir\Crud\Services;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Tir\Crud\Support\Hooks\StoreHooks;
+use Tir\Crud\Support\Database\DatabaseAdapterFactory;
 
 class StoreService
 {
@@ -56,17 +57,18 @@ class StoreService
      */
     private function storeModel($request)
     {
-        // Store model
-        $modelFillable = $this->model()->getFillable();
-        $modelGuarded = $this->model()->getGuarded();
-
+        // Use database adapter for database-specific fillable handling
         $model = $this->model();
+        $adapter = DatabaseAdapterFactory::create($model->getConnection());
 
-        // Fillable columns from scaffolder and model
-        $model = $model->fillable($this->scaffolder()->fieldsHandler()->getFillableColumns($modelFillable, $modelGuarded));
+        // Get scaffolder fields for filtering
+        $scaffolderFields = $this->scaffolder()->fieldsHandler()->getAllDataFields();
 
-        // Fill the model with request data
-        $model = $this->fill($request, $model);
+        // Process fillable data using database-specific logic
+        $filteredData = $adapter->processFillableData($request->all(), $scaffolderFields, $model);
+
+        // Let each adapter handle its own fillModel logic with scaffolder field context
+        $model = $adapter->fillModel($model, $filteredData, $scaffolderFields);
 
         // Save the model
         $model = $this->save($request, $model);

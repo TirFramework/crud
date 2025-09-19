@@ -92,14 +92,14 @@ class FieldsHandler
             if (in_array($field, $securityBlacklist)) {
                 return false;
             }
-            
+
             // Check pattern matches
             foreach ($patternBlacklist as $pattern) {
                 if (fnmatch($pattern, $field)) {
                     return false;
                 }
             }
-            
+
             return true;
         });
 
@@ -138,7 +138,6 @@ class FieldsHandler
 
         $fields = $this->getFields();
         $this->editFields = $this->getChildren($fields, 'showOnEditing');
-
         return $this->editFields;
     }
 
@@ -185,7 +184,6 @@ class FieldsHandler
 
     final function getSearchableFields(): array
     {
-        $fields = [];
         foreach ($this->getIndexFields() as $field) {
             if ($field->searchable) {
                 $fields[] = $field;
@@ -213,14 +211,13 @@ class FieldsHandler
         $allFields = [];
         foreach ($fields as $field) {
             if ($field->{$page}) {
-                if (isset($field->children) && isset($field->shouldGetChildren)) {
+                if (isset($field->children) && $field->shouldGetChildren) {
                     $field->children = collect($field->children)->where($page, true)->values()->toArray();
                     $field->children = $this->getChildren($field->children, $page);
                 }
                 $allFields[] = $field;
             }
         }
-
         return $allFields;
     }
 
@@ -234,7 +231,7 @@ class FieldsHandler
     {
         $allFields = [];
         foreach ($fields as $field) {
-            if (isset($field->children) && isset($field->shouldGetChildren)) {
+            if (isset($field->children) && $field->shouldGetChildren) {
                 $children = $field->children;
                 $allFields[] = $field;
                 $allFields = array_merge($allFields, $this->getAllChildren($children));
