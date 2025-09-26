@@ -367,20 +367,55 @@ class MongoDbAdapter implements DatabaseAdapterInterface
 
     /**
      * Update nested fields selectively without overwriting other nested fields
+     * Uses deep merge for unlimited nesting levels while preserving existing data
      */
     private function updateNestedField($model, string $key, $value): void
     {
         if (is_array($value)) {
-            // For nested objects like profile.*, merge with existing data
+            // For nested objects like profile.*, use deep merge with existing data
             $existingData = $model->{$key} ?? [];
             if (!is_array($existingData)) {
                 $existingData = [];
             }
-            $model->{$key} = array_merge($existingData, $value);
+            $model->{$key} = $this->deepMergeArrays($existingData, $value);
         } else {
             // For simple values, set directly
             $model->{$key} = $value;
         }
+    }
+
+    /**
+     * Recursively merge arrays while preserving existing nested data
+     * Handles unlimited nesting levels for object fields
+     * Arrays (with numeric keys) are replaced entirely as intended
+     */
+    private function deepMergeArrays(array $existing, array $new): array
+    {
+        $result = $existing;
+
+        foreach ($new as $key => $value) {
+            if (is_array($value)) {
+                // Check if this is an indexed array (should be replaced entirely)
+                $isIndexedArray = !empty($value) && array_keys($value) === range(0, count($value) - 1);
+                
+                if ($isIndexedArray) {
+                    // For indexed arrays (like documents.contract.*.test), replace entirely
+                    $result[$key] = $value;
+                } else {
+                    // For associative arrays (objects), recursively merge
+                    if (isset($result[$key]) && is_array($result[$key])) {
+                        $result[$key] = $this->deepMergeArrays($result[$key], $value);
+                    } else {
+                        $result[$key] = $value;
+                    }
+                }
+            } else {
+                // For scalar values, replace directly
+                $result[$key] = $value;
+            }
+        }
+
+        return $result;
     }
 
 }
