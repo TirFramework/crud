@@ -50,7 +50,10 @@ class FieldsHandler
     {
         $fields = $this->getFields();
         $allFields = $this->getAllChildren($fields);
-        return collect($allFields)->where('virtual', '!=', true)->values()->toArray();
+        return collect($allFields)
+            ->where('virtual', '!=', true)
+            ->where('fillable', '=', true)
+            ->values()->toArray();
     }
 
 
@@ -87,7 +90,7 @@ class FieldsHandler
             ->toArray();
 
         // SECURITY: Remove any blacklisted fields from scaffold fillable
-        $safeFillable = array_filter($scaffoldFillable, function($field) use ($securityBlacklist, $patternBlacklist) {
+        $safeFillable = array_filter($scaffoldFillable, function ($field) use ($securityBlacklist, $patternBlacklist) {
             // Check exact matches
             if (in_array($field, $securityBlacklist)) {
                 return false;

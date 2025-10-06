@@ -41,36 +41,37 @@ class UpdateService
 
     public function update($request, $id)
     {
-            $item = $this->getModelById($id, $request, $this->model());
 
-            $item = $this->updateTransaction($request, $item);
-            return $item;
+        $item = $this->getModelById($id, $request, $this->model());
 
-     }
+        $item = $this->updateTransaction($request, $item);
+        return $item;
+
+    }
 
 
 
     private function getModelById(int|string $id, $request, $model)
     {
-            // Find the item by ID
-            $defaultItem = function($m = null, $i = null) use ($model, $id) {
-                // If the model is not found, it will throw a ModelNotFoundException
-                if( $m !== null) {
-                    $model = $m;
-                }
-                if( $i !== null) {
-                    $id = $i;
-                }
-                $model = new $model;
-                return $model->findOrFail($id);
-            };
-
-            $customItem = $this->callHook('onGetModelForUpdate', $defaultItem, $request, $id);
-            if ($customItem !== null) {
-                return $customItem;
+        // Find the item by ID
+        $defaultItem = function ($m = null, $i = null) use ($model, $id) {
+            // If the model is not found, it will throw a ModelNotFoundException
+            if ($m !== null) {
+                $model = $m;
             }
+            if ($i !== null) {
+                $id = $i;
+            }
+            $model = new $model;
+            return $model->findOrFail($id);
+        };
 
-            return $defaultItem();
+        $customItem = $this->callHook('onGetModelForUpdate', $defaultItem, $request, $id);
+        if ($customItem !== null) {
+            return $customItem;
+        }
+
+        return $defaultItem();
     }
 
 
@@ -91,6 +92,7 @@ class UpdateService
         // Get scaffolder fields for filtering
         $scaffolderFields = $this->scaffolder()->fieldsHandler()->getAllDataFields();
 
+
         // Process fillable data using database-specific logic
         $filteredData = $adapter->processFillableData($request->all(), $scaffolderFields, $item);
 
@@ -103,7 +105,7 @@ class UpdateService
         $this->updateRelations($request, $item);
 
         // Define the default behavior for update completed as a closure
-        $defaultUpdateCompleted = function($mdl = null, $req = null) use ($item, $request) {
+        $defaultUpdateCompleted = function ($mdl = null, $req = null) use ($item, $request) {
             if ($mdl !== null) {
                 $item = $mdl;
             }
@@ -115,7 +117,7 @@ class UpdateService
 
         // Pass the closure to the hook
         $customUpdateCompleted = $this->callHook('onUpdateCompleted', $defaultUpdateCompleted, $item, $request);
-        if($customUpdateCompleted !== null) {
+        if ($customUpdateCompleted !== null) {
             return $customUpdateCompleted;
         }
 
@@ -126,7 +128,7 @@ class UpdateService
     private function fillForUpdate($request, $model): mixed
     {
         // Define the default behavior for filling model as a closure
-        $defaultFillModel = function($m = null, $r = null) use ($request, $model) {
+        $defaultFillModel = function ($m = null, $r = null) use ($request, $model) {
             if ($m !== null) {
                 $model = $m;
             }
@@ -140,7 +142,7 @@ class UpdateService
 
         // Pass the closure to the hook
         $customFillModel = $this->callHook('onFillModelForUpdate', $defaultFillModel, $model, $request);
-        if($customFillModel !== null) {
+        if ($customFillModel !== null) {
             return $customFillModel;
         }
 
@@ -151,7 +153,7 @@ class UpdateService
     private function saveForUpdate($request, $model): mixed
     {
         // Define the default behavior for saving model as a closure
-        $defaultSaveModel = function($m = null, $r = null) use ($model, $request) {
+        $defaultSaveModel = function ($m = null, $r = null) use ($model, $request) {
             if ($m !== null) {
                 $model = $m;
             }
@@ -163,8 +165,8 @@ class UpdateService
         };
 
         // Pass the closure to the hook
-        $customSaveModel = $this->callHook('onUpdating', $defaultSaveModel, $model, $request);
-        if($customSaveModel !== null) {
+        $customSaveModel = $this->callHook('onUpdateModel', $defaultSaveModel, $model, $request);
+        if ($customSaveModel !== null) {
             return $customSaveModel;
         }
 
@@ -175,7 +177,7 @@ class UpdateService
     private function updateRelations(Request $request, $item): mixed
     {
         // Define the default behavior for updating relations as a closure
-        $defaultUpdateRelations = function($req = null, $mdl = null) use ($request, $item) {
+        $defaultUpdateRelations = function ($req = null, $mdl = null) use ($request, $item) {
             if ($req !== null) {
                 $request = $req;
             }
@@ -189,7 +191,7 @@ class UpdateService
                     $data = $request->input($field->name);
                     if (isset($data)) {
                         // Define the default behavior for updating a specific relation
-                        $defaultUpdateRelation = function($d = null, $itm = null, $req = null) use ($data, $field, $item, $request) {
+                        $defaultUpdateRelation = function ($d = null, $itm = null, $req = null) use ($data, $field, $item, $request) {
                             if ($d !== null) {
                                 $data = $d;
                             }
@@ -204,7 +206,7 @@ class UpdateService
 
                         // Pass the closure to the hook
                         $customUpdateRelation = $this->callHook('onUpdateRelation', $defaultUpdateRelation, $data, $field->name, $item, $request);
-                        if($customUpdateRelation === null) {
+                        if ($customUpdateRelation === null) {
                             $defaultUpdateRelation();
                         }
                     }
@@ -216,7 +218,7 @@ class UpdateService
 
         // Pass the closure to the hook
         $customUpdateRelations = $this->callHook('onUpdateRelations', $defaultUpdateRelations, $request, $item);
-        if($customUpdateRelations === null) {
+        if ($customUpdateRelations === null) {
             return $defaultUpdateRelations();
         }
         return $customUpdateRelations;

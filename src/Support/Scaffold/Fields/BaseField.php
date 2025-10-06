@@ -353,8 +353,7 @@ abstract class BaseField
             $name = $this->originalName;
         }
         $this->relation = (object) ['name' => $name, 'field' => $field, 'key' => $primaryKey];
-        $this->multiple(true);
-        $this->fillable(false);
+
 
         return $this;
     }

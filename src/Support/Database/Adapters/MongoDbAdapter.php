@@ -21,7 +21,7 @@ class MongoDbAdapter implements DatabaseAdapterInterface
     // ========================================
     // ADAPTER IDENTIFICATION & CONFIGURATION
     // ========================================
-    
+
     public function getDriverName(): string
     {
         return 'mongodb';
@@ -179,7 +179,7 @@ class MongoDbAdapter implements DatabaseAdapterInterface
     }
 
     // ========================================
-    // MODEL FILLING & DATA PERSISTENCE 
+    // MODEL FILLING & DATA PERSISTENCE
     // ========================================
 
     /**
@@ -190,6 +190,7 @@ class MongoDbAdapter implements DatabaseAdapterInterface
     {
         // MongoDB: Request is already processed and in correct nested format
         // Just return the data as-is for filling
+
         return $requestData;
     }
 
@@ -202,28 +203,27 @@ class MongoDbAdapter implements DatabaseAdapterInterface
     {
         // Step 1: Determine base fillable fields (priority-based)
         $modelFillable = $model->getFillable();
-
         if (!empty($modelFillable)) {
             // Priority 1: Use model's explicit fillable array
             $allowedFields = $modelFillable;
         } else {
             // Priority 2: Extract fillable fields from scaffolder
-            $scaffolderFillable = collect($scaffolderFields)
+            $scaffolderFillableFields = collect($scaffolderFields)
                 ->filter(function ($field) {
                     // Only include fields that are fillable (default true, or explicitly set to true)
                     return !isset($field->fillable) || $field->fillable !== false;
+                })
+                ->filter(function ($field) {
+                    // Exclude many-to-many relations (fields with relation and multiple=true)
+                    return !(isset($field->relation) && $field->multiple);
                 })
                 ->pluck('request')
                 ->flatten()
                 ->unique()
                 ->toArray();
 
-            if (!empty($scaffolderFillable)) {
-                $allowedFields = $scaffolderFillable;
-            } else {
-                // Fallback: If no explicit fillable rules, allow all filtered data keys
-                $allowedFields = array_keys($filteredData);
-            }
+            $allowedFields = $scaffolderFillableFields;
+
         }
 
         // Step 2: Always remove guarded fields from allowed fields
@@ -231,24 +231,9 @@ class MongoDbAdapter implements DatabaseAdapterInterface
         if (!empty($guardedFields) && $guardedFields !== ['*']) {
             // Filter out guarded fields and their nested patterns
             $allowedFields = $this->filterOutGuardedFields($allowedFields, $guardedFields);
-        } elseif ($guardedFields === ['*']) {
-            // If guarded is ['*'], check if model has explicit fillable
-            $modelFillableForGuarded = $model->getFillable();
-            if (!empty($modelFillableForGuarded)) {
-                // Use model's explicit fillable if available
-                $allowedFields = $modelFillableForGuarded;
-            } else {
-                // If no model fillable, use scaffolder fillable (MongoDB common pattern)
-                $allowedFields = collect($scaffolderFields)
-                    ->filter(function ($field) {
-                        return !isset($field->fillable) || $field->fillable !== false;
-                    })
-                    ->pluck('request')
-                    ->flatten()
-                    ->unique()
-                    ->toArray();
-            }
         }
+
+
 
         // Step 3: Filter data to only include allowed fields and apply to model
         $secureData = $this->filterDataByAllowedFields($filteredData, $allowedFields);
@@ -278,29 +263,29 @@ class MongoDbAdapter implements DatabaseAdapterInterface
     private function filterOutGuardedFields(array $allowedFields, array $guardedFields): array
     {
         $filteredFields = [];
-        
+
         foreach ($allowedFields as $field) {
             $isGuarded = false;
-            
+
             foreach ($guardedFields as $guardedField) {
                 // Check if field matches guarded field exactly
                 if ($field === $guardedField) {
                     $isGuarded = true;
                     break;
                 }
-                
+
                 // Check if field is a nested field of a guarded field (like profile.eyes_color when profile is guarded)
                 if (strpos($field, $guardedField . '.') === 0) {
                     $isGuarded = true;
                     break;
                 }
             }
-            
+
             if (!$isGuarded) {
                 $filteredFields[] = $field;
             }
         }
-        
+
         return $filteredFields;
     }
 
@@ -311,6 +296,9 @@ class MongoDbAdapter implements DatabaseAdapterInterface
     private function isArrayField(string $key, $value): bool
     {
         // Check if value has numeric keys (indicating it's an indexed array)
+        if(is_array($value) && empty($value)) {
+            return true;
+        }
         if (is_array($value) && !empty($value)) {
             $keys = array_keys($value);
             // If the first key is numeric, it's an indexed array that should be replaced entirely
@@ -338,9 +326,11 @@ class MongoDbAdapter implements DatabaseAdapterInterface
                 // Check if key starts with any allowed field pattern (for nested fields)
                 foreach ($allowedFields as $allowedField) {
                     // Handle dot notation patterns like profile.eyes_color, family.*.first_name
-                    if (strpos($key, $allowedField . '.') === 0 ||
+                    if (
+                        strpos($key, $allowedField . '.') === 0 ||
                         strpos($allowedField, $key . '.') === 0 ||
-                        $this->matchesPatternWithWildcard($key, $allowedField)) {
+                        $this->matchesPatternWithWildcard($key, $allowedField)
+                    ) {
                         $isAllowed = true;
                         break;
                     }
@@ -367,55 +357,20 @@ class MongoDbAdapter implements DatabaseAdapterInterface
 
     /**
      * Update nested fields selectively without overwriting other nested fields
-     * Uses deep merge for unlimited nesting levels while preserving existing data
      */
     private function updateNestedField($model, string $key, $value): void
     {
         if (is_array($value)) {
-            // For nested objects like profile.*, use deep merge with existing data
+            // For nested objects like profile.*, merge with existing data
             $existingData = $model->{$key} ?? [];
             if (!is_array($existingData)) {
                 $existingData = [];
             }
-            $model->{$key} = $this->deepMergeArrays($existingData, $value);
+            $model->{$key} = array_merge($existingData, $value);
         } else {
             // For simple values, set directly
             $model->{$key} = $value;
         }
-    }
-
-    /**
-     * Recursively merge arrays while preserving existing nested data
-     * Handles unlimited nesting levels for object fields
-     * Arrays (with numeric keys) are replaced entirely as intended
-     */
-    private function deepMergeArrays(array $existing, array $new): array
-    {
-        $result = $existing;
-
-        foreach ($new as $key => $value) {
-            if (is_array($value)) {
-                // Check if this is an indexed array (should be replaced entirely)
-                $isIndexedArray = !empty($value) && array_keys($value) === range(0, count($value) - 1);
-                
-                if ($isIndexedArray) {
-                    // For indexed arrays (like documents.contract.*.test), replace entirely
-                    $result[$key] = $value;
-                } else {
-                    // For associative arrays (objects), recursively merge
-                    if (isset($result[$key]) && is_array($result[$key])) {
-                        $result[$key] = $this->deepMergeArrays($result[$key], $value);
-                    } else {
-                        $result[$key] = $value;
-                    }
-                }
-            } else {
-                // For scalar values, replace directly
-                $result[$key] = $value;
-            }
-        }
-
-        return $result;
     }
 
 }
