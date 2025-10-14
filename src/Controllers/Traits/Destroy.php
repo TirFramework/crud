@@ -27,12 +27,7 @@ trait Destroy
         };
 
         // Pass the closure to the hook
-        $customDestroy = $this->callHook('onDestroy', $defaultDestroy, $id);
-        if ($customDestroy !== null) {
-            $deletedItem = $customDestroy;
-        } else {
-            $deletedItem = $defaultDestroy();
-        }
+        $deletedItem = $this->executeWithHook('onDestroy', $defaultDestroy, $id);
 
         // Handle response with hooks
         return $this->destroyResponse($deletedItem);
@@ -55,12 +50,6 @@ trait Destroy
         };
 
         // Pass the closure to the response hook
-        $customResponse = $this->callHook('onDestroyResponse', $defaultResponse, $deletedItem);
-        if ($customResponse !== null) {
-            return $customResponse;
-        }
-
-        // Return default response
-        return $defaultResponse();
+        return $this->executeWithHook('onDestroyResponse', $defaultResponse, $deletedItem);
     }
 }

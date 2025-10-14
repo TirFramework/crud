@@ -23,12 +23,7 @@ trait Show
         };
 
         // Pass the closure to the hook
-        $customShow = $this->callHook('onShow', $defaultShow, $id);
-        if ($customShow !== null) {
-            $dataModel = $customShow;
-        } else {
-            $dataModel = $defaultShow();
-        }
+        $dataModel = $this->executeWithHook('onShow', $defaultShow, $id);
 
         // Define the default response behavior as a closure
         $defaultResponse = function ($model = null) use ($dataModel) {
@@ -40,12 +35,6 @@ trait Show
         };
 
         // Pass the closure to the response hook
-        $customResponse = $this->callHook('onShowResponse', $defaultResponse, $dataModel);
-        if ($customResponse !== null) {
-            return $customResponse;
-        }
-
-        // Prepare and return the default response
-        return $defaultResponse();
+        return $this->executeWithHook('onShowResponse', $defaultResponse, $dataModel);
     }
 }

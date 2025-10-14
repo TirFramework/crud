@@ -28,11 +28,11 @@ class Module
                 'access' => [
                     [
                         'label' => trans('core::panel.allow'),
-                        'value' => 'allow',
+                        'value' => true,
                     ],
                     [
                         'label' => trans('core::panel.deny'),
-                        'value' => 'deny',
+                        'value' => false,
                     ]
                 ]
             ],
@@ -44,15 +44,11 @@ class Module
                 'access' => [
                     [
                         'label' => trans('core::panel.allow'),
-                        'value' => 'allow',
-                    ],
-                    [
-                        'label' => trans('core::panel.operator'),
-                        'value' => 'operator',
+                        'value' => true,
                     ],
                     [
                         'label' => trans('core::panel.deny'),
-                        'value' => 'deny',
+                        'value' => false,
                     ]
                 ]
             ],
@@ -64,15 +60,11 @@ class Module
                 'access' => [
                     [
                         'label' => trans('core::panel.allow'),
-                        'value' => 'allow',
-                    ],
-                    [
-                        'label' => trans('core::panel.operator'),
-                        'value' => 'operator',
+                        'value' => true,
                     ],
                     [
                         'label' => trans('core::panel.deny'),
-                        'value' => 'deny',
+                        'value' => false,
                     ]
                 ]
             ],
@@ -84,15 +76,11 @@ class Module
                 'access' => [
                     [
                         'label' => trans('core::panel.allow'),
-                        'value' => 'allow',
-                    ],
-                    [
-                        'label' => trans('core::panel.operator'),
-                        'value' => 'operator',
+                        'value' => true,
                     ],
                     [
                         'label' => trans('core::panel.deny'),
-                        'value' => 'deny',
+                        'value' => false,
                     ]
                 ]
             ],
@@ -104,15 +92,11 @@ class Module
                 'access' => [
                     [
                         'label' => trans('core::panel.allow'),
-                        'value' => 'allow',
-                    ],
-                    [
-                        'label' => trans('core::panel.operator'),
-                        'value' => 'operator',
+                        'value' => true,
                     ],
                     [
                         'label' => trans('core::panel.deny'),
-                        'value' => 'deny',
+                        'value' => false,
                     ]
                 ]
             ],
@@ -124,15 +108,11 @@ class Module
                 'access' => [
                     [
                         'label' => trans('core::panel.allow'),
-                        'value' => 'allow',
-                    ],
-                    [
-                        'label' => trans('core::panel.operator'),
-                        'value' => 'operator',
+                        'value' => true,
                     ],
                     [
                         'label' => trans('core::panel.deny'),
-                        'value' => 'deny',
+                        'value' => false,
                     ]
                 ]
             ]

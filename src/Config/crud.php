@@ -6,10 +6,9 @@ return [
 
     'middlewares'=> env('CRUD_MIDDLEWARES',['auth:sanctum']),
 
-    'localization' => env('CRUD_LOCALE',true),
-
     'accessLevelControl' => env('CRUD_ACCESS_LEVEL_CONTROL','on'),
 
-    'aclCheckerClass' => \Tir\Crud\Support\Acl\Access::Class,
+    'access_class' => \Tir\Crud\Support\Acl\Access::Class,
+
 
 ];

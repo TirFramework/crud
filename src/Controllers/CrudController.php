@@ -6,10 +6,10 @@ use App\Http\Controllers\Controller;
 
 /**
  * CRUD Controller Facade
- * 
+ *
  * This facade provides a stable interface for users, regardless of internal structure changes.
  * Users can extend this class and get all CRUD functionality without worrying about internal organization.
- * 
+ *
  * Usage:
  * class UserController extends CrudController
  * {

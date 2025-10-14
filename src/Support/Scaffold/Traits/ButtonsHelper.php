@@ -4,7 +4,7 @@ namespace Tir\Crud\Support\Scaffold\Traits;
 
 trait ButtonsHelper
 {
-    private array $fields = [];
+    // private array $fields = [];
     private array $buttons = [];
 
     final function getIndexButtons(): array

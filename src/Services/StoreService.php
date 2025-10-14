@@ -88,13 +88,7 @@ class StoreService
         };
 
         // Pass the closure to the hook
-        $customStoreCompleted = $this->callHook('onStoreCompleted', $defaultStoreCompleted, $model, $request);
-        if($customStoreCompleted !== null) {
-            return $customStoreCompleted;
-        }
-
-        // Otherwise, return the result directly
-        return $defaultStoreCompleted();
+        return $this->executeWithHook('onStoreCompleted', $defaultStoreCompleted, $model, $request);
     }
 
     private function storeRelations($request, $model): void
@@ -128,10 +122,7 @@ class StoreService
                         };
 
                         // Pass the closure to the hook
-                        $customStoreRelation = $this->callHook('onStoreRelation', $defaultStoreRelation, $data, $field->name, $model, $request);
-                        if($customStoreRelation === null) {
-                            $defaultStoreRelation();
-                        }
+                        $this->executeWithHook('onStoreRelation', $defaultStoreRelation, $data, $field->name, $model, $request);
                     }
                 }
             }
@@ -140,10 +131,7 @@ class StoreService
         };
 
         // Pass the closure to the hook
-        $customStoreRelations = $this->callHook('onStoreRelations', $defaultStoreRelations, $request, $model);
-        if($customStoreRelations === null) {
-            $defaultStoreRelations();
-        }
+        $this->executeWithHook('onStoreRelations', $defaultStoreRelations, $request, $model);
     }
 
     private function fill($request, $model)
@@ -161,13 +149,7 @@ class StoreService
         };
 
         // Pass the closure to the hook
-        $customFillModel = $this->callHook('onFillModelForStore', $defaultFillModel, $model, $request);
-        if($customFillModel !== null) {
-            return $customFillModel;
-        }
-
-        // Otherwise, return the result directly
-        return $defaultFillModel();
+        return $this->executeWithHook('onFillModelForStore', $defaultFillModel, $model, $request);
     }
 
     private function save($request, $model)
@@ -185,12 +167,6 @@ class StoreService
         };
 
         // Pass the closure to the hook
-        $customSaveModel = $this->callHook('onSaveModel', $defaultSaveModel, $model, $request);
-        if($customSaveModel !== null) {
-            return $customSaveModel;
-        }
-
-        // Otherwise, return the result directly
-        return $defaultSaveModel();
+        return $this->executeWithHook('onSaveModel', $defaultSaveModel, $model, $request);
     }
 }

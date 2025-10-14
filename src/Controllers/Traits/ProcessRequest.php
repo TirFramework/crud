@@ -37,13 +37,7 @@ trait ProcessRequest
         };
 
         // Pass the closure to the hook
-        $customProcessRequest = $this->callHook('onProcessRequest', $defaultProcessRequest, $request);
-        if($customProcessRequest !== null) {
-            return $customProcessRequest;
-        }
-
-        // Otherwise, return the result directly
-        return $defaultProcessRequest();
+        return $this->executeWithHook('onProcessRequest', $defaultProcessRequest, $request);
     }
 
     /**
@@ -65,13 +59,7 @@ trait ProcessRequest
         };
 
         // Pass the closure to the hook
-        $customStoreValidation = $this->callHook('onStoreValidation', $defaultStoreValidation, $request);
-        if($customStoreValidation !== null) {
-            return $customStoreValidation;
-        }
-
-        // Otherwise, return the result directly
-        return $defaultStoreValidation();
+        return $this->executeWithHook('onStoreValidation', $defaultStoreValidation, $request);
     }
 
     /**
@@ -98,13 +86,7 @@ trait ProcessRequest
         };
 
         // Pass the closure to the hook
-        $customUpdateValidation = $this->callHook('onUpdateValidation', $defaultUpdateValidation, $request, $id);
-        if($customUpdateValidation !== null) {
-            return $customUpdateValidation;
-        }
-
-        // Otherwise, return the result directly
-        return $defaultUpdateValidation();
+        return $this->executeWithHook('onUpdateValidation', $defaultUpdateValidation, $request, $id);
     }
 
 
@@ -127,13 +109,7 @@ trait ProcessRequest
         };
 
         // Pass the closure to the hook
-        $customInlineUpdateValidation = $this->callHook('onInlineUpdateValidation', $defaultInlineUpdateValidation, $request, $id);
-        if($customInlineUpdateValidation !== null) {
-            return $customInlineUpdateValidation;
-        }
-
-        // Otherwise, return the result directly
-        return $defaultInlineUpdateValidation();
+        return $this->executeWithHook('onInlineUpdateValidation', $defaultInlineUpdateValidation, $request, $id);
     }
 
     private function passedValidation($request)

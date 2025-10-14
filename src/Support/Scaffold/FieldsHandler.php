@@ -42,76 +42,19 @@ class FieldsHandler
     final function getAllFields()
     {
         $fields = $this->getFields();
-        $allFields = $this->getAllChildren($fields);
+        $allFields = $this->getChildrenFlated($fields);
         return collect($allFields)->values()->toArray();
     }
 
     final function getAllDataFields()
     {
         $fields = $this->getFields();
-        $allFields = $this->getAllChildren($fields);
+        $allFields = $this->getChildrenFlated($fields);
         return collect($allFields)
             ->where('virtual', '!=', true)
             ->where('fillable', '=', true)
             ->values()->toArray();
     }
-
-
-    /**
-     * Get fillable columns by merging scaffold and model fillable arrays
-     * WITH SECURITY PROTECTION against sensitive fields
-     *
-     * @param array $modelFillable Fillable fields from model
-     * @param array $modelGuarded Guarded fields from model
-     * @return array Final fillable fields
-     */
-    final function getFillableColumns(array $modelFillable = [], array $modelGuarded = []): array
-    {
-        // SECURITY: Define blacklist of sensitive fields that should NEVER be auto-fillable
-        $securityBlacklist = [
-            'id',
-            'password',
-            'remember_token',
-            'email_verified_at',
-            'api_token',
-            'created_at',
-            'updated_at',
-            'deleted_at',
-        ];
-
-        // Add any fields matching sensitive patterns
-        $patternBlacklist = ['*_token', '*_secret', '*_key', '*_hash'];
-
-        $scaffoldFillable = collect($this->getAllDataFields())
-            ->where('fillable', true)
-            ->pluck('request')
-            ->flatten()
-            ->unique()
-            ->toArray();
-
-        // SECURITY: Remove any blacklisted fields from scaffold fillable
-        $safeFillable = array_filter($scaffoldFillable, function ($field) use ($securityBlacklist, $patternBlacklist) {
-            // Check exact matches
-            if (in_array($field, $securityBlacklist)) {
-                return false;
-            }
-
-            // Check pattern matches
-            foreach ($patternBlacklist as $pattern) {
-                if (fnmatch($pattern, $field)) {
-                    return false;
-                }
-            }
-
-            return true;
-        });
-
-        $fillables = array_merge($safeFillable, $modelFillable);
-        $finalFillables = array_diff($fillables, $modelGuarded);
-
-        return $finalFillables;
-    }
-
 
 
 
@@ -127,7 +70,7 @@ class FieldsHandler
         }
 
         // Calculate and cache the result
-        $allFields = $this->getAllChildren($this->getFields());
+        $allFields = $this->getChildrenFlated($this->getFields());
         $this->indexFields = collect($allFields)->where('showOnIndex')->values()->toArray();
 
         return $this->indexFields;
@@ -187,6 +130,7 @@ class FieldsHandler
 
     final function getSearchableFields(): array
     {
+        $fields = [];
         foreach ($this->getIndexFields() as $field) {
             if ($field->searchable) {
                 $fields[] = $field;
@@ -195,18 +139,6 @@ class FieldsHandler
         return $fields;
     }
 
-
-    private function getSubFields($fields, $allFields)
-    {
-        foreach ($fields as $field) {
-            if (isset($field->children) && !$field->requestable) {
-                $allFields = $this->getSubFields($field->subFields, $allFields);
-            } elseif ($field->requestable) {
-                $allFields[] = $field;
-            }
-        }
-        return $allFields;
-    }
 
 
     private function getChildren($fields, $page): array
@@ -230,14 +162,14 @@ class FieldsHandler
      * @param array $fields Fields to process
      * @return array Flattened array of all child fields
      */
-    private function getAllChildren(array $fields): array
+    private function getChildrenFlated(array $fields): array
     {
         $allFields = [];
         foreach ($fields as $field) {
             if (isset($field->children) && $field->shouldGetChildren) {
                 $children = $field->children;
                 $allFields[] = $field;
-                $allFields = array_merge($allFields, $this->getAllChildren($children));
+                $allFields = array_merge($allFields, $this->getChildrenFlated($children));
             } else {
                 $allFields[] = $field;
             }
@@ -245,4 +177,19 @@ class FieldsHandler
 
         return $allFields;
     }
+
+
+
+    //Lagacy code - not used
+    // private function getSubFields($fields, $allFields)
+    // {
+    //     foreach ($fields as $field) {
+    //         if (isset($field->children) && !$field->requestable) {
+    //             $allFields = $this->getSubFields($field->subFields, $allFields);
+    //         } elseif ($field->requestable) {
+    //             $allFields[] = $field;
+    //         }
+    //     }
+    //     return $allFields;
+    // }
 }

@@ -25,12 +25,7 @@ trait ForceDelete
         };
 
         // Pass the closure to the hook
-        $customForceDelete = $this->callHook('onForceDelete', $defaultForceDelete, $id);
-        if ($customForceDelete !== null) {
-            $deletedItem = $customForceDelete;
-        } else {
-            $deletedItem = $defaultForceDelete();
-        }
+        $deletedItem = $this->executeWithHook('onForceDelete', $defaultForceDelete, $id);
 
         // Handle response with hooks
         return $this->forceDeleteResponse($deletedItem);
@@ -54,13 +49,7 @@ trait ForceDelete
         };
 
         // Pass the closure to the response hook
-        $customResponse = $this->callHook('onForceDeleteResponse', $defaultResponse, $deletedItem);
-        if ($customResponse !== null) {
-            return $customResponse;
-        }
-
-        // Return default response
-        return $defaultResponse();
+        return $this->executeWithHook('onForceDeleteResponse', $defaultResponse, $deletedItem);
     }
 
     public final function emptyTrash(): JsonResponse
@@ -73,12 +62,7 @@ trait ForceDelete
         };
 
         // Pass the closure to the hook
-        $customEmptyTrash = $this->callHook('onEmptyTrash', $defaultEmptyTrash);
-        if ($customEmptyTrash !== null) {
-            $deletedCount = $customEmptyTrash;
-        } else {
-            $deletedCount = $defaultEmptyTrash();
-        }
+        $deletedCount = $this->executeWithHook('onEmptyTrash', $defaultEmptyTrash);
 
         // Handle response with hooks
         return $this->emptyTrashResponse($deletedCount);
@@ -106,12 +90,6 @@ trait ForceDelete
         };
 
         // Pass the closure to the response hook
-        $customResponse = $this->callHook('onEmptyTrashResponse', $defaultResponse, $deletedCount);
-        if ($customResponse !== null) {
-            return $customResponse;
-        }
-
-        // Return default response
-        return $defaultResponse();
+        return $this->executeWithHook('onEmptyTrashResponse', $defaultResponse, $deletedCount);
     }
 }

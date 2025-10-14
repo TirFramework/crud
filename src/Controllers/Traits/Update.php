@@ -69,12 +69,7 @@ trait Update
 
         };
 
-        $customUpdate = $this->callHook('onUpdate', $defaultUpdate, $request, $id);
-        if ($customUpdate !== null) {
-            return $customUpdate;
-        }
-
-        return $defaultUpdate();
+        return $this->executeWithHook('onUpdate', $defaultUpdate, $request, $id);
 
     }
 
@@ -104,12 +99,6 @@ trait Update
         };
 
         // Pass the closure to the response hook
-        $customResponse = $this->callHook('onUpdateResponse', $defaultResponse, $item);
-        if ($customResponse !== null) {
-            return $customResponse;
-        }
-
-        // Return default response
-        return $defaultResponse();
+        return $this->executeWithHook('onUpdateResponse', $defaultResponse, $item);
     }
 }

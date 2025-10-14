@@ -8,6 +8,8 @@ trait TrashHooks
 
     /**
      * Set custom hook for trash data retrieval
+     *
+     * @param callable(callable $defaultTrash): mixed $callback
      */
     protected function onTrash(callable $callback): self
     {
@@ -17,6 +19,8 @@ trait TrashHooks
 
     /**
      * Set custom hook for trash response
+     *
+     * @param callable(callable $defaultResponse, mixed $items): mixed $callback
      */
     protected function onTrashResponse(callable $callback): self
     {
@@ -26,6 +30,8 @@ trait TrashHooks
 
     /**
      * Set custom hook for trash select query
+     *
+     * @param callable(callable $defaultSelect, mixed $query): mixed $callback
      */
     protected function onTrashSelect(callable $callback): self
     {
@@ -35,6 +41,8 @@ trait TrashHooks
 
     /**
      * Set custom hook for trash filter
+     *
+     * @param callable(callable $defaultFilter, mixed $query): mixed $callback
      */
     protected function onTrashFilter(callable $callback): self
     {
@@ -44,6 +52,8 @@ trait TrashHooks
 
     /**
      * Set custom hook for trash sort
+     *
+     * @param callable(callable $defaultSort, mixed $query): mixed $callback
      */
     protected function onTrashSort(callable $callback): self
     {

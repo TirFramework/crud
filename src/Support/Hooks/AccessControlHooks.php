@@ -10,9 +10,11 @@ trait AccessControlHooks
      * Hook to provide custom access control logic
      * Return true to allow access, false to deny, null for default behavior
      *
+     * @param callable(string $method): bool|null $callback
+     *
      * Example:
-     * $this->onCheckAccess(function ($action) {
-     *     if ($action === 'destroy') {
+     * $this->onCheckAccess(function ($method) {
+     *     if ($method === 'destroy') {
      *         return auth()->user()->isAdmin(); // Only admins can delete
      *     }
      *     return true; // Allow all other actions

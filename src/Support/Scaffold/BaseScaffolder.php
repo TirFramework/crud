@@ -40,7 +40,6 @@ abstract class BaseScaffolder
     public function __construct()
     {
         // Initialize the scaffolder with the model and module name
-
         $this->moduleName = $this->setModuleName();
         $this->actions = $this->setActions();
 
@@ -90,6 +89,7 @@ abstract class BaseScaffolder
     public function scaffold($page = '', $model = null): static
     {
         $this->scaffolderInit();
+        app()->instance('crud_current_scaffolder', $this->setModuleName());
 
         if (isset($this->scaffoldedModel) && isset($this->scaffoldedPage)) {
             if ($this->scaffoldedModel === $model && $this->scaffoldedPage === $page) {

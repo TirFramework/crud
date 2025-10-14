@@ -50,12 +50,7 @@ trait Store
         };
 
         // Pass the closure to the hook
-        $customStore = $this->callHook('onStore', $defaultStore, $request);
-        if ($customStore !== null) {
-            $model = $customStore;
-        } else {
-            $model = $defaultStore();
-        }
+        $model = $this->executeWithHook('onStore', $defaultStore, $request);
 
         // Handle response with hooks
         return $this->storeResponse($model);
@@ -80,12 +75,6 @@ trait Store
         };
 
         // Pass the closure to the response hook
-        $customResponse = $this->callHook('onStoreResponse', $defaultResponse, $model);
-        if ($customResponse !== null) {
-            return $customResponse;
-        }
-
-        // Return default response
-        return $defaultResponse();
+        return $this->executeWithHook('onStoreResponse', $defaultResponse, $model);
     }
 }

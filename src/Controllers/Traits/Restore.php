@@ -25,12 +25,7 @@ trait Restore
         };
 
         // Pass the closure to the hook
-        $customRestore = $this->callHook('onRestore', $defaultRestore, $id);
-        if ($customRestore !== null) {
-            $restoredItem = $customRestore;
-        } else {
-            $restoredItem = $defaultRestore();
-        }
+        $restoredItem = $this->executeWithHook('onRestore', $defaultRestore, $id);
 
         // Handle response with hooks
         return $this->restoreResponse($restoredItem);
@@ -54,12 +49,6 @@ trait Restore
         };
 
         // Pass the closure to the response hook
-        $customResponse = $this->callHook('onRestoreResponse', $defaultResponse, $restoredItem);
-        if ($customResponse !== null) {
-            return $customResponse;
-        }
-
-        // Return default response
-        return $defaultResponse();
+        return $this->executeWithHook('onRestoreResponse', $defaultResponse, $restoredItem);
     }
 }

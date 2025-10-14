@@ -66,12 +66,7 @@ class UpdateService
             return $model->findOrFail($id);
         };
 
-        $customItem = $this->callHook('onGetModelForUpdate', $defaultItem, $request, $id);
-        if ($customItem !== null) {
-            return $customItem;
-        }
-
-        return $defaultItem();
+        return $this->executeWithHook('onGetModelForUpdate', $defaultItem, $request, $id);
     }
 
 
@@ -116,13 +111,7 @@ class UpdateService
         };
 
         // Pass the closure to the hook
-        $customUpdateCompleted = $this->callHook('onUpdateCompleted', $defaultUpdateCompleted, $item, $request);
-        if ($customUpdateCompleted !== null) {
-            return $customUpdateCompleted;
-        }
-
-        // Otherwise, return the result directly
-        return $defaultUpdateCompleted();
+        return $this->executeWithHook('onUpdateCompleted', $defaultUpdateCompleted, $item, $request);
     }
 
     private function fillForUpdate($request, $model): mixed
@@ -141,19 +130,14 @@ class UpdateService
 
 
         // Pass the closure to the hook
-        $customFillModel = $this->callHook('onFillModelForUpdate', $defaultFillModel, $model, $request);
-        if ($customFillModel !== null) {
-            return $customFillModel;
-        }
-
-        // Otherwise, return the result directly
-        return $defaultFillModel();
+        return $this->executeWithHook('onFillModelForUpdate', $defaultFillModel, $model, $request);
     }
 
     private function saveForUpdate($request, $model): mixed
     {
         // Define the default behavior for saving model as a closure
         $defaultSaveModel = function ($m = null, $r = null) use ($model, $request) {
+            dd('test');
             if ($m !== null) {
                 $model = $m;
             }
@@ -165,13 +149,7 @@ class UpdateService
         };
 
         // Pass the closure to the hook
-        $customSaveModel = $this->callHook('onUpdateModel', $defaultSaveModel, $model, $request);
-        if ($customSaveModel !== null) {
-            return $customSaveModel;
-        }
-
-        // Otherwise, return the result directly
-        return $defaultSaveModel();
+        return $this->executeWithHook('onUpdateModel', $defaultSaveModel, $model, $request);
     }
 
     private function updateRelations(Request $request, $item): mixed
@@ -205,10 +183,7 @@ class UpdateService
                         };
 
                         // Pass the closure to the hook
-                        $customUpdateRelation = $this->callHook('onUpdateRelation', $defaultUpdateRelation, $data, $field->name, $item, $request);
-                        if ($customUpdateRelation === null) {
-                            $defaultUpdateRelation();
-                        }
+                        $this->executeWithHook('onUpdateRelation', $defaultUpdateRelation, $data, $field->name, $item, $request);
                     }
                 }
             }
@@ -217,10 +192,6 @@ class UpdateService
         };
 
         // Pass the closure to the hook
-        $customUpdateRelations = $this->callHook('onUpdateRelations', $defaultUpdateRelations, $request, $item);
-        if ($customUpdateRelations === null) {
-            return $defaultUpdateRelations();
-        }
-        return $customUpdateRelations;
+        return $this->executeWithHook('onUpdateRelations', $defaultUpdateRelations, $request, $item);
     }
 }

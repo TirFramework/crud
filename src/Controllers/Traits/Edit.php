@@ -23,12 +23,7 @@ trait Edit
         };
 
         // Pass the closure to the hook
-        $customEdit = $this->callHook('onEdit', $defaultEdit, $id);
-        if ($customEdit !== null) {
-            $dataModel = $customEdit;
-        } else {
-            $dataModel = $defaultEdit();
-        }
+        $dataModel = $this->executeWithHook('onEdit', $defaultEdit, $id);
 
         // Handle response with hooks
         return $this->editResponse($dataModel);
@@ -50,12 +45,6 @@ trait Edit
         };
 
         // Pass the closure to the response hook
-        $customResponse = $this->callHook('onEditResponse', $defaultResponse, $dataModel);
-        if ($customResponse !== null) {
-            return $customResponse;
-        }
-
-        // Prepare and return the default response
-        return $defaultResponse();
+        return $this->executeWithHook('onEditResponse', $defaultResponse, $dataModel);
     }
 }

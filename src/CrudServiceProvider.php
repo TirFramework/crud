@@ -3,9 +3,11 @@
 namespace Tir\Crud;
 
 
-use Illuminate\Support\ServiceProvider;
-use Tir\Crud\Support\Module\AdminMenu;
 use Tir\Crud\Support\Module\Modules;
+use Tir\Crud\Support\Module\AdminMenu;
+use Illuminate\Support\ServiceProvider;
+use Tir\Crud\Providers\CrudSeedServiceProvider;
+use Tir\Crud\Support\Middlewares\AclMiddleware;
 use Tir\Crud\Support\Resource\ResourceRegistrar;
 
 class CrudServiceProvider extends ServiceProvider

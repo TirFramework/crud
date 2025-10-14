@@ -31,20 +31,23 @@ trait AccessControl
         }
 
         // Custom hook check - allows complete control over access
-        $hookResult = $this->callHook('onCheckAccess', $method);
-        if ($hookResult !== null) {
-            return (bool) $hookResult; // Direct: true = allow, false = deny
-        }
+        $defaultAccessCheck = function ($m = null) use ($method) {
+            if ($m !== null) {
+                $method = $m;
+            }
 
-        // Default system access check
-        try {
-            $accessClass = config('crud.access_class', \Tir\Crud\Support\Acl\Access::class);
-            $accessInstance = new $accessClass();
-            $module = $this->getModuleName();
-            return $accessInstance->checkAccess($module, $method);
-        } catch (\Exception $e) {
-            return false; // Deny access on error
-        }
+            // Default system access check
+            try {
+                $accessClass = config('crud.access_class', \Tir\Crud\Support\Acl\Access::class);
+                $accessInstance = new $accessClass();
+                $module = $this->getModuleName();
+                return $accessInstance->checkAccess($module, $method);
+            } catch (\Exception $e) {
+                return false; // Deny access on error
+            }
+        };
+
+        return (bool) $this->executeWithHook('onCheckAccess', $defaultAccessCheck, $method);
     }
 
     /**

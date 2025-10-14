@@ -42,12 +42,6 @@ trait Trash
         };
 
         // Pass the closure to the response hook
-        $customResponse = $this->callHook('onTrashResponse', $defaultResponse, $items);
-        if ($customResponse !== null) {
-            return $customResponse;
-        }
-
-        // Return default response
-        return $defaultResponse();
+        return $this->executeWithHook('onTrashResponse', $defaultResponse, $items);
     }
 }

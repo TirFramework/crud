@@ -43,14 +43,7 @@ trait IndexData
         };
 
         // Pass the closure to the hook
-        $customResponse = $this->callHook('onIndexResponse', $defaultResponse, $items);
-
-        if ($customResponse !== null) {
-            return $customResponse;
-        }
-
-        // Otherwise, return the result directly
-        return $defaultResponse();
+        return $this->executeWithHook('onIndexResponse', $defaultResponse, $items);
     }
 
 

@@ -8,6 +8,8 @@ trait CreateHooks
 
     /**
      * Set custom hook for create form generation
+     *
+     * @param callable(callable $defaultCreate): mixed $callback
      */
     protected function onCreate(callable $callback): self
     {
@@ -17,6 +19,8 @@ trait CreateHooks
 
     /**
      * Set custom hook for create response
+     *
+     * @param callable(callable $defaultResponse, mixed $fields): mixed $callback
      */
     protected function onCreateResponse(callable $callback): self
     {

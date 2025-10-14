@@ -25,12 +25,7 @@ trait Create
         };
 
         // Pass the closure to the hook
-        $customCreate = $this->callHook('onCreate', $defaultCreate);
-        if ($customCreate !== null) {
-            $fields = $customCreate;
-        } else {
-            $fields = $defaultCreate();
-        }
+        $fields = $this->executeWithHook('onCreate', $defaultCreate);
 
         // Handle response with hooks
         return $this->createResponse($fields);
@@ -47,13 +42,7 @@ trait Create
         };
 
         // Pass the closure to the response hook
-        $customResponse = $this->callHook('onCreateResponse', $defaultResponse, $fields);
-        if ($customResponse !== null) {
-            return $customResponse;
-        }
-
-        // Prepare and return the default response
-        return $defaultResponse();
+        return $this->executeWithHook('onCreateResponse', $defaultResponse, $fields);
     }
 
 }

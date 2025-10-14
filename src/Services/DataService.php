@@ -94,14 +94,7 @@ class DataService
         };
 
         // Pass the closure to the hook
-        $customQuery = $this->callHook('onInitQuery', $defaultInitQuery);
-        if ($customQuery === null) {
-            return $defaultInitQuery();
-        }
-
-
-        // Otherwise, return the result directly
-        return $customQuery;
+        return $this->executeWithHook('onInitQuery', $defaultInitQuery);
     }
 
 
@@ -117,13 +110,7 @@ class DataService
         };
 
         // Pass the closure to the hook
-        $customSelect = $this->callHook('onSelect', $defaultSelect, $query);
-        if ($customSelect !== null) {
-            return $customSelect;
-        }
-
-        // Otherwise, return the result directly
-        return $defaultSelect();
+        return $this->executeWithHook('onSelect', $defaultSelect, $query);
     }
 
 
@@ -148,15 +135,7 @@ class DataService
         };
 
         // Pass the closure to the hook
-        $customRelations = $this->callHook('onRelation', $defaultRelations, $query);
-        if ($customRelations !== null) {
-            return $customRelations;
-        }
-
-
-
-        // Otherwise, return the result directly
-        return $defaultRelations();
+        return $this->executeWithHook('onRelation', $defaultRelations, $query);
     }
 
 
@@ -184,14 +163,7 @@ class DataService
         };
 
         // Pass the closure to the hook
-        $customSearch = $this->callHook('onSearch', $defaultSearch, $query);
-        if ($customSearch !== null) {
-            return $customSearch;
-        }
-
-
-        // Otherwise, return the result directly
-        return $defaultSearch();
+        return $this->executeWithHook('onSearch', $defaultSearch, $query);
     }
 
     private function applyFilters($query): mixed
@@ -236,15 +208,7 @@ class DataService
         };
 
         // Pass the closure to the hook
-        $customFilters = $this->callHook('onFilter', $defaultFilters, $query);
-        if ($customFilters !== null) {
-            return $customFilters;
-        }
-
-
-
-        // Otherwise, return the result directly
-        return $defaultFilters();
+        return $this->executeWithHook('onFilter', $defaultFilters, $query);
     }
 
     private function applySort($query): mixed
@@ -271,13 +235,7 @@ class DataService
         };
 
         // Pass the closure to the hook
-        $customSort = $this->callHook('onSort', $defaultSort, $query);
-        if ($customSort !== null) {
-            return $customSort;
-        }
-
-
-        return $defaultSort();
+        return $this->executeWithHook('onSort', $defaultSort, $query);
     }
 
     private function applyModifiedQuery($query): mixed
@@ -290,12 +248,7 @@ class DataService
             return $query;
         };
 
-        $customModifiedQuery = $this->callHook('onModifyQuery', $defaultModifiedQuery, $query);
-        if ($customModifiedQuery !== null) {
-            return $customModifiedQuery;
-        }
-
-        return $defaultModifiedQuery();
+        return $this->executeWithHook('onModifyQuery', $defaultModifiedQuery, $query);
     }
 
     private function applyPaginate($query): mixed
@@ -307,12 +260,7 @@ class DataService
             $perPage = request()->input('result', 15); // Default to 15 if not provided
             return $query->paginate($perPage);
         };
-        $customPagination = $this->callHook('onPaginate', $defaultPagination, $query);
-        if ($customPagination !== null) {
-            return $customPagination;
-        }
-
-        return $defaultPagination();
+        return $this->executeWithHook('onPaginate', $defaultPagination, $query);
     }
 
     private function indexResponse($items): mixed
@@ -326,14 +274,7 @@ class DataService
         };
 
         // Pass the closure to the hook
-        $customResponse = $this->callHook('onIndexResponse', $defaultResponse, $items);
-
-        if ($customResponse !== null) {
-            return $customResponse;
-        }
-
-        // Otherwise, return the result directly
-        return $defaultResponse();
+        return $this->executeWithHook('onIndexResponse', $defaultResponse, $items);
     }
 
     private function selectColumns(): array
