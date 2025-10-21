@@ -99,15 +99,20 @@ class MySqlAdapter implements DatabaseAdapterInterface
             $relationKey = $relationTable . '.' . ($field->relation->key ?? $relation->getOwnerKeyName());
             $foreignKey = $relation->getForeignKeyName();
             $cols = $query->getQuery()->columns;
-            $cols[] = $foreignKey . ' as ' . $field->name;
+            
             if($field->data){
-                // Eager load for Select fields
+                // Approach 1: Data only - Return foreign key ID for select fields
+                // Returns: my_author: 5 (the author_id)
+                $cols[] = $foreignKey . ' as ' . $field->name;
                 $query = $query->select($cols);
             }else{
+                // Approach 2: Display value - Return display field value for index/show
+                // Returns: my_author: "John Doe" (the author's name)
+                // Use $field->name (not $relName) so the alias matches the field name
                 $query = $query->select($cols)->selectSub(
                     $relation->getRelated()->select($relationField)
                         ->whereColumn($relationKey, $model->getTable() . '.' . $foreignKey),
-                    $relName
+                    $field->name  // Use field name, not relation name
                 );
             }
 
@@ -132,7 +137,7 @@ class MySqlAdapter implements DatabaseAdapterInterface
                     ->whereColumn("{$pivotTable}.{$pivotForeignCol}", "{$parentTable}.{$parentKey}")
                     ->selectRaw("COALESCE({$aggExpr}, JSON_ARRAY())");
 
-                return $query->selectSub($sub, $relName)->withCasts([$relName => 'array']);
+                return $query->selectSub($sub, $field->name)->withCasts([$field->name => 'array']);
             } else {
                 // Approach 2: Display values - Return array of display values for index/show
                 // Returns: users: ["John Doe", "Jane Smith", "Bob Wilson"]
@@ -146,7 +151,7 @@ class MySqlAdapter implements DatabaseAdapterInterface
                     ->whereColumn("{$pivotTable}.{$pivotForeignCol}", "{$parentTable}.{$parentKey}")
                     ->selectRaw("COALESCE({$aggExpr}, JSON_ARRAY())");
 
-                return $query->selectSub($sub, $relName)->withCasts([$relName => 'array']);
+                return $query->selectSub($sub, $field->name)->withCasts([$field->name => 'array']);
             }
         }
 
@@ -167,7 +172,7 @@ class MySqlAdapter implements DatabaseAdapterInterface
                     ->whereColumn("{$relationTable}.{$foreignKey}", "{$parentTable}.{$parentKey}")
                     ->selectRaw("COALESCE({$aggExpr}, JSON_ARRAY())");
 
-                return $query->selectSub($sub, $relName)->withCasts([$relName => 'array']);
+                return $query->selectSub($sub, $field->name)->withCasts([$field->name => 'array']);
             } else {
                 // Approach 2: Display values - Return array of display values for index/show
                 // Returns: children: ["Child 1", "Child 2", "Child 3"]
@@ -178,7 +183,7 @@ class MySqlAdapter implements DatabaseAdapterInterface
                     ->whereColumn("{$relationTable}.{$foreignKey}", "{$parentTable}.{$parentKey}")
                     ->selectRaw("COALESCE({$aggExpr}, JSON_ARRAY())");
 
-                return $query->selectSub($sub, $relName)->withCasts([$relName => 'array']);
+                return $query->selectSub($sub, $field->name)->withCasts([$field->name => 'array']);
             }
         }
 

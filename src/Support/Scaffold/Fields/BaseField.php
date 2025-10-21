@@ -46,6 +46,7 @@ abstract class BaseField
     protected object $relation;
     protected string $className;
     protected $valueAccessor; // Callback to manipulate/override field value
+    protected bool $append = false; // Mark field for dynamic appending to model
 
 
 
@@ -394,6 +395,45 @@ abstract class BaseField
         return $this;
     }
 
+    /**
+     * Mark this field to be appended to the model's serialization
+     *
+     * When enabled, this field will be included in the model's output even if it's not
+     * a database column. This is particularly useful for:
+     * - Virtual/computed fields that don't exist in the database
+     * - Fields that are calculated from other model attributes
+     * - Custom transformations that should appear in API responses
+     *
+     * Note: This is typically used in combination with ->accessor() to define
+     * how the field value should be calculated.
+     *
+     * Similar to Laravel's $model->append() method.
+     *
+     * Usage Examples:
+     *
+     * 1. Virtual field with accessor:
+     *    ->virtual()
+     *    ->append()
+     *    ->accessor(fn($value, $model) => $model->first_name . ' ' . $model->last_name)
+     *
+     * 2. Computed field:
+     *    ->virtual()
+     *    ->append()
+     *    ->accessor(fn($value, $model) => $model->price * $model->quantity)
+     *
+     * 3. Formatted field:
+     *    ->append()
+     *    ->accessor(fn($value) => strtoupper($value))
+     *
+     * @param bool $value Whether to append this field (default: true)
+     * @return static
+     */
+    public function append(bool $value = true): static
+    {
+        $this->append = $value;
+        return $this;
+    }
+
 
 
     protected function value(callable $callback): void
@@ -432,7 +472,11 @@ abstract class BaseField
             if (isset($this->valueAccessor) && is_callable($this->valueAccessor)) {
                 // Pass both the current value and the model to the accessor
                 // This allows for flexible transformations and access to model data
-                $this->value = call_user_func($this->valueAccessor, $this->value, $model);
+                if(isset($this->value)) {
+                    $this->value = call_user_func($this->valueAccessor, $this->value, $model);
+                }else{
+                    $this->value = call_user_func($this->valueAccessor, null, $model);
+                }
             }
         }
     }

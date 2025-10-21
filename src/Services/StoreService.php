@@ -91,9 +91,9 @@ class StoreService
         return $this->executeWithHook('onStoreCompleted', $defaultStoreCompleted, $model, $request);
     }
 
-    private function storeRelations($request, $model): void
+    private function storeRelations($request, $model): mixed
     {
-        // Define the default behavior for updating relations as a closure
+        // Define the default behavior for storing relations as a closure
         $defaultStoreRelations = function($req = null, $mdl = null) use ($request, $model) {
             if ($req !== null) {
                 $request = $req;
@@ -103,26 +103,50 @@ class StoreService
             }
 
             foreach ($this->scaffolder()->fieldsHandler()->getAllDataFields() as $field) {
-                if (isset($field->relation) && $field->multiple) {
+                if (isset($field->relation)) {
+
                     $data = $request->input($field->name);
                     if (isset($data)) {
-                        // Define the default behavior for updating a specific relation
-                        $defaultStoreRelation = function($d = null, $fieldName = null, $mdl = null, $req = null) use ($data, $field, $model, $request) {
+                        // Define the default behavior for storing a specific relation
+                        $defaultStoreRelation = function($d = null, $fld = null, $mdl = null, $req = null) use ($data, $field, $model, $request) {
                             if ($d !== null) {
                                 $data = $d;
                             }
                             if ($mdl !== null) {
                                 $model = $mdl;
                             }
+                            if ($fld !== null) {
+                                $field = $fld;
+                            }
                             if ($req !== null) {
                                 $request = $req;
                             }
-                            $model->{$field->relation->name}()->sync($data);
-                            return $data;
+                            // Check the relation type and handle accordingly
+                            $relation = $model->{$field->relation->name}();
+                            $relationType = class_basename($relation);
+                            if ($relationType === 'BelongsToMany') {
+                                // For BelongsToMany relations, use sync
+                                $relation->sync($data);
+                            } elseif ($relationType === 'BelongsTo') {
+                                // For BelongsTo relations, associate the related model
+                                if ($data) {
+                                    $relation->associate($data);
+                                } else {
+                                    $relation->dissociate();
+                                }
+                                $model->save();
+                            } elseif($relationType === 'HasMany'){
+                                // For HasMany relations, we can use saveMany or similar methods
+                                // Here we assume $data is an array of related model IDs
+                                $relatedModel = $relation->getRelated();
+                                $relatedInstances = $relatedModel->whereIn('id', $data)->get();
+                                $relation->saveMany($relatedInstances);
+                            }
+                            return $model;
                         };
 
                         // Pass the closure to the hook
-                        $this->executeWithHook('onStoreRelation', $defaultStoreRelation, $data, $field->name, $model, $request);
+                        $this->executeWithHook('onStoreRelation', $defaultStoreRelation, $data, $field, $model, $request);
                     }
                 }
             }
@@ -131,7 +155,7 @@ class StoreService
         };
 
         // Pass the closure to the hook
-        $this->executeWithHook('onStoreRelations', $defaultStoreRelations, $request, $model);
+        return $this->executeWithHook('onStoreRelations', $defaultStoreRelations, $request, $model);
     }
 
     private function fill($request, $model)

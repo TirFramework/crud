@@ -76,6 +76,8 @@ class DataService
         ]);
         $this->query = $this->applyPaginate($this->query);
 
+        // Apply accessor transformations to the paginated results
+        $this->query = $this->applyAccessors($this->query);
 
         return $this->query;
     }
@@ -261,6 +263,80 @@ class DataService
             return $query->paginate($perPage);
         };
         return $this->executeWithHook('onPaginate', $defaultPagination, $query);
+    }
+
+    /**
+     * Apply accessor transformations to paginated results
+     *
+     * This method transforms field values using accessor callbacks defined in scaffolder fields.
+     * Accessors are applied to each model in the paginated collection, allowing for:
+     * - Value transformations (uppercase, formatting, etc.)
+     * - Computed values based on model data
+     * - Custom display logic
+     *
+     * Only fields with ->append() or ->accessor() will be processed:
+     * - If field has ->append(true): accessor is applied
+     * - If field has ->accessor() without ->append(): accessor is applied (backward compatible)
+     *
+     * The accessor receives ($value, $model) and returns the transformed value.
+     *
+     * @param mixed $paginatedResults The paginated query results
+     * @return mixed The results with accessor transformations applied
+     */
+    private function applyAccessors($paginatedResults): mixed
+    {
+        // Define the default behavior as a closure
+        $defaultAccessors = function ($results = null) use ($paginatedResults) {
+            if ($results !== null) {
+                $paginatedResults = $results;
+            }
+
+            // Get all fields that have accessor callbacks defined
+            // Filter by: has accessor AND (append is true OR append not set - for backward compatibility)
+            $accessorFields = collect($this->scaffolder()->getIndexFields())
+                ->filter(function($field) {
+                    // Must have a valid accessor callback
+                    if (!isset($field->valueAccessor) || !is_callable($field->valueAccessor)) {
+                        return false;
+                    }
+
+                    // If append property is set, respect it
+                    if (isset($field->append)) {
+                        return $field->append === true;
+                    }
+
+                    // Backward compatibility: if append not set, still apply accessor
+                    return true;
+                })
+                ->keyBy('name')
+                ->toArray();
+
+            // If no accessors defined, return results unchanged
+            if (empty($accessorFields)) {
+                return $paginatedResults;
+            }
+
+            // Transform each model in the paginated collection
+            $paginatedResults->getCollection()->transform(function ($item) use ($accessorFields) {
+                foreach ($accessorFields as $fieldName => $field) {
+                    // Get the current value (may be null if field doesn't exist)
+                    $currentValue = $item->{$fieldName} ?? null;
+
+                    // Apply the accessor callback: fn($value, $model) => transformed value
+                    $transformedValue = call_user_func($field->valueAccessor, $currentValue, $item);
+
+                    // Set the transformed value back to the model
+                    $item->{$fieldName} = $transformedValue;
+                }
+
+                return $item;
+            });
+
+            return $paginatedResults;
+        };
+
+        // Pass the closure to the hook (allows customization via onAccessors hook)
+        return $this->executeWithHook('onAccessors', $defaultAccessors, $paginatedResults);
     }
 
     private function indexResponse($items): mixed
