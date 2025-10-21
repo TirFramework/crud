@@ -41,8 +41,8 @@ class UpdateService
 
     public function update($request, $id)
     {
-
-        $item = $this->getModelById($id, $request, $this->model());
+        $model = $this->model;
+        $item = $this->getModelById($id, $request, $model );
 
         $item = $this->updateTransaction($request, $item);
         return $item;
@@ -54,7 +54,7 @@ class UpdateService
     private function getModelById(int|string $id, $request, $model)
     {
         // Find the item by ID
-        $defaultItem = function ($m = null, $i = null) use ($model, $id) {
+        $defaultItem = function ($m = null, $i = null, $r = null) use ($model, $id, $request) {
             // If the model is not found, it will throw a ModelNotFoundException
             if ($m !== null) {
                 $model = $m;
@@ -62,11 +62,14 @@ class UpdateService
             if ($i !== null) {
                 $id = $i;
             }
+            if ($r !== null) {
+                $request = $r;
+            }
             $model = new $model;
             return $model->findOrFail($id);
         };
 
-        return $this->executeWithHook('onGetModelForUpdate', $defaultItem, $request, $id);
+        return $this->executeWithHook('onGetModelForUpdate', $defaultItem, $model, $id, $request);
     }
 
 
@@ -137,7 +140,6 @@ class UpdateService
     {
         // Define the default behavior for saving model as a closure
         $defaultSaveModel = function ($m = null, $r = null) use ($model, $request) {
-            dd('test');
             if ($m !== null) {
                 $model = $m;
             }
@@ -164,26 +166,50 @@ class UpdateService
             }
 
             foreach ($this->scaffolder()->fieldsHandler()->getAllDataFields() as $field) {
-                if (isset($field->relation) && $field->multiple) {
+                if (isset($field->relation)) {
 
                     $data = $request->input($field->name);
                     if (isset($data)) {
                         // Define the default behavior for updating a specific relation
-                        $defaultUpdateRelation = function ($d = null, $itm = null, $req = null) use ($data, $field, $item, $request) {
+                        $defaultUpdateRelation = function ($d = null, $fld = null, $itm = null, $req = null) use ($data, $field, $item, $request) {
                             if ($d !== null) {
                                 $data = $d;
                             }
                             if ($itm !== null) {
                                 $item = $itm;
                             }
+                            if ($fld !== null) {
+                                $field = $fld;
+                            }
                             if ($req !== null) {
                                 $request = $req;
                             }
-                            $item->{$field->relation->name}()->sync($data);
+                            // Check the relation type and handle accordingly
+                            $relation = $item->{$field->relation->name}();
+                            $relationType = class_basename($relation);
+                            if ($relationType === 'BelongsToMany') {
+                                // For BelongsToMany relations, use sync
+                                $relation->sync($data);
+                            } elseif ($relationType === 'BelongsTo') {
+                                // For BelongsTo relations, associate the related model
+                                if ($data) {
+                                    $relation->associate($data);
+                                } else {
+                                    $relation->dissociate();
+                                }
+                                $item->save();
+                            }elseif($relationType === 'HasMany'){
+                                // For HasMany relations, we can use saveMany or similar methods
+                                // Here we assume $data is an array of related model IDs
+                                $relatedModel = $relation->getRelated();
+                                $relatedInstances = $relatedModel->whereIn('id', $data)->get();
+                                $relation->saveMany($relatedInstances);
+                            }
+                            return $item;
                         };
 
                         // Pass the closure to the hook
-                        $this->executeWithHook('onUpdateRelation', $defaultUpdateRelation, $data, $field->name, $item, $request);
+                        $this->executeWithHook('onUpdateRelation', $defaultUpdateRelation, $data, $field, $item, $request);
                     }
                 }
             }

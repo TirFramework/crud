@@ -303,7 +303,15 @@ class DataService
                 continue;
             }
             //if filter is manyToMany relation
-            if (isset($field->relation) && $field->multiple ?? null == true) {
+            if (isset($field->relation)) {
+                //get relation type
+                $relationType = $field->relation->type ?? null;
+                if($relationType === null){
+                    $relationType = $this->model()->getRelationType($field->relation->name);
+                }
+
+                $relationType;
+
                 // Use database adapter for many-to-many filtering
                 $adapter = DatabaseAdapterFactory::create($this->model()->getConnection());
                 $primaryKey = $adapter->getRelationPrimaryKey($this->model(), $field);

@@ -7,6 +7,7 @@ use Tir\Crud\Support\Enums\FilterType;
 
 abstract class BaseField
 {
+    use ValueHandler;
     protected string $type;
     protected string $originalName;
     protected string $name;
@@ -44,6 +45,7 @@ abstract class BaseField
     protected mixed $filterQuery;
     protected object $relation;
     protected string $className;
+    protected $valueAccessor; // Callback to manipulate/override field value
 
 
 
@@ -133,6 +135,7 @@ abstract class BaseField
     public function virtual(bool $value = true): static
     {
         $this->virtual = $value;
+        $this->readonly = $value;
         $this->fillable = !$value;
         return $this;
     }
@@ -347,53 +350,96 @@ abstract class BaseField
         return $this;
     }
 
-    public function relation(string $field, string $name = null, string $primaryKey = 'id'): static
+    public function relation(string $name, string $field, string $type = '', string $primaryKey = 'id'): static
     {
-        if (is_null($name)) {
-            $name = $this->originalName;
-        }
-        $this->relation = (object) ['name' => $name, 'field' => $field, 'key' => $primaryKey];
+        $this->relation = (object) ['name' => $name, 'field' => $field, 'key' => $primaryKey, 'type' => $type,];
+        return $this;
+    }
 
-
+    /**
+     * Define a custom accessor to manipulate the field value
+     *
+     * Similar to Laravel's model accessors (getAttribute), this allows you to:
+     * - Transform the original value from the model
+     * - Override the value completely
+     * - Apply formatting, calculations, or any custom logic
+     *
+     * The callback receives two parameters:
+     * - $value: The original value extracted from the model
+     * - $model: The full model instance for additional context
+     *
+     * Usage Examples:
+     *
+     * 1. Transform a value:
+     *    ->accessor(fn($value) => strtoupper($value))
+     *
+     * 2. Override with model data:
+     *    ->accessor(fn($value, $model) => $model->custom_field)
+     *
+     * 3. Format a date:
+     *    ->accessor(fn($value) => $value ? Carbon::parse($value)->format('Y-m-d') : null)
+     *
+     * 4. Concatenate fields:
+     *    ->accessor(fn($value, $model) => $model->first_name . ' ' . $model->last_name)
+     *
+     * 5. Apply business logic:
+     *    ->accessor(fn($value, $model) => $model->is_premium ? $value * 0.9 : $value)
+     *
+     * @param callable $callback Callback that receives ($value, $model) and returns transformed value
+     * @return static
+     */
+    public function accessor(callable $callback): static
+    {
+        $this->valueAccessor = $callback;
         return $this;
     }
 
 
-    private function setRelationalValue($model)
-    {
-        if (!isset($this->relation->name)) {
-            throw new \Exception('Relation is not defined for field: ' . $this->name);
-        }
 
-        if (!isset($model->{$this->relation->name})) {
-            throw new \Exception('For the field :' . $this->name . ' The Relation "' . $this->relation->name . '" not found on model');
-        }
-        return $model->{$this->relation->name}->map(function ($value) {
-            return $value->{$this->relation->key};
-        })->toArray();
+    protected function value(callable $callback): void
+    {
+        $this->value = $callback();
     }
-    protected function setValue($model): void
+
+    /**
+     * Fill the field value from the model
+     *
+     * This method:
+     * 1. Extracts the raw value from the model (regular field or relation)
+     * 2. Applies the custom accessor if defined
+     * 3. Sets the final value to $this->value
+     *
+     * @param mixed $model The model instance to extract value from
+     */
+    protected function fillValue($model): void
     {
         if (isset($model)) {
+            // Step 1: Get the raw value from the model
             $value = Arr::get($model, $this->name);
             if (isset($value)) {
                 $this->value = $value;
             }
 
-            if (isset($this->relation) && $this->multiple) {
+            // Step 2: Handle relational values
+            if (isset($this->relation)) {
                 $value = $this->setRelationalValue($model);
                 if (count($value) > 0) {
                     $this->value = $value;
                 }
+            }
 
+            // Step 3: Apply custom accessor if defined
+            if (isset($this->valueAccessor) && is_callable($this->valueAccessor)) {
+                // Pass both the current value and the model to the accessor
+                // This allows for flexible transformations and access to model data
+                $this->value = call_user_func($this->valueAccessor, $this->value, $model);
             }
         }
-
     }
 
     public function get($dataModel)
     {
-        $this->setValue($dataModel);
+        $this->fillValue($dataModel);
         return (object) get_object_vars($this);
     }
 }

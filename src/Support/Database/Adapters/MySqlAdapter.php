@@ -90,34 +90,97 @@ class MySqlAdapter implements DatabaseAdapterInterface
         $relName = $field->relation->name;       // ex: users
         $relation = $model->{$relName}();
 
-        $pivotTable = $relation->getTable();                 // ex: minimal_example_user
-        $parentTable = $relation->getParent()->getTable();    // ex: minimal_examples
-        $relationTable = $relation->getRelated()->getTable();   // ex: users
-        $parentKey = $field->relation->key ?? $relation->getParentKeyName(); // ex: id
+        $relationType = class_basename($relation);
 
+        if ($relationType === 'BelongsTo') {
+            // Standard SQL relation handling
+            $relationTable = $relation->getRelated()->getTable();
+            $relationField = $field->relation->field;
+            $relationKey = $relationTable . '.' . ($field->relation->key ?? $relation->getOwnerKeyName());
+            $foreignKey = $relation->getForeignKeyName();
+            $cols = $query->getQuery()->columns;
+            $cols[] = $foreignKey . ' as ' . $field->name;
+            if($field->data){
+                // Eager load for Select fields
+                $query = $query->select($cols);
+            }else{
+                $query = $query->select($cols)->selectSub(
+                    $relation->getRelated()->select($relationField)
+                        ->whereColumn($relationKey, $model->getTable() . '.' . $foreignKey),
+                    $relName
+                );
+            }
 
-        if ($field->type === 'Select') {
+            return $query;
+        }
 
+        // Many-to-many relation handling
+        if ($relationType === 'BelongsToMany') {
+            $pivotTable = $relation->getTable();                 // ex: minimal_example_user
+            $parentTable = $relation->getParent()->getTable();    // ex: minimal_examples
+            $relationTable = $relation->getRelated()->getTable();   // ex: users
+            $parentKey = $field->relation->key ?? $relation->getParentKeyName(); // ex: id
             $pivotForeignCol = Str::after($relation->getForeignPivotKeyName(), '.'); // ex: 'minimal_example_id'
             $pivotRelatedCol = Str::after($relation->getRelatedPivotKeyName(), '.'); // ex: 'user_id'
 
-            $aggExpr = "CAST(CONCAT('[', IFNULL(GROUP_CONCAT(DISTINCT {$pivotTable}.{$pivotRelatedCol} ORDER BY {$pivotTable}.{$pivotRelatedCol} SEPARATOR ','), ''), ']') AS JSON)";
+            if($field->data){
+                // Approach 1: Data only - Return array of IDs for select fields
+                // Returns: users: [1, 3, 5]
+                $aggExpr = "JSON_ARRAYAGG({$pivotTable}.{$pivotRelatedCol})";
 
+                $sub = DB::table($pivotTable)
+                    ->whereColumn("{$pivotTable}.{$pivotForeignCol}", "{$parentTable}.{$parentKey}")
+                    ->selectRaw("COALESCE({$aggExpr}, JSON_ARRAY())");
 
-            $sub = DB::table($pivotTable)
-                ->whereColumn("{$pivotTable}.{$pivotForeignCol}", "{$parentTable}.{$parentKey}")
-                ->selectRaw($aggExpr);
+                return $query->selectSub($sub, $relName)->withCasts([$relName => 'array']);
+            } else {
+                // Approach 2: Display values - Return array of display values for index/show
+                // Returns: users: ["John Doe", "Jane Smith", "Bob Wilson"]
+                $relationField = $field->relation->field; // ex: 'name'
+                $relatedKey = $relation->getRelated()->getKeyName(); // ex: 'id'
 
+                $aggExpr = "JSON_ARRAYAGG({$relationTable}.{$relationField})";
 
-            return $query->selectSub($sub, $relName)->withCasts([$relName => 'array']);
+                $sub = DB::table($pivotTable)
+                    ->join($relationTable, "{$pivotTable}.{$pivotRelatedCol}", '=', "{$relationTable}.{$relatedKey}")
+                    ->whereColumn("{$pivotTable}.{$pivotForeignCol}", "{$parentTable}.{$parentKey}")
+                    ->selectRaw("COALESCE({$aggExpr}, JSON_ARRAY())");
+
+                return $query->selectSub($sub, $relName)->withCasts([$relName => 'array']);
+            }
         }
 
+        // One-to-many relation handling
+        if ($relationType === 'HasMany') {
+            $relationTable = $relation->getRelated()->getTable();   // ex: sample_models
+            $parentTable = $relation->getParent()->getTable();      // ex: sample_models (for parent)
+            $parentKey = $field->relation->key ?? $relation->getLocalKeyName(); // ex: id
+            $foreignKey = $relation->getForeignKeyName();           // ex: parent_id
+            $relatedKey = $relation->getRelated()->getKeyName();    // ex: id
 
-        // Standard SQL relation handling
-        $relationKey = $relationTable . '.' . $parentKey;
-        $query = $query->with($relName, function ($q) use ($field, $relationKey) {
-            $q->select($relationKey . ' as value', $field->relation->field . ' as label');
-        });
+            if($field->data){
+                // Approach 1: Data only - Return array of IDs for select fields
+                // Returns: children: [1, 3, 5]
+                $aggExpr = "JSON_ARRAYAGG({$relationTable}.{$relatedKey})";
+
+                $sub = DB::table($relationTable)
+                    ->whereColumn("{$relationTable}.{$foreignKey}", "{$parentTable}.{$parentKey}")
+                    ->selectRaw("COALESCE({$aggExpr}, JSON_ARRAY())");
+
+                return $query->selectSub($sub, $relName)->withCasts([$relName => 'array']);
+            } else {
+                // Approach 2: Display values - Return array of display values for index/show
+                // Returns: children: ["Child 1", "Child 2", "Child 3"]
+                $relationField = $field->relation->field; // ex: 'title'
+                $aggExpr = "JSON_ARRAYAGG({$relationTable}.{$relationField})";
+
+                $sub = DB::table($relationTable)
+                    ->whereColumn("{$relationTable}.{$foreignKey}", "{$parentTable}.{$parentKey}")
+                    ->selectRaw("COALESCE({$aggExpr}, JSON_ARRAY())");
+
+                return $query->selectSub($sub, $relName)->withCasts([$relName => 'array']);
+            }
+        }
 
         return $query;
 
@@ -173,11 +236,25 @@ class MySqlAdapter implements DatabaseAdapterInterface
 
         foreach ($indexFields as $field) {
             // Check if field is many to many relation or not
-            if (!$field->virtual) {
-                if (!isset($field->relation) || !$field->multiple) {
-                    $selectFields[] = $model->getTable() . '.' . $field->name;
-                }
+            //selecting old approach
+            // if (!$field->virtual) {
+            //     if (!isset($field->relation) || !$field->multiple) {
+            //         $selectFields[] = $model->getTable() . '.' . $field->name;
+            //     }
+            // }
+
+            if ($field->virtual) {
+                continue;
             }
+
+            if (isset($field->relation)) {
+                continue;
+            }
+
+            $selectFields[] = $model->getTable() . '.' . $field->name;
+
+
+
         }
 
         return $selectFields;
@@ -215,50 +292,50 @@ class MySqlAdapter implements DatabaseAdapterInterface
         if (!empty($modelFillable)) {
             // Priority 1: Use model's explicit fillable array
             $allowedFields = $modelFillable;
+            $model->fill($filteredData);
         } else {
             // Priority 2: Extract fillable fields from scaffolder
             $allowedFields = collect($scaffolderFields)
                 ->filter(function ($field) {
                     // Only include fields that are fillable (default true, or explicitly set to true)
                     return !isset($field->fillable) || $field->fillable !== false;
-                })
-                ->pluck('request')
-                ->flatten()
-                ->unique()
-                ->toArray();
-        }
+                });
 
-        // Step 2: Always remove guarded fields from allowed fields
-        $guardedFields = $model->getGuarded();
-        if (!empty($guardedFields) && $guardedFields !== ['*']) {
-            // Filter out guarded fields and their nested patterns
-            $allowedFields = $this->filterOutGuardedFields($allowedFields, $guardedFields);
-        } elseif ($guardedFields === ['*']) {
-            // If guarded is ['*'], check if model has explicit fillable
-            $modelFillableForGuarded = $model->getFillable();
-            if (!empty($modelFillableForGuarded)) {
-                // Use model's explicit fillable if available
-                $allowedFields = $modelFillableForGuarded;
-            } else {
-                // If no model fillable, use scaffolder fillable
-                $allowedFields = collect($scaffolderFields)
-                    ->filter(function ($field) {
-                        return !isset($field->fillable) || $field->fillable !== false;
-                    })
-                    ->pluck('request')
-                    ->flatten()
-                    ->unique()
-                    ->toArray();
+
+            // Step 2: Always remove guarded fields from allowed fields
+            $guardedFields = $model->getGuarded();
+            if (!empty($guardedFields) && $guardedFields !== ['*']) {
+                // Filter out guarded fields and their nested patterns
+                $allowedFields = $this->filterOutGuardedFields($allowedFields, $guardedFields);
+            } elseif ($guardedFields === ['*']) {
+                // If guarded is ['*'], check if model has explicit fillable
+                $modelFillableForGuarded = $model->getFillable();
+                if (!empty($modelFillableForGuarded)) {
+                    // Use model's explicit fillable if available
+                    $allowedFields = $modelFillableForGuarded;
+                } else {
+                    // If no model fillable, use scaffolder fillable
+                    $allowedFields = collect($scaffolderFields)
+                        ->filter(function ($field) {
+                            return !isset($field->fillable) || $field->fillable !== false;
+                        });
+                }
             }
+
+            // Step 3: Exclude relational fields from allowed fields
+            $allowedFields = $allowedFields->filter(function ($field) {
+                return !isset($field->relation);
+            })->pluck('request')->flatten()->unique()->toArray();
+
+            // Step 4: Filter data to only include allowed fields
+            $model->fillable($allowedFields);
+
+            // Step 5: update fillable fields
+            $model->fill($filteredData);
         }
-
-        // Step 3: Filter data to only include allowed fields
-        $secureData = array_intersect_key($filteredData, array_flip($allowedFields));
-
-        // Step 4: Use Laravel's standard fill method for SQL databases
-        $model->fill($secureData);
 
         return $model;
+
     }
 
     // ========================================
@@ -269,32 +346,24 @@ class MySqlAdapter implements DatabaseAdapterInterface
      * Filter out guarded fields and their nested patterns from allowed fields
      * Handles cases like guarded=['profile'] should block 'profile.eyes_color', 'profile.height', etc.
      */
-    private function filterOutGuardedFields(array $allowedFields, array $guardedFields): array
+    private function filterOutGuardedFields($allowedFields, array $guardedFields)
     {
-        $filteredFields = [];
-        
-        foreach ($allowedFields as $field) {
-            $isGuarded = false;
-            
+        return $allowedFields->filter(function ($field) use ($guardedFields) {
+            $fieldName = is_object($field) ? $field->name : $field;
+
             foreach ($guardedFields as $guardedField) {
                 // Check if field matches guarded field exactly
-                if ($field === $guardedField) {
-                    $isGuarded = true;
-                    break;
+                if ($fieldName === $guardedField) {
+                    return false;
                 }
-                
+
                 // Check if field is a nested field of a guarded field (like profile.eyes_color when profile is guarded)
-                if (strpos($field, $guardedField . '.') === 0) {
-                    $isGuarded = true;
-                    break;
+                if (strpos($fieldName, $guardedField . '.') === 0) {
+                    return false;
                 }
             }
-            
-            if (!$isGuarded) {
-                $filteredFields[] = $field;
-            }
-        }
-        
-        return $filteredFields;
+
+            return true;
+        });
     }
 }

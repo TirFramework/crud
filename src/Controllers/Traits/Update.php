@@ -38,7 +38,7 @@ trait Update
         $processedRequest = $this->processRequest($request);
 
         // Then validate the request
-        $this->validateUpdateRequest($processedRequest, $id);
+        $this->validateInlineUpdateRequest($processedRequest, $id);
 
         // Update the item
         $item = $this->updateCrud($processedRequest, $id);
