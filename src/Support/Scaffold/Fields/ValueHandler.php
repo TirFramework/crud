@@ -59,10 +59,10 @@ trait ValueHandler
             throw new \Exception('Relation is not defined for field: ' . $this->name);
         }
 
-        if (!isset($model->{$this->relation->name})) {
+        if (!method_exists($model, $this->relation->name)) {
             throw new \Exception(
                 'For the field: ' . $this->name .
-                ' The Relation "' . $this->relation->name . '" not found on model'
+                ' The Relation "' . $this->relation->name . '" not found on model: ' . get_class($model)
             );
         }
     }
