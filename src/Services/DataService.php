@@ -158,9 +158,20 @@ class DataService
                 return $query;
             }
 
-            foreach ($searchableFields as $field) {
-                $query->orWhere($field->name, 'like', "%$req%");
-            }
+            // Wrap all search conditions in a single WHERE group for proper OR logic
+            $query->where(function($q) use ($searchableFields, $req) {
+                foreach ($searchableFields as $field) {
+                    // Check if field has custom searchQuery callback
+                    if (isset($field->searchQuery) && is_callable($field->searchQuery)) {
+                        // Apply custom search logic
+                        $q = call_user_func($field->searchQuery, $q, $req);
+                    } else {
+                        // Default search behavior: simple LIKE query
+                        $q->orWhere($field->name, 'like', "%$req%");
+                    }
+                }
+            });
+            
             return $query;
         };
 

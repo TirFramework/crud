@@ -43,6 +43,7 @@ abstract class BaseField
     protected bool $fillable = true;
     protected bool $virtual = false;
     protected mixed $filterQuery;
+    protected mixed $searchQuery;
     protected object $relation;
     protected string $className;
     protected $valueAccessor; // Callback to manipulate/override field value
@@ -330,9 +331,17 @@ abstract class BaseField
         return $this;
     }
 
-    public function filterQuery(mixed $queryFunction): static
+    public function filterQuery(callable $queryFunction): static
     {
+        $this->filterable = true;
         $this->filterQuery = $queryFunction;
+        return $this;
+    }
+
+    public function searchQuery(callable $queryFunction): static
+    {
+        $this->searchable = true;
+        $this->searchQuery = $queryFunction;
         return $this;
     }
 
