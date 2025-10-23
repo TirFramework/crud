@@ -132,7 +132,7 @@ class FieldsHandler
     {
         $fields = [];
         foreach ($this->getIndexFields() as $field) {
-            if ($field->searchable) {
+            if ($field->searchable && !$field->virtual) {
                 $fields[] = $field;
             }
         }

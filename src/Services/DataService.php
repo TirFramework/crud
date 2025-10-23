@@ -301,9 +301,9 @@ class DataService
                     }
 
                     // If append property is set, respect it
-                    if (isset($field->append)) {
-                        return $field->append === true;
-                    }
+                    // if (isset($field->append)) {
+                    //     return $field->append === true;
+                    // }
 
                     // Backward compatibility: if append not set, still apply accessor
                     return true;
