@@ -357,6 +357,12 @@ abstract class BaseField
         return $this;
     }
 
+    public function value(mixed $value): static
+    {
+        $this->value = $value;
+        return $this;
+    }
+
     /**
      * Define a custom accessor to manipulate the field value
      *
@@ -434,12 +440,6 @@ abstract class BaseField
         return $this;
     }
 
-
-
-    protected function value(callable $callback): void
-    {
-        $this->value = $callback();
-    }
 
     /**
      * Fill the field value from the model

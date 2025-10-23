@@ -10,7 +10,7 @@ class Blank extends BaseField
     protected bool $requestable = false;
 
 
-    public function value(string $value): static
+    public function value(mixed $value): static
     {
         $this->value = $value;
         return $this;
