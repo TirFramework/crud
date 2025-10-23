@@ -292,21 +292,11 @@ class DataService
             }
 
             // Get all fields that have accessor callbacks defined
-            // Filter by: has accessor AND (append is true OR append not set - for backward compatibility)
+            // Filter by: has accessor callback
             $accessorFields = collect($this->scaffolder()->getIndexFields())
                 ->filter(function($field) {
                     // Must have a valid accessor callback
-                    if (!isset($field->valueAccessor) || !is_callable($field->valueAccessor)) {
-                        return false;
-                    }
-
-                    // If append property is set, respect it
-                    // if (isset($field->append)) {
-                    //     return $field->append === true;
-                    // }
-
-                    // Backward compatibility: if append not set, still apply accessor
-                    return true;
+                    return isset($field->valueAccessor) && is_callable($field->valueAccessor);
                 })
                 ->keyBy('name')
                 ->toArray();
@@ -358,6 +348,22 @@ class DataService
         // Use database adapter for column selection
         $adapter = DatabaseAdapterFactory::create($this->model()->getConnection());
         $this->selectFields = $adapter->getSelectColumns($this->model(), $this->scaffolder()->scaffold('data-index')->fieldsHandler()->getIndexFields());
+
+        // Add dependency columns from fields that have ->append() with column names
+        $dependencyColumns = collect($this->scaffolder()->getIndexFields())
+            ->filter(function($field) {
+                // Only process fields with appends that are arrays (column dependencies)
+                return isset($field->appends) && is_array($field->appends);
+            })
+            ->flatMap(function($field) {
+                // Extract all column names from the appends array
+                return $field->appends;
+            })
+            ->unique()
+            ->toArray();
+
+        // Merge dependency columns with existing select fields
+        $this->selectFields = array_unique(array_merge($this->selectFields, $dependencyColumns));
 
         return $this->selectFields;
     }

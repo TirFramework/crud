@@ -46,7 +46,7 @@ abstract class BaseField
     protected object $relation;
     protected string $className;
     protected $valueAccessor; // Callback to manipulate/override field value
-    protected bool $append = false; // Mark field for dynamic appending to model
+    protected string|array $appends = []; // Columns this field depends on for computation
 
 
 
@@ -402,41 +402,45 @@ abstract class BaseField
     }
 
     /**
-     * Mark this field to be appended to the model's serialization
+     * Mark this field to be appended to the model's serialization and specify column dependencies
      *
      * When enabled, this field will be included in the model's output even if it's not
-     * a database column. This is particularly useful for:
-     * - Virtual/computed fields that don't exist in the database
-     * - Fields that are calculated from other model attributes
-     * - Custom transformations that should appear in API responses
-     *
-     * Note: This is typically used in combination with ->accessor() to define
-     * how the field value should be calculated.
-     *
-     * Similar to Laravel's $model->append() method.
+     * a database column. Specify which columns must be selected for computation.
      *
      * Usage Examples:
      *
-     * 1. Virtual field with accessor:
-     *    ->virtual()
-     *    ->append()
-     *    ->accessor(fn($value, $model) => $model->first_name . ' ' . $model->last_name)
+     * 1. Append with single dependency:
+     *    Field::make('full_name')
+     *        ->virtual()
+     *        ->append('first_name')
+     *        ->accessor(fn($value, $model) => strtoupper($model->first_name))
      *
-     * 2. Computed field:
-     *    ->virtual()
-     *    ->append()
-     *    ->accessor(fn($value, $model) => $model->price * $model->quantity)
+     * 2. Append with multiple dependencies (array):
+     *    Field::make('full_name')
+     *        ->virtual()
+     *        ->append(['first_name', 'last_name'])
+     *        ->accessor(fn($value, $model) => $model->first_name . ' ' . $model->last_name)
      *
-     * 3. Formatted field:
-     *    ->append()
-     *    ->accessor(fn($value) => strtoupper($value))
+     * 3. Append with multiple dependencies (variadic):
+     *    Field::make('total_price')
+     *        ->virtual()
+     *        ->append('price', 'quantity', 'tax_rate')
+     *        ->accessor(fn($value, $model) => $model->price * $model->quantity * (1 + $model->tax_rate))
      *
-     * @param bool $value Whether to append this field (default: true)
+     * @param string|array ...$columns Column name(s) this field depends on
      * @return static
      */
-    public function append(bool $value = true): static
+    public function appends(string|array ...$columns): static
     {
-        $this->append = $value;
+        // Column dependencies provided
+        $normalized = $this->normalizeVariadicArgs(...$columns);
+
+        // If it's not an array, convert to array
+        if (!is_array($normalized)) {
+            $normalized = [$normalized];
+        }
+
+        $this->appends = $normalized;
         return $this;
     }
 
