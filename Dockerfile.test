@@ -1,5 +1,5 @@
 # Test environment for CRUD package
-FROM php:8.2-cli
+FROM php:8.3-cli
 
 # Arguments
 ARG INSTALL_XDEBUG=true

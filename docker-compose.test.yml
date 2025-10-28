@@ -33,7 +33,11 @@ services:
         composer install --no-interaction --prefer-dist --optimize-autoloader --dev --quiet
 
         echo '🏃 Running tests with coverage...'
-        ./vendor/bin/phpunit --colors=always --coverage-html coverage/html --coverage-clover coverage/clover.xml
+        if [ -n "$PHPUNIT_ARGS" ]; then
+          eval "./vendor/bin/phpunit --colors=always --coverage-html coverage/html --coverage-clover coverage/clover.xml $PHPUNIT_ARGS"
+        else
+          ./vendor/bin/phpunit --colors=always --coverage-html coverage/html --coverage-clover coverage/clover.xml
+        fi \"\$@\"
 
         echo ''
         echo '📈 Coverage reports generated:'

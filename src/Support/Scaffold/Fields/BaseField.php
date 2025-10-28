@@ -165,7 +165,7 @@ abstract class BaseField
 
     public function showOnDetail(bool $callback = true): static
     {
-        $this->showOnEditing = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
+        $this->showOnDetail = is_callable($callback) ? !call_user_func_array($callback, func_get_args())
             : $callback;
         return $this;
     }
@@ -453,6 +453,60 @@ abstract class BaseField
         return $this;
     }
 
+    /**
+     * Extract the raw value from the model using Arr::get
+     *
+     * This method handles the basic value extraction from the model,
+     * supporting dot notation for nested attributes.
+     *
+     * @param mixed $model The model instance to extract value from
+     */
+    protected function extractRawValue($model): void
+    {
+        $value = Arr::get($model, $this->name);
+        if (isset($value)) {
+            $this->value = $value;
+        }
+    }
+
+    /**
+     * Extract relational value from the model if a relation is configured
+     *
+     * This method handles relation-based value extraction, setting the value
+     * only if the relation returns a non-empty array.
+     *
+     * @param mixed $model The model instance to extract relational value from
+     */
+    protected function extractRelationalValue($model): void
+    {
+        if (isset($this->relation)) {
+            $value = $this->setRelationalValue($model);
+            if (count($value) > 0) {
+                $this->value = $value;
+            }
+        }
+    }
+
+    /**
+     * Apply custom accessor callback if configured
+     *
+     * This method applies the value accessor callback to transform or override
+     * the current field value, passing both the value and model context.
+     *
+     * @param mixed $model The model instance for accessor context
+     */
+    protected function applyAccessor($model): void
+    {
+        if (isset($this->valueAccessor) && is_callable($this->valueAccessor)) {
+            // Pass both the current value and the model to the accessor
+            // This allows for flexible transformations and access to model data
+            if(isset($this->value)) {
+                $this->value = call_user_func($this->valueAccessor, $this->value, $model);
+            }else{
+                $this->value = call_user_func($this->valueAccessor, null, $model);
+            }
+        }
+    }
 
     /**
      * Fill the field value from the model
@@ -468,29 +522,13 @@ abstract class BaseField
     {
         if (isset($model)) {
             // Step 1: Get the raw value from the model
-            $value = Arr::get($model, $this->name);
-            if (isset($value)) {
-                $this->value = $value;
-            }
+            $this->extractRawValue($model);
 
             // Step 2: Handle relational values
-            if (isset($this->relation)) {
-                $value = $this->setRelationalValue($model);
-                if (count($value) > 0) {
-                    $this->value = $value;
-                }
-            }
+            $this->extractRelationalValue($model);
 
             // Step 3: Apply custom accessor if defined
-            if (isset($this->valueAccessor) && is_callable($this->valueAccessor)) {
-                // Pass both the current value and the model to the accessor
-                // This allows for flexible transformations and access to model data
-                if(isset($this->value)) {
-                    $this->value = call_user_func($this->valueAccessor, $this->value, $model);
-                }else{
-                    $this->value = call_user_func($this->valueAccessor, null, $model);
-                }
-            }
+            $this->applyAccessor($model);
         }
     }
 
