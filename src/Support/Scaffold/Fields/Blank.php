@@ -16,12 +16,6 @@ class Blank extends BaseField
         return $this;
     }
 
-    protected function setValue($model):void
-    {
-       //do not set value
-    }
-
-
 
 
 }

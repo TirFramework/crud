@@ -41,20 +41,20 @@ class DatePicker extends BaseField
         return $this;
     }
 
-    protected function setValue($model): void
-    {
-        if ($model) {
-            $date = Arr::get($model, $this->name);
-            if (isset($date)) {
-                if (gettype($date) != 'object') {
-                    $date = Carbon::make($date);
-                }
-                $this->value = $date;
-            }
-        }
+    // protected function setValue($model): void
+    // {
+    //     if ($model) {
+    //         $date = Arr::get($model, $this->name);
+    //         if (isset($date)) {
+    //             if (gettype($date) != 'object') {
+    //                 $date = Carbon::make($date);
+    //             }
+    //             $this->value = $date;
+    //         }
+    //     }
 
 
-    }
+    // }
 
     private function convertPHPToMomentFormat($format)
     {
