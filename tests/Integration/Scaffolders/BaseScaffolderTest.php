@@ -1,11 +1,12 @@
 <?php
 
-namespace Tir\Crud\Tests\Unit\Scaffolders;
+namespace Tir\Crud\Tests\Integration\Scaffolders;
 
 use Tir\Crud\Tests\TestCase;
 use Tir\Crud\Support\Scaffold\BaseScaffolder;
 use Tir\Crud\Support\Scaffold\Fields\Text;
 use Illuminate\Database\Eloquent\Model;
+use Tir\Crud\Tests\Integration\Scaffolders\TestModels\TestModel;
 
 /**
  * Test scaffolder implementation for testing purposes
@@ -31,15 +32,7 @@ class TestScaffolder extends BaseScaffolder
     }
 }
 
-/**
- * Simple test model for testing
- */
-class TestModel extends Model
-{
-    protected $fillable = ['name', 'email'];
-}
-
-class BaseScaffolderTest extends TestCase
+class BaseScaffolderTest extends \Tir\Crud\Tests\TestCase
 {
     /**
      * Test that scaffolder can be instantiated
