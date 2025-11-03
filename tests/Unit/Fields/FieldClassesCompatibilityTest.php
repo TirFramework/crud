@@ -1,6 +1,6 @@
 <?php
 
-namespace Tir\Crud\Tests\Unit\Scaffolders;
+namespace Tir\Crud\Tests\Unit\Fields;
 
 use Tir\Crud\Support\Scaffold\Fields\BaseField;
 

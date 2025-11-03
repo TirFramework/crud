@@ -47,6 +47,9 @@ trait CrudInit
         // Auto-check access before calling ANY method
         $this->enforceAccess($method);
 
+        // Check if the action is enabled in the scaffolder
+        $this->checkActionEnabled($method);
+
         // Check if parent has callAction method (Laravel's routing controller)
         if (method_exists(parent::class, 'callAction')) {
             return parent::callAction($method, $parameters);

@@ -87,4 +87,18 @@ trait AccessControl
 
         return $filtered;
     }
+
+
+    private function checkActionEnabled(string $method): void
+    {
+        // Import Actions class for checking
+        $actionsClass = \Tir\Crud\Support\Scaffold\Actions::class;
+
+        // Check if the action is enabled in the scaffolder configuration
+        if (!$actionsClass::isEnabled($this->scaffolder->getActions(), $method)) {
+            throw new \Symfony\Component\HttpKernel\Exception\NotFoundHttpException(
+                "Action '{$method}' is not enabled for this resource."
+            );
+        }
+    }
 }
