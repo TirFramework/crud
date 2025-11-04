@@ -7,10 +7,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Tir\Crud\Services\DataService;
 use Tir\Crud\Support\Hooks\TrashHooks;
+use Tir\Crud\Support\Hooks\IndexDataHooks;
 
 trait Trash
 {
-    use TrashHooks;
+    use TrashHooks, IndexDataHooks;
 
 
     public function trashData()

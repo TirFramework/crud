@@ -91,14 +91,47 @@ trait AccessControl
 
     private function checkActionEnabled(string $method): void
     {
-        // Import Actions class for checking
         $actionsClass = \Tir\Crud\Support\Scaffold\Actions::class;
 
-        // Check if the action is enabled in the scaffolder configuration
-        if (!$actionsClass::isEnabled($this->scaffolder->getActions(), $method)) {
+        // Check if action is directly enabled
+        if ($actionsClass::isEnabled($this->scaffolder->getActions(), $method)) {
+            return;
+        }
+
+        // Check if mapped base action is enabled
+        $mappedAction = $this->mapCrudAction($method);
+        if ($mappedAction !== $method && $actionsClass::isEnabled($this->scaffolder->getActions(), $mappedAction)) {
+            return;
+        }
+
+        // Define all default actions and their variants
+        $defaultActions = [
+            'index', 'create', 'show', 'edit', 'destroy', 'forceDelete', 'restore', 'inlineEdit',
+            'data', 'select', 'store', 'update' // route variants
+        ];
+
+        // If it's a default action/variant and neither direct nor mapped action is enabled, block it
+        if (in_array($method, $defaultActions)) {
             throw new \Symfony\Component\HttpKernel\Exception\NotFoundHttpException(
                 "Action '{$method}' is not enabled for this resource."
             );
         }
+
+        // Custom actions allowed by default
+    }    /**
+     * Map route action names to their base CRUD actions
+     */
+    private function mapCrudAction(string $action): string
+    {
+        $baseActions = [
+            'data' => 'index',
+            'select' => 'index',
+            'store' => 'create',
+            'update' => 'edit',
+            'restore' => 'destroy',
+            'forceDelete' => 'forceDelete',
+        ];
+
+        return $baseActions[$action] ?? $action;
     }
 }
