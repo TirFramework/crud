@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Response;
 
 trait Index
 {
-    use IndexData;
+    use Data;
 
     public function index()
     {
