@@ -171,7 +171,7 @@ class DataService
                     }
                 }
             });
-            
+
             return $query;
         };
 
@@ -340,19 +340,19 @@ class DataService
         return $this->executeWithHook('onAccessors', $defaultAccessors, $paginatedResults);
     }
 
-    private function indexResponse($items): mixed
-    {
-        // Define the default behavior as a closure
-        $defaultResponse = function ($i = null) use ($items) {
-            if ($i !== null) {
-                $items = $i;
-            }
-            return Response::json($items, 200);
-        };
+    // private function indexResponse($items): mixed
+    // {
+    //     // Define the default behavior as a closure
+    //     $defaultResponse = function ($i = null) use ($items) {
+    //         if ($i !== null) {
+    //             $items = $i;
+    //         }
+    //         return Response::json($items, 200);
+    //     };
 
-        // Pass the closure to the hook
-        return $this->executeWithHook('onIndexResponse', $defaultResponse, $items);
-    }
+    //     // Pass the closure to the hook
+    //     return $this->executeWithHook('onIndexResponse', $defaultResponse, $items);
+    // }
 
     private function selectColumns(): array
     {
@@ -403,7 +403,6 @@ class DataService
                     $relationType = $this->model()->getRelationType($field->relation->name);
                 }
 
-                $relationType;
 
                 // Use database adapter for many-to-many filtering
                 $adapter = DatabaseAdapterFactory::create($this->model()->getConnection());
