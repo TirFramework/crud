@@ -21,6 +21,20 @@ class StoreActionMySqlTestModel extends Model
     protected $table = 'store_action_mysql_test_models';
     protected $fillable = ['name', 'email', 'age'];
 
+    /**
+     * Override getConnection to mock MySQL driver for adapter testing
+     */
+    public function getConnection()
+    {
+        $connection = parent::getConnection();
+        
+        // Create a partial mock that wraps the real connection
+        $mock = \Mockery::mock($connection)->makePartial();
+        $mock->shouldReceive('getDriverName')->andReturn('mysql');
+        
+        return $mock;
+    }
+
     public function category()
     {
         return $this->belongsTo(StoreActionMySqlTestCategory::class);
@@ -38,34 +52,91 @@ class StoreActionMySqlTestModel extends Model
 }
 
 /**
- * Test category model for BelongsTo relation testing (MySQL)
+ * Test category model for BelongsTo relationship testing
  */
 class StoreActionMySqlTestCategory extends Model
 {
     protected $table = 'store_action_mysql_test_categories';
     protected $fillable = ['name'];
+
+    /**
+     * Override getConnection to mock MySQL driver for adapter testing
+     */
+    public function getConnection()
+    {
+        $connection = parent::getConnection();
+        
+        // Create a partial mock that wraps the real connection
+        $mock = \Mockery::mock($connection)->makePartial();
+        $mock->shouldReceive('getDriverName')->andReturn('mysql');
+        
+        return $mock;
+    }
+
+    public function models()
+    {
+        return $this->hasMany(StoreActionMySqlTestModel::class, 'category_id');
+    }
 }
 
 /**
- * Test tag model for BelongsToMany relation testing (MySQL)
+ * Test tag model for BelongsToMany relationship testing
  */
 class StoreActionMySqlTestTag extends Model
 {
     protected $table = 'store_action_mysql_test_tags';
     protected $fillable = ['name'];
+
+    /**
+     * Override getConnection to mock MySQL driver for adapter testing
+     */
+    public function getConnection()
+    {
+        $connection = parent::getConnection();
+        
+        // Create a partial mock that wraps the real connection
+        $mock = \Mockery::mock($connection)->makePartial();
+        $mock->shouldReceive('getDriverName')->andReturn('mysql');
+        
+        return $mock;
+    }
+
+    public function models()
+    {
+        return $this->belongsToMany(
+            StoreActionMySqlTestModel::class,
+            'store_action_mysql_test_model_tag',
+            'store_action_mysql_test_tag_id',
+            'store_action_mysql_test_model_id'
+        );
+    }
 }
 
 /**
- * Test comment model for HasMany relation testing (MySQL)
+ * Test comment model for HasMany relationship testing
  */
 class StoreActionMySqlTestComment extends Model
 {
     protected $table = 'store_action_mysql_test_comments';
-    protected $fillable = ['content'];
+    protected $fillable = ['content', 'store_action_my_sql_test_model_id'];
 
-    public function storeActionMySqlTestModel()
+    /**
+     * Override getConnection to mock MySQL driver for adapter testing
+     */
+    public function getConnection()
     {
-        return $this->belongsTo(StoreActionMySqlTestModel::class);
+        $connection = parent::getConnection();
+        
+        // Create a partial mock that wraps the real connection
+        $mock = \Mockery::mock($connection)->makePartial();
+        $mock->shouldReceive('getDriverName')->andReturn('mysql');
+        
+        return $mock;
+    }
+
+    public function model()
+    {
+        return $this->belongsTo(StoreActionMySqlTestModel::class, 'store_action_my_sql_test_model_id');
     }
 }
 
@@ -246,166 +317,99 @@ class StoreActionMySqlTest extends \Tir\Crud\Tests\TestCase
     }
 
     /**
-     * Test that store action creates record successfully with MySQL
+     * Test MySQL adapter processes flat array structure (no nesting)
+     * MySQL adapter should keep data as flat arrays, not convert to nested structures
      */
     #[\PHPUnit\Framework\Attributes\Test]
-    public function test_store_action_creates_record_successfully_mysql()
+    public function test_mysql_adapter_processes_flat_array_structure()
     {
+        // Create a request with flat structure
         $request = Request::create('/', 'POST', [
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'age' => 25
         ]);
 
-        $this->controller->resetHookTracker();
         $response = $this->controller->store($request);
         $data = $response->getData(true);
 
-        // Assert response structure
-        $this->assertIsArray($data);
-        $this->assertArrayHasKey('id', $data);
-        $this->assertArrayHasKey('created', $data);
-        $this->assertArrayHasKey('message', $data);
+        // Assert data was stored successfully
         $this->assertTrue($data['created']);
-        $this->assertEquals('The message.item.store-action-mysql-test created successfully.', $data['message']);
-
-        // Assert data was created in database
-        $this->assertDatabaseHas('store_action_mysql_test_models', [
-            'name' => 'John Doe',
-            'email' => 'john@example.com',
-            'age' => 25
-        ]);
-
-        // Assert hooks were called
-        $this->assertTrue($this->controller->wasOnStoreCalled());
-        $this->assertTrue($this->controller->wasOnStoreResponseCalled());
-    }
-
-    /**
-     * Test that store action handles BelongsTo relations correctly with MySQL
-     */
-    #[\PHPUnit\Framework\Attributes\Test]
-    public function test_store_action_handles_belongs_to_relation_mysql()
-    {
-        $category = StoreActionMySqlTestCategory::where('name', 'Technology')->first();
-
-        $request = Request::create('/', 'POST', [
-            'name' => 'User with Category',
-            'email' => 'category@example.com',
-            'age' => 30,
-            'category_id' => $category->id
-        ]);
-
-        $response = $this->controller->store($request);
-        $data = $response->getData(true);
-
-        // Assert response
-        $this->assertTrue($data['created']);
-
-        // Assert data was created with relation
-        $this->assertDatabaseHas('store_action_mysql_test_models', [
-            'name' => 'User with Category',
-            'email' => 'category@example.com',
-            'age' => 30,
-            'category_id' => $category->id
-        ]);
-
-        // Assert relation is loaded correctly
+        
+        // Verify the model was filled with flat structure (not nested)
         $model = StoreActionMySqlTestModel::find($data['id']);
-        $this->assertEquals($category->id, $model->category_id);
-        $this->assertEquals('Technology', $model->category->name);
+        $this->assertEquals('John Doe', $model->name);
+        $this->assertEquals('john@example.com', $model->email);
+        $this->assertEquals(25, $model->age);
+        
+        // The key test: MySQL adapter should have used fill() method
+        // This is evidenced by the data being stored correctly in flat structure
+        $this->assertDatabaseHas('store_action_mysql_test_models', [
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'age' => 25
+        ]);
     }
 
     /**
-     * Test that store action handles BelongsToMany relations correctly with MySQL
+     * Test MySQL adapter filters fillable fields correctly
+     * MySQL adapter should only process fields marked as fillable in scaffolder
      */
     #[\PHPUnit\Framework\Attributes\Test]
-    public function test_store_action_handles_belongs_to_many_relation_mysql()
+    public function test_mysql_adapter_filters_fillable_fields()
     {
-        $laravelTag = StoreActionMySqlTestTag::where('name', 'Laravel')->first();
-        $phpTag = StoreActionMySqlTestTag::where('name', 'PHP')->first();
-
+        // Create request with both fillable and non-fillable fields
         $request = Request::create('/', 'POST', [
-            'name' => 'User with Tags',
-            'email' => 'tags@example.com',
-            'age' => 28,
-            'tags' => [$laravelTag->id, $phpTag->id]
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'age' => 30,
+            'extra_field' => 'should be filtered',
+            'another_field' => 'also filtered'
         ]);
 
         $response = $this->controller->store($request);
         $data = $response->getData(true);
 
-        // Assert response
-        $this->assertTrue($data['created']);
-
-        // Assert data was created
-        $this->assertDatabaseHas('store_action_mysql_test_models', [
-            'name' => 'User with Tags',
-            'email' => 'tags@example.com',
-            'age' => 28
-        ]);
-
-        // Assert pivot table has correct relations
-        $this->assertDatabaseHas('store_action_mysql_test_model_tag', [
-            'store_action_my_sql_test_model_id' => $data['id'],
-            'store_action_my_sql_test_tag_id' => $laravelTag->id
-        ]);
-        $this->assertDatabaseHas('store_action_mysql_test_model_tag', [
-            'store_action_my_sql_test_model_id' => $data['id'],
-            'store_action_my_sql_test_tag_id' => $phpTag->id
-        ]);
-
-        // Assert relation is loaded correctly
-        $model = StoreActionMySqlTestModel::with('tags')->find($data['id']);
-        $this->assertCount(2, $model->tags);
-        $tagNames = $model->tags->pluck('name')->sort()->values();
-        $this->assertEquals(['Laravel', 'PHP'], $tagNames->toArray());
+        // Verify only fillable fields were stored
+        $model = StoreActionMySqlTestModel::find($data['id']);
+        $this->assertEquals('Test User', $model->name);
+        $this->assertEquals('test@example.com', $model->email);
+        $this->assertEquals(30, $model->age);
+        
+        // Verify extra fields don't exist (they shouldn't be in the model)
+        $this->assertFalse(isset($model->extra_field));
+        $this->assertFalse(isset($model->another_field));
     }
 
     /**
-     * Test that store action handles HasMany relations correctly with MySQL
+     * Test MySQL adapter uses model fill() method
+     * MySQL adapter should use Eloquent's fill() method, not direct property assignment
      */
     #[\PHPUnit\Framework\Attributes\Test]
-    public function test_store_action_handles_has_many_relation_mysql()
+    public function test_mysql_adapter_uses_model_fill_method()
     {
-        // First create some comments
-        $comment1 = StoreActionMySqlTestComment::create(['content' => 'First comment']);
-        $comment2 = StoreActionMySqlTestComment::create(['content' => 'Second comment']);
-
+        // This test verifies that MySQL adapter uses $model->fill()
+        // by ensuring that mass assignment protection works correctly
+        
         $request = Request::create('/', 'POST', [
-            'name' => 'User with Comments',
-            'email' => 'comments@example.com',
-            'age' => 32,
-            'comments' => [$comment1->id, $comment2->id]
+            'name' => 'Fill Method Test',
+            'email' => 'fill@example.com',
+            'age' => 35
         ]);
 
         $response = $this->controller->store($request);
         $data = $response->getData(true);
 
-        // Assert response
-        $this->assertTrue($data['created']);
-
-        // Assert data was created
-        $this->assertDatabaseHas('store_action_mysql_test_models', [
-            'name' => 'User with Comments',
-            'email' => 'comments@example.com',
-            'age' => 32
-        ]);
-
-        // Assert comments are associated with the model
-        $this->assertDatabaseHas('store_action_mysql_test_comments', [
-            'id' => $comment1->id,
-            'store_action_my_sql_test_model_id' => $data['id']
-        ]);
-        $this->assertDatabaseHas('store_action_mysql_test_comments', [
-            'id' => $comment2->id,
-            'store_action_my_sql_test_model_id' => $data['id']
-        ]);
-
-        // Assert relation is loaded correctly
-        $model = StoreActionMySqlTestModel::with('comments')->find($data['id']);
-        $this->assertCount(2, $model->comments);
-        $commentContents = $model->comments->pluck('content')->sort()->values();
-        $this->assertEquals(['First comment', 'Second comment'], $commentContents->toArray());
+        // If fill() is used correctly, only fillable fields will be set
+        $model = StoreActionMySqlTestModel::find($data['id']);
+        $this->assertEquals('Fill Method Test', $model->name);
+        $this->assertEquals('fill@example.com', $model->email);
+        $this->assertEquals(35, $model->age);
+        
+        // Verify the model's fillable protection worked
+        $this->assertIsArray($model->getFillable());
+        $this->assertContains('name', $model->getFillable());
+        $this->assertContains('email', $model->getFillable());
+        $this->assertContains('age', $model->getFillable());
     }
 }

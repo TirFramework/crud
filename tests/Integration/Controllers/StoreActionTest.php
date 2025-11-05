@@ -525,4 +525,37 @@ class StoreActionTest extends \Tir\Crud\Tests\TestCase
         $commentContents = $model->comments->pluck('content')->sort()->values();
         $this->assertEquals(['First comment', 'Second comment'], $commentContents->toArray());
     }
+
+    /**
+     * Test that store action handles BelongsTo dissociate when no data is provided
+     */
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function test_store_action_handles_belongs_to_dissociate()
+    {
+        $request = Request::create('/', 'POST', [
+            'name' => 'User without Category',
+            'email' => 'nocategory@example.com',
+            'age' => 28,
+            'category_id' => null  // Explicitly no category
+        ]);
+
+        $response = $this->controller->store($request);
+        $data = $response->getData(true);
+
+        // Assert response
+        $this->assertTrue($data['created']);
+
+        // Assert data was created without category
+        $this->assertDatabaseHas('store_action_test_models', [
+            'name' => 'User without Category',
+            'email' => 'nocategory@example.com',
+            'age' => 28,
+            'category_id' => null
+        ]);
+
+        // Assert relation is not set
+        $model = StoreActionTestModel::find($data['id']);
+        $this->assertNull($model->category_id);
+        $this->assertNull($model->category);
+    }
 }
