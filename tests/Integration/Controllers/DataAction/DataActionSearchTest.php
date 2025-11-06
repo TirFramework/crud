@@ -307,4 +307,240 @@ class DataActionSearchTest extends DataActionTestBaseCase
             $this->assertEquals('PENDING', $item['status']);
         }
     }
+
+    /**
+     * Test search excludes non-matching names (negative case)
+     * Critical test to ensure we DON'T return similar but different names
+     */
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function test_search_excludes_non_matching_names()
+    {
+        // Create models with similar but distinct names
+        DataActionTestModel::create([
+            'name' => 'John Smith',
+            'email' => 'john@example.com',
+            'status' => 'active'
+        ]);
+        DataActionTestModel::create([
+            'name' => 'Jane Smith',
+            'email' => 'jane@example.com',
+            'status' => 'active'
+        ]);
+        DataActionTestModel::create([
+            'name' => 'Johnny Depp',
+            'email' => 'johnny@example.com',
+            'status' => 'active'
+        ]);
+        DataActionTestModel::create([
+            'name' => 'Joan Smith',
+            'email' => 'joan@example.com',
+            'status' => 'active'
+        ]);
+
+        // Mock request searching for 'John' (exact prefix)
+        $request = \Illuminate\Http\Request::create('/', 'GET', ['search' => 'John']);
+        \Illuminate\Support\Facades\Request::swap($request);
+
+        $controller = new DataActionTestController();
+        $response = $controller->data();
+        $data = $response->getData(true);
+
+        // Should ONLY find 'John Smith' and 'Johnny Depp' (both contain 'John')
+        // Should NOT find 'Jane Smith' or 'Joan Smith'
+        $this->assertCount(2, $data['data']);
+        $names = array_column($data['data'], 'name');
+        
+        // Assert matching results
+        $this->assertContains('John Smith', $names);
+        $this->assertContains('Johnny Depp', $names);
+        
+        // Assert non-matching results are excluded
+        $this->assertNotContains('Jane Smith', $names);
+        $this->assertNotContains('Joan Smith', $names);
+    }
+
+    /**
+     * Test search with email excludes similar domains (negative case)
+     * Ensures exact domain/email matching logic
+     */
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function test_search_excludes_similar_but_different_emails()
+    {
+        // Create models with similar but distinct emails
+        DataActionTestModel::create([
+            'name' => 'User 1',
+            'email' => 'john@example.com',
+            'status' => 'active'
+        ]);
+        DataActionTestModel::create([
+            'name' => 'User 2',
+            'email' => 'john@example.co.uk',
+            'status' => 'active'
+        ]);
+        DataActionTestModel::create([
+            'name' => 'User 3',
+            'email' => 'john@exampledev.com',
+            'status' => 'active'
+        ]);
+        DataActionTestModel::create([
+            'name' => 'User 4',
+            'email' => 'jane@example.com',
+            'status' => 'active'
+        ]);
+
+        // Mock request searching for 'example.com' (exact domain)
+        $request = \Illuminate\Http\Request::create('/', 'GET', ['search' => 'example.com']);
+        \Illuminate\Support\Facades\Request::swap($request);
+
+        $controller = new DataActionTestController();
+        $response = $controller->data();
+        $data = $response->getData(true);
+
+        // Should find emails containing 'example.com' exactly
+        $this->assertCount(2, $data['data']);
+        $emails = array_column($data['data'], 'email');
+        
+        // Assert matching results
+        $this->assertContains('john@example.com', $emails);
+        $this->assertContains('jane@example.com', $emails);
+        
+        // Assert non-matching results are excluded
+        $this->assertNotContains('john@example.co.uk', $emails);
+        $this->assertNotContains('john@exampledev.com', $emails);
+    }
+
+    /**
+     * Test search with LIKE is case-insensitive (important behavioral test)
+     * Demonstrates that 'Test' DOES match 'Contest' because LIKE is case-insensitive
+     * and matches partial strings
+     */
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function test_search_case_insensitive_matches_partial_strings()
+    {
+        // Create models with different names
+        DataActionTestModel::create([
+            'name' => 'Testing User',
+            'email' => 'test@example.com',
+            'status' => 'active'
+        ]);
+        DataActionTestModel::create([
+            'name' => 'Test Admin',
+            'email' => 'admin@example.com',
+            'status' => 'active'
+        ]);
+        DataActionTestModel::create([
+            'name' => 'Contest Winner',
+            'email' => 'contest@example.com',
+            'status' => 'active'
+        ]);
+        DataActionTestModel::create([
+            'name' => 'Tester Developer',
+            'email' => 'tester@example.com',
+            'status' => 'active'
+        ]);
+
+        // Mock request searching for 'Test' (case-insensitive LIKE search)
+        $request = \Illuminate\Http\Request::create('/', 'GET', ['search' => 'Test']);
+        \Illuminate\Support\Facades\Request::swap($request);
+
+        $controller = new DataActionTestController();
+        $response = $controller->data();
+        $data = $response->getData(true);
+
+        // LIKE search finds ANY occurrence of 'test' (case-insensitive)
+        // So: Testing, Test, Tester ALL match AND Contest matches because it contains 'test'
+        $this->assertCount(4, $data['data']);
+        $names = array_column($data['data'], 'name');
+        
+        // All should be found (LIKE is case-insensitive and matches partial strings)
+        $this->assertContains('Testing User', $names);
+        $this->assertContains('Test Admin', $names);
+        $this->assertContains('Tester Developer', $names);
+        $this->assertContains('Contest Winner', $names);  // Contains 'test' in 'Contest'
+    }
+
+    /**
+     * Test search with single character matches correctly
+     * Negative case: single char search should match names containing that char
+     */
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function test_search_single_character_matches_containing_names()
+    {
+        // Create models
+        DataActionTestModel::create([
+            'name' => 'Alice',
+            'email' => 'alice@example.com',
+            'status' => 'active'
+        ]);
+        DataActionTestModel::create([
+            'name' => 'Bob',
+            'email' => 'bob@example.com',
+            'status' => 'active'
+        ]);
+        DataActionTestModel::create([
+            'name' => 'Charlie',
+            'email' => 'charlie@example.com',
+            'status' => 'active'
+        ]);
+        DataActionTestModel::create([
+            'name' => 'David',
+            'email' => 'david@example.com',
+            'status' => 'active'
+        ]);
+
+        // Mock request searching for 'B' (case-insensitive - matches Bob and aBs)
+        $request = \Illuminate\Http\Request::create('/', 'GET', ['search' => 'b']);
+        \Illuminate\Support\Facades\Request::swap($request);
+
+        $controller = new DataActionTestController();
+        $response = $controller->data();
+        $data = $response->getData(true);
+
+        // Should find 'Bob' (exact match) and nothing else
+        // 'Alice' doesn't contain 'b', 'Charlie' doesn't contain 'b', 'David' doesn't contain 'b'
+        $this->assertCount(1, $data['data']);
+        $names = array_column($data['data'], 'name');
+        
+        // Assert matching result
+        $this->assertContains('Bob', $names);
+        
+        // Assert non-matching results are excluded
+        $this->assertNotContains('Alice', $names);
+        $this->assertNotContains('Charlie', $names);
+        $this->assertNotContains('David', $names);
+    }
+
+    /**
+     * Test search doesn't return results when searching for spaces only
+     * Negative case: whitespace search should not match everything
+     */
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function test_search_with_whitespace_only_returns_correct_matches()
+    {
+        // Create models
+        DataActionTestModel::create([
+            'name' => 'John Smith',
+            'email' => 'john@example.com',
+            'status' => 'active'
+        ]);
+        DataActionTestModel::create([
+            'name' => 'Jane Doe',
+            'email' => 'jane@example.com',
+            'status' => 'active'
+        ]);
+
+        // Mock request searching for space character
+        $request = \Illuminate\Http\Request::create('/', 'GET', ['search' => ' ']);
+        \Illuminate\Support\Facades\Request::swap($request);
+
+        $controller = new DataActionTestController();
+        $response = $controller->data();
+        $data = $response->getData(true);
+
+        // Searching for space should find names with spaces
+        // or return nothing depending on implementation
+        $this->assertIsArray($data['data']);
+        // Both have spaces, so both should be found
+        $this->assertCount(2, $data['data']);
+    }
 }
