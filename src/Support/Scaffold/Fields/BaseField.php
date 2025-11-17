@@ -9,6 +9,8 @@ abstract class BaseField
 {
     use ValueHandler;
     protected string $type;
+
+    protected string $testId;
     protected string $originalName;
     protected string $name;
     protected mixed $request;
@@ -52,6 +54,7 @@ abstract class BaseField
 
 
 
+
     public static function make(string $name): static
     {
         $obj = new static;
@@ -59,6 +62,7 @@ abstract class BaseField
         $obj->originalName = $obj->name = $obj->request = $obj->className = $name;
         $obj->className = str_replace('.', '-', $name);
         $obj->display = ucwords(str_replace('_', ' ', $name));
+        $obj->testId = 'Field-'.$obj->type.'-'. str_replace(['[', ']', '.'], '-', $name);
         return $obj;
     }
 
