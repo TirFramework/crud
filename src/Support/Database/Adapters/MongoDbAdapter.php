@@ -362,14 +362,15 @@ class MongoDbAdapter implements DatabaseAdapterInterface
     {
         if (is_array($value)) {
             // For nested objects like profile.*, merge with existing data
-            $existingData = $model->{$key} ?? [];
+            $existingData = $model->getAttribute($key) ?? [];
             if (!is_array($existingData)) {
                 $existingData = [];
             }
-            $model->{$key} = array_merge($existingData, $value);
+            $mergedData = array_replace_recursive($existingData, $value);
+            $model->setAttribute($key, $mergedData);
         } else {
             // For simple values, set directly
-            $model->{$key} = $value;
+            $model->setAttribute($key, $value);
         }
     }
 
