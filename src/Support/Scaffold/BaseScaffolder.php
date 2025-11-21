@@ -84,11 +84,8 @@ abstract class BaseScaffolder
     }
 
 
-
-
     public function scaffold($page = '', $model = null): static
     {
-        $this->scaffolderInit();
         app()->instance('crud_current_scaffolder', $this->setModuleName());
 
         if (isset($this->scaffoldedModel) && isset($this->scaffoldedPage)) {
@@ -105,6 +102,9 @@ abstract class BaseScaffolder
         // CRITICAL FIX: Set currentModel BEFORE creating FieldsHandler
         // because FieldsHandler constructor calls setFields() which needs currentModel
         $this->currentModel = $model;
+
+        // Call scaffolderInit to allow child classes to perform additional initialization
+        $this->scaffolderInit();
 
         $this->fieldsHandler = new FieldsHandler($this->setFields(), $page, $model);
         $this->addButtonsToScaffold();

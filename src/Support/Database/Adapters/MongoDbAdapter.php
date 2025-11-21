@@ -93,23 +93,52 @@ class MongoDbAdapter implements DatabaseAdapterInterface
     public function configureRelations($query, $field, $model): mixed
     {
         // MongoDB specific relation handling
-        // if (isset($field->relation)) {
-        //     if ($field->multiple) {
-        //         // MongoDB needs foreign key in many-to-many relation
-        //         $foreignKey = $query->getModel()->{$field->relation->name}()->getForeignKey();
-        //         $otherKey = $query->getModel()->{$field->relation->name}()->getRelated()->getKeyName();
+        // Note: Unlike MySQL which can filter fields at the query level, MongoDB returns all selected fields.
+        // The frontend (Text.jsx) handles filtering via extractRelationValue() using the relation.field 
+        // metadata to display only the correct values (e.g., name instead of ID for display, ID for forms).
+        if (isset($field->relation)) {
+            $relationName = $field->relation->name;
+            $fieldKey = $field->relation->field ?? null;
+            $primaryKey = $field->relation->key ?? '_id';
 
-        //         $query->with([$field->relation->name => function ($q) use ($foreignKey, $otherKey) {
-        //             // MongoDB specific relation configuration if needed
-        //         }]);
-        //     } else {
-        //         // Standard relation for MongoDB
-        //         $query->with($field->relation->name);
-        //     }
-        // }
+            if ($field->multiple) {
+                // Many-to-many or has many relation
+                $query->with([$relationName => function ($q) use ($fieldKey, $primaryKey, $field) {
+                    $selectFields = [$primaryKey];
+
+                    // Approach 1: Data only - return IDs for form selects
+                    if ($field->data) {
+                        // Just select the primary key
+                        $q->select([$primaryKey]);
+                    } else {
+                        // Approach 2: Display values - return the display field
+                        if ($fieldKey) {
+                            $selectFields[] = $fieldKey;
+                        }
+                        $q->select($selectFields);
+                    }
+                }]);
+            } else {
+                // Standard relation (BelongsTo, HasOne)
+                $query->with([$relationName => function ($q) use ($fieldKey, $primaryKey, $field) {
+                    $selectFields = [$primaryKey];
+
+                    // Approach 1: Data only - return ID for form selects
+                    if ($field->data) {
+                        // Just select the primary key
+                        $q->select([$primaryKey]);
+                    } else {
+                        // Approach 2: Display values - return the display field
+                        if ($fieldKey) {
+                            $selectFields[] = $fieldKey;
+                        }
+                        $q->select($selectFields);
+                    }
+                }]);
+            }
+        }
 
         return $query;
-
     }
 
     public function handleManyToManyFilter($query, $field, $value, $model): mixed
@@ -357,21 +386,49 @@ class MongoDbAdapter implements DatabaseAdapterInterface
 
     /**
      * Update nested fields selectively without overwriting other nested fields
+     * Handles empty arrays for clearing nested fields (e.g., profile.speciality: [])
      */
     private function updateNestedField($model, string $key, $value): void
     {
         if (is_array($value)) {
-            // For nested objects like profile.*, merge with existing data
-            $existingData = $model->getAttribute($key) ?? [];
-            if (!is_array($existingData)) {
-                $existingData = [];
+            // Check if any value in $value is an empty array
+            // If so, replace completely instead of merging
+            $hasEmptyArrays = $this->hasEmptyArrays($value);
+
+            if ($hasEmptyArrays) {
+                // Complete replacement for fields with empty arrays (clearing fields)
+                $model->setAttribute($key, $value);
+            } else {
+                // Selective merge for partial updates without empty arrays
+                $existingData = $model->getAttribute($key) ?? [];
+                if (!is_array($existingData)) {
+                    $existingData = [];
+                }
+                $mergedData = array_replace_recursive($existingData, $value);
+                $model->setAttribute($key, $mergedData);
             }
-            $mergedData = array_replace_recursive($existingData, $value);
-            $model->setAttribute($key, $mergedData);
         } else {
             // For simple values, set directly
             $model->setAttribute($key, $value);
         }
+    }
+
+    /**
+     * Check if array contains any empty arrays (for fields that should be cleared)
+     * Recursively checks nested arrays
+     */
+    private function hasEmptyArrays(array $data): bool
+    {
+        foreach ($data as $value) {
+            if (is_array($value) && empty($value)) {
+                return true;
+            }
+            // Check nested arrays recursively
+            if (is_array($value) && !empty($value) && $this->hasEmptyArrays($value)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
