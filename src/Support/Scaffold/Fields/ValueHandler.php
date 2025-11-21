@@ -106,7 +106,7 @@ trait ValueHandler
      * @param string $fieldKey The field to extract from related records
      * @return array Array of extracted values
      */
-    private function extractRelationValues($model, string $relationType, string $fieldKey): array
+    private function extractRelationValues($model, string $relationType, string $fieldKey): mixed
     {
         // Handle collection-based relations (multiple records)
         if ($relationType === 'BelongsToMany' || $relationType === 'HasMany') {
@@ -153,15 +153,15 @@ trait ValueHandler
      *
      * Note: Value is wrapped in array to maintain consistent return type with other relation types
      */
-    private function extractBelongsToValue($model, string $fieldKey): array
+    private function extractBelongsToValue($model, string $fieldKey)
     {
         $relatedModel = $model->{$this->relation->name};
 
         // Return empty array if no related model exists (null relationship)
         if (!$relatedModel) {
-            return [];
+            return null;
         }
 
-        return [$relatedModel->{$fieldKey}];
+        return $relatedModel->{$fieldKey};
     }
 }

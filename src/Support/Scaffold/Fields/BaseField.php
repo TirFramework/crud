@@ -485,7 +485,11 @@ abstract class BaseField
     {
         if (isset($this->relation)) {
             $value = $this->setRelationalValue($model);
-            if (count($value) > 0) {
+            if (is_array($value)) {
+                if(count($value) > 0){
+                    $this->value = $value;
+                }
+            }elseif(isset($value)){
                 $this->value = $value;
             }
         }
