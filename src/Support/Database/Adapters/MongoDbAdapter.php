@@ -94,7 +94,7 @@ class MongoDbAdapter implements DatabaseAdapterInterface
     {
         // MongoDB specific relation handling
         // Note: Unlike MySQL which can filter fields at the query level, MongoDB returns all selected fields.
-        // The frontend (Text.jsx) handles filtering via extractRelationValue() using the relation.field 
+        // The frontend (Text.jsx) handles filtering via extractRelationValue() using the relation.field
         // metadata to display only the correct values (e.g., name instead of ID for display, ID for forms).
         if (isset($field->relation)) {
             $relationName = $field->relation->name;
