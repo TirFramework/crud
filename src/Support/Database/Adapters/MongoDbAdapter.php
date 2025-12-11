@@ -108,6 +108,7 @@ class MongoDbAdapter implements DatabaseAdapterInterface
                 //     $q->select([$primaryKey]);
                 // }]);
 
+
             } else {
                 // Standard relation (BelongsTo, HasOne)
                 $query->with([$relationName => function ($q) use ($fieldKey, $primaryKey, $field) {
@@ -396,8 +397,14 @@ class MongoDbAdapter implements DatabaseAdapterInterface
             if ($this->isArrayField($key, $value)) {
                 // Indexed array (like profile.courses[{...}], resume.work_experience[{...}])
                 // Always replace completely
+            // Check if this is an indexed array that should be completely replaced
+            if ($this->isArrayField($key, $value)) {
+                // Indexed array (like profile.courses[{...}], resume.work_experience[{...}])
+                // Always replace completely
                 $model->setAttribute($key, $value);
             } else {
+                // This is a nested object (like profile, address)
+                // Merge each field within this object, but arrays within it should be replaced
                 // This is a nested object (like profile, address)
                 // Merge each field within this object, but arrays within it should be replaced
                 $existingData = $model->getAttribute($key) ?? [];
