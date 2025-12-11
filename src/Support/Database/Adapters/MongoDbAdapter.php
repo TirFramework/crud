@@ -102,13 +102,10 @@ class MongoDbAdapter implements DatabaseAdapterInterface
             $primaryKey = $field->relation->key ?? '_id';
 
             if ($field->multiple) {
-                //TODO::handle many-to-many or has many relation
-                // $query->with([$relationName => function ($q) use ($fieldKey, $primaryKey, $field) {
-                //     // Just select the primary key for many-to-many relations
-                //     $q->select([$primaryKey]);
-                // }]);
-
-
+                // MongoDB BelongsToMany: Skip eager loading to avoid buildDictionary null issues
+                // When MongoDB documents have null instead of [] for the sync array, eager loading fails
+                // The relation will be lazy loaded when accessed, which handles null safely
+                // Note: If you need eager loading, ensure all documents have [] not null for the sync field
             } else {
                 // Standard relation (BelongsTo, HasOne)
                 $query->with([$relationName => function ($q) use ($fieldKey, $primaryKey, $field) {
@@ -397,14 +394,8 @@ class MongoDbAdapter implements DatabaseAdapterInterface
             if ($this->isArrayField($key, $value)) {
                 // Indexed array (like profile.courses[{...}], resume.work_experience[{...}])
                 // Always replace completely
-            // Check if this is an indexed array that should be completely replaced
-            if ($this->isArrayField($key, $value)) {
-                // Indexed array (like profile.courses[{...}], resume.work_experience[{...}])
-                // Always replace completely
                 $model->setAttribute($key, $value);
             } else {
-                // This is a nested object (like profile, address)
-                // Merge each field within this object, but arrays within it should be replaced
                 // This is a nested object (like profile, address)
                 // Merge each field within this object, but arrays within it should be replaced
                 $existingData = $model->getAttribute($key) ?? [];

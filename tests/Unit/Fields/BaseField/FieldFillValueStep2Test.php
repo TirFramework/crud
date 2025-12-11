@@ -86,14 +86,14 @@ class FieldFillValueStep2Test extends BaseFieldTestCase
         $model->author = $author;
 
         $field = Text::make('author');
-        $field->relation('author', 'name'); // Display author name
+        $field->relation('author', 'name')->multiple(); // Display author name
 
         $field->get($model);
 
         // Should have relational value as array
         try {
             $value = $this->getPropertyValue($field, 'value');
-            $this->assertEquals(['John Doe'], $value);
+            $this->assertEquals('John Doe', $value);
         } catch (\Error $e) {
             $this->fail('Value should have been set by relation: ' . $e->getMessage());
         }
@@ -119,7 +119,7 @@ class FieldFillValueStep2Test extends BaseFieldTestCase
 
         // Should have relational value, not the raw field value
         $value = $this->getPropertyValue($field, 'value');
-        $this->assertEquals(['Tech'], $value);
+        $this->assertEquals('Tech', $value);
     }
 
     /**

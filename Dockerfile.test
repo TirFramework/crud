@@ -43,7 +43,7 @@ COPY . .
 RUN composer dump-autoload --optimize
 
 # Make scripts executable
-RUN chmod +x run-tests.sh test-docker.sh
+RUN chmod +x test-docker.sh
 
 # Default command
 CMD ["./vendor/bin/phpunit", "--colors=always"]
