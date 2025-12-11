@@ -135,7 +135,7 @@ class FieldFillValueStep3Test extends BaseFieldTestCase
         $field->relation('author', 'name');
         $field->accessor(function ($value) {
             // $value will be ['john doe'] from relation
-            return strtoupper($value[0]);
+            return strtoupper($value);
         });
         $field->get($model);
 
