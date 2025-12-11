@@ -102,22 +102,12 @@ class MongoDbAdapter implements DatabaseAdapterInterface
             $primaryKey = $field->relation->key ?? '_id';
 
             if ($field->multiple) {
-                // Many-to-many or has many relation
-                $query->with([$relationName => function ($q) use ($fieldKey, $primaryKey, $field) {
-                    $selectFields = [$primaryKey];
+                //TODO::handle many-to-many or has many relation
+                // $query->with([$relationName => function ($q) use ($fieldKey, $primaryKey, $field) {
+                //     // Just select the primary key for many-to-many relations
+                //     $q->select([$primaryKey]);
+                // }]);
 
-                    // Approach 1: Data only - return IDs for form selects
-                    if ($field->data) {
-                        // Just select the primary key
-                        $q->select([$primaryKey]);
-                    } else {
-                        // Approach 2: Display values - return the display field
-                        if ($fieldKey) {
-                            $selectFields[] = $fieldKey;
-                        }
-                        $q->select($selectFields);
-                    }
-                }]);
             } else {
                 // Standard relation (BelongsTo, HasOne)
                 $query->with([$relationName => function ($q) use ($fieldKey, $primaryKey, $field) {
@@ -386,31 +376,101 @@ class MongoDbAdapter implements DatabaseAdapterInterface
 
     /**
      * Update nested fields selectively without overwriting other nested fields
-     * Handles empty arrays for clearing nested fields (e.g., profile.speciality: [])
+     * Handles both nested objects and arrays within those objects
+     *
+     * CRITICAL LOGIC:
+     * - Nested objects (like profile, address): ALWAYS MERGE fields (e.g., profile.dob, profile.gender)
+     * - Arrays within objects (like profile.courses, resume.work_experience): ALWAYS REPLACE completely
+     * - Empty arrays: REPLACE to clear the field
+     * - Simple values: SET directly
+     *
+     * Examples:
+     * - profile.dob = "1985-08-20" → MERGE (only update dob, keep other profile fields)
+     * - profile.courses = [{...}] → REPLACE (replace entire courses array)
+     * - language.courses = [] → REPLACE (clear the array)
      */
     private function updateNestedField($model, string $key, $value): void
     {
         if (is_array($value)) {
-            // Check if any value in $value is an empty array
-            // If so, replace completely instead of merging
-            $hasEmptyArrays = $this->hasEmptyArrays($value);
-
-            if ($hasEmptyArrays) {
-                // Complete replacement for fields with empty arrays (clearing fields)
+            // Check if this is an indexed array that should be completely replaced
+            if ($this->isArrayField($key, $value)) {
+                // Indexed array (like profile.courses[{...}], resume.work_experience[{...}])
+                // Always replace completely
                 $model->setAttribute($key, $value);
             } else {
-                // Selective merge for partial updates without empty arrays
+                // This is a nested object (like profile, address)
+                // Merge each field within this object, but arrays within it should be replaced
                 $existingData = $model->getAttribute($key) ?? [];
                 if (!is_array($existingData)) {
                     $existingData = [];
                 }
-                $mergedData = array_replace_recursive($existingData, $value);
+
+                // Smart merge: preserve existing fields, but replace any arrays in the value
+                $mergedData = $this->smartMergeNestedObject($existingData, $value);
                 $model->setAttribute($key, $mergedData);
             }
         } else {
             // For simple values, set directly
             $model->setAttribute($key, $value);
         }
+    }
+
+    /**
+     * Smart merge for nested objects that handles arrays within them
+     * RECURSIVELY handles deeply nested structures
+     *
+     * When merging nested objects:
+     * - Keep existing object fields that aren't in the incoming data
+     * - For incoming arrays (indexed), replace them completely (don't merge arrays)
+     * - For incoming objects (associative), merge them recursively
+     * - For simple values, update them directly
+     *
+     * Examples:
+     * - Incoming: {dob: "1990"} → Existing: {dob: "1985", gender: "M", eyes_color: "blue"}
+     *   Result: {dob: "1990", gender: "M", eyes_color: "blue"} ✓ Only dob updated
+     *
+     * - Incoming: {family: {children: 5}} → Existing: {family: {children: 3, name: "John"}}
+     *   Result: {family: {children: 5, name: "John"}} ✓ Only children updated, name preserved
+     *
+     * - Incoming: {address: {street: "New St"}} → Existing: {address: {street: "Old St", city: "NYC"}}
+     *   Result: {address: {street: "New St", city: "NYC"}} ✓ Only street updated, city preserved
+     *
+     * - Incoming: {courses: [{title: "New"}]} → Existing: {courses: [{title: "Old1"}, {title: "Old2"}]}
+     *   Result: {courses: [{title: "New"}]} ✓ Array completely replaced
+     *
+     * @param array $existing The existing nested object data
+     * @param array $incoming The incoming data to merge
+     * @return array The merged data with deeply nested structures preserved and updated correctly
+     */
+    private function smartMergeNestedObject(array $existing, array $incoming): array
+    {
+        $merged = $existing;
+
+        foreach ($incoming as $key => $value) {
+            if (is_array($value)) {
+                // If incoming value is an array, check if it's indexed (array of items) or associative (object)
+                if ($this->isArrayField($key, $value)) {
+                    // Indexed array (like courses: [{...}, {...}])
+                    // Replace completely - don't merge array items
+                    $merged[$key] = $value;
+                } else {
+                    // Associative array (nested object like family: {children: 5, name: "John"})
+                    // RECURSIVELY merge to preserve nested fields
+                    if (isset($existing[$key]) && is_array($existing[$key])) {
+                        // Both existing and incoming are objects: recursively merge them
+                        $merged[$key] = $this->smartMergeNestedObject($existing[$key], $value);
+                    } else {
+                        // No existing data for this key, just set the incoming value
+                        $merged[$key] = $value;
+                    }
+                }
+            } else {
+                // Simple value (string, number, bool, etc.): just set it
+                $merged[$key] = $value;
+            }
+        }
+
+        return $merged;
     }
 
     /**
