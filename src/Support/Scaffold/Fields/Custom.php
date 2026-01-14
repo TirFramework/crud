@@ -36,14 +36,27 @@ class Custom extends BaseField
         return $this;
     }
 
+    /**
+     * Process children fields and prepare them for rendering.
+     * Handles both Field objects (calling their get() method) and already processed data.
+     * 
+     * @param mixed $dataModel The model data to extract values from
+     * @return array Processed children fields
+     */
     private function getChildren($dataModel): array
     {
         $fields = [];
         foreach ($this->children as $input) {
-            if ($this->readonly) {
-                $input->readonly();
+            // Check if $input is a Field object (has get method)
+            if (is_object($input) && method_exists($input, 'get')) {
+                if ($this->readonly) {
+                    $input->readonly();
+                }
+                $fields[] = $input->get($dataModel);
+            } else {
+                // If it's already processed data, just add it as-is
+                $fields[] = $input;
             }
-            $fields[]  = $input->get($dataModel);
         }
         $this->children = $fields;
         return $this->children;
