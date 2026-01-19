@@ -49,18 +49,76 @@ class Additional extends BaseField
         $index = 0;
         foreach ($values as $value) {
             foreach ($this->children as $field) {
-                $field->name = str_replace('*', $index, $field->originalName);
-                if($this->readonly){
-                    $field->readonly();
+                // Clone the field to avoid data sharing between rows
+                $clonedField = clone $field;
+                
+                // If field has children, deep clone them too using Reflection
+                if (property_exists($clonedField, 'children')) {
+                    $reflection = new \ReflectionProperty(get_class($clonedField), 'children');
+                    $reflection->setAccessible(true);
+                    $children = $reflection->getValue($clonedField);
+                    
+                    if (is_array($children)) {
+                        $clonedChildren = [];
+                        foreach ($children as $child) {
+                            if (is_object($child)) {
+                                $clonedChildren[] = clone $child;
+                            } else {
+                                $clonedChildren[] = $child;
+                            }
+                        }
+                        $reflection->setValue($clonedField, $clonedChildren);
+                    }
                 }
-                $fields[$index][] = $field->get($model);
-                unset($field->value);
+                
+                // Recursively replace * with index in field and all nested children
+                $this->replaceWildcardInField($clonedField, $index);
+                
+                if($this->readonly){
+                    $clonedField->readonly();
+                }
+                $fields[$index][] = $clonedField->get($model);
+                unset($clonedField->value);
             }
             $index++;
         }
 
         return $fields;
+    }
 
+    /**
+     * Recursively replace wildcard (*) with index in field name and all nested children.
+     * This handles fields with nested children (like Custom fields) automatically.
+     * 
+     * @param object $field The field object to process
+     * @param int $index The row index to replace the wildcard with
+     * @return void
+     */
+    private function replaceWildcardInField($field, int $index): void
+    {
+        // Replace * in the field's own name
+        if (property_exists($field, 'originalName')) {
+            $field->name = str_replace('*', $index, $field->originalName);
+        }
+        
+        // If field has children property, recursively process them using Reflection
+        if (property_exists($field, 'children')) {
+            try {
+                $reflection = new \ReflectionProperty(get_class($field), 'children');
+                $reflection->setAccessible(true);
+                $children = $reflection->getValue($field);
+                
+                if (is_array($children)) {
+                    foreach ($children as $childField) {
+                        if (is_object($childField)) {
+                            $this->replaceWildcardInField($childField, $index);
+                        }
+                    }
+                }
+            } catch (\ReflectionException $e) {
+                // If reflection fails, skip children processing
+            }
+        }
     }
 
 
