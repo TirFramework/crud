@@ -10,5 +10,7 @@ return [
 
     'access_class' => \Tir\Crud\Support\Acl\Access::Class,
 
+    'enable_logging' => env('CRUD_ENABLE_LOGGING', false)
+
 
 ];
