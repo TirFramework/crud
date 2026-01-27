@@ -70,10 +70,12 @@ class DataService
         $this->query = $this->applyModifiedQuery($this->query);
 
         $adapter = DatabaseAdapterFactory::create($this->model()->getConnection());
-        Log::debug('Data query initialized', [
+        if (config('crud.enable_logging')) {
+            Log::debug('Data query initialized', [
 
-            'query' => $adapter->getSql($this->query),
-        ]);
+                'query' => $adapter->getSql($this->query),
+            ]);
+        }
         $this->query = $this->applyPaginate($this->query);
 
         // Apply accessor transformations to the paginated results

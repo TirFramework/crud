@@ -94,7 +94,10 @@ abstract class BaseScaffolder
                 return $this;
             }
         }
-        Log::debug('Scaffolder: Re-initializing for model: ' . ($model ? get_class($model) : 'null') . ' and page: ' . $page . ' ' . 'Item ID: ' . ($model ? $model->getKey() : 'null'));
+        if(config('crud.enable_logging ')){
+            Log::debug('Scaffolder: Re-initializing for model: ' . ($model ? get_class($model) : 'null') . ' and page: ' . $page . ' ' . 'Item ID: ' . ($model ? $model->getKey() : 'null'));
+        }
+
         $this->scaffoldedModel = $model;
         $this->scaffoldedPage = $page;
         $this->moduleTitle = $this->setModuleTitle();
