@@ -2,6 +2,7 @@
 
 namespace Tir\Crud\Support\Database\Adapters;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -41,7 +42,7 @@ class MySqlAdapter implements DatabaseAdapterInterface
 
     public function processRequestData(array $requestData, array $scaffolderFields = []): array
     {
-        // MySQL: Handle field filtering for request processing
+        // MySQL: Handle field filtering and format conversion for request processing
         if (empty($scaffolderFields)) {
             return $requestData;
         }
@@ -60,13 +61,28 @@ class MySqlAdapter implements DatabaseAdapterInterface
         // Filter request data to only include allowed and fillable fields
         $clearedRequest = [];
         foreach ($requestData as $key => $value) {
+            $isAllowed = false;
+
+            // Check exact match first
             if (in_array($key, $allowedFieldNames)) {
+                $isAllowed = true;
+            } else {
+                // Check if key starts with any allowed field pattern (for family.0.dob etc.)
+                foreach ($allowedFieldNames as $allowedField) {
+                    if (strpos($key, $allowedField . '.') === 0) {
+                        $isAllowed = true;
+                        break;
+                    }
+                }
+            }
+
+            if ($isAllowed) {
                 $clearedRequest[$key] = $value;
             }
         }
 
-        // MySQL doesn't need format conversion - return as-is
-        return $clearedRequest;
+        // Convert dot notation to nested arrays for MySQL
+        return Arr::undot($clearedRequest);
     }
 
     // ========================================
@@ -99,7 +115,7 @@ class MySqlAdapter implements DatabaseAdapterInterface
             $relationKey = $relationTable . '.' . ($field->relation->key ?? $relation->getOwnerKeyName());
             $foreignKey = $relation->getForeignKeyName();
             $cols = $query->getQuery()->columns;
-            
+
             if($field->data){
                 // Approach 1: Data only - Return foreign key ID for select fields
                 // Returns: my_author: 5 (the author_id)
