@@ -2,6 +2,7 @@
 
 namespace Tir\Crud\Support\Database\Adapters;
 
+use Illuminate\Support\Arr;
 use Illuminate\Database\Connection;
 use Tir\Crud\Support\Database\DatabaseAdapterInterface;
 
@@ -38,7 +39,7 @@ class SqliteAdapter implements DatabaseAdapterInterface
 
     public function processRequestData(array $requestData, array $scaffolderFields = []): array
     {
-        // SQLite: Handle field filtering for request processing
+        // SQLite: Handle field filtering and format conversion for request processing
         if (empty($scaffolderFields)) {
             return $requestData;
         }
@@ -57,13 +58,28 @@ class SqliteAdapter implements DatabaseAdapterInterface
         // Filter request data to only include allowed and fillable fields
         $clearedRequest = [];
         foreach ($requestData as $key => $value) {
+            $isAllowed = false;
+
+            // Check exact match first
             if (in_array($key, $allowedFieldNames)) {
+                $isAllowed = true;
+            } else {
+                // Check if key starts with any allowed field pattern (for family.0.dob etc.)
+                foreach ($allowedFieldNames as $allowedField) {
+                    if (strpos($key, $allowedField . '.') === 0) {
+                        $isAllowed = true;
+                        break;
+                    }
+                }
+            }
+
+            if ($isAllowed) {
                 $clearedRequest[$key] = $value;
             }
         }
 
-        // SQLite doesn't need format conversion - return as-is
-        return $clearedRequest;
+        // Convert dot notation to nested arrays for SQLite
+        return Arr::undot($clearedRequest);
     }
 
     // ========================================
@@ -228,29 +244,29 @@ class SqliteAdapter implements DatabaseAdapterInterface
     private function filterOutGuardedFields(array $allowedFields, array $guardedFields): array
     {
         $filteredFields = [];
-        
+
         foreach ($allowedFields as $field) {
             $isGuarded = false;
-            
+
             foreach ($guardedFields as $guardedField) {
                 // Check if field matches guarded field exactly
                 if ($field === $guardedField) {
                     $isGuarded = true;
                     break;
                 }
-                
+
                 // Check if field is a nested field of a guarded field (like profile.eyes_color when profile is guarded)
                 if (strpos($field, $guardedField . '.') === 0) {
                     $isGuarded = true;
                     break;
                 }
             }
-            
+
             if (!$isGuarded) {
                 $filteredFields[] = $field;
             }
         }
-        
+
         return $filteredFields;
     }
 }

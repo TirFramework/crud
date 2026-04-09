@@ -20,7 +20,11 @@ class Modules
     public static function register(Module $module)
     {
         static::init();
-        array_push(Modules::$list, $module);
+        
+        // Only register if module doesn't exist
+        if (self::find($module->name) === false) {
+            array_push(Modules::$list, $module);
+        }
     }
 
     public static function list(): array

@@ -14,7 +14,7 @@ class ResourceRegistrar extends OriginalRegistrar
      * @var array
      */
     protected $resourceDefaults =['index', 'create', 'store', 'edit', 'inlineEdit', 'update', 'destroy',
-                                 'trash','data','select','trashData', 'restore' ,'fullDestroy' ,'action','reorder', 'show'];
+                                 'trash','data','select','trashData', 'restore' ,'forceDelete' ,'action','reorder', 'show'];
 
 
 
@@ -147,11 +147,11 @@ class ResourceRegistrar extends OriginalRegistrar
      * @param  array   $options
      * @return \Illuminate\Routing\Route
      */
-     protected function addResourceFullDestroy($name, $base, $controller, $options)
+     protected function addResourceForceDelete($name, $base, $controller, $options)
     {
-        $uri = $this->getResourceUri($name) .'/{'.$base.'}/'. 'fullDestroy';
+        $uri = $this->getResourceUri($name) .'/{'.$base.'}/'. 'forceDelete';
 
-        $action = $this->getResourceAction($name, $controller, 'fullDestroy', $options);
+        $action = $this->getResourceAction($name, $controller, 'forceDelete', $options);
 
         return $this->router->delete($uri, $action);
     }

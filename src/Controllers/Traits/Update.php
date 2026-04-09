@@ -84,7 +84,7 @@ trait Update
 
             $moduleName = $this->scaffolder()->getModuleName();
             $message = trans('core::message.item-updated', ['item' => trans("message.item.$moduleName")]);
-            $scaffolder = $this->scaffolder()->scaffold('edit', $item)->getEditScaffold();
+            $scaffolder = $this->scaffolder()->scaffold('edit', $item->refresh())->getEditScaffold();
             return Response::Json(
                 [
                     'id' => $item->id,

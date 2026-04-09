@@ -14,6 +14,37 @@ trait Trash
     use TrashHooks, IndexDataHooks;
 
 
+    public function trash()
+    {
+        $cols = [];
+        $scaffold = $this->scaffolder()->scaffold('index')->getIndexScaffold();
+
+        $scaffold['configs']['actions'] = $this->getAvailableActions();
+        foreach ($scaffold['fields'] as $index => $field) {
+            $cols[$index] = [
+                'title'      => $field->display,
+                'dataIndex'  => $field->name,
+                'fieldName'  => $field->name,
+                'valueType'  => $field->valueType,
+                'comment'    => $field->comment,
+                'dataSet'    => $field->dataSet,
+                'dataKey'    => $field->relation->key ?? null,
+                'dataField'  => $field->relation->field ?? null,
+                'relational' => isset($field->relation),
+                'type'       => $field->type,
+                'field'      => $field,
+            ];
+        }
+
+        $data = [
+            'configs'    => $scaffold['configs'],
+            'cols'       => $cols,
+            'dataRoute'  => route('admin.' . $this->scaffolder()->moduleName() . '.trashData'),
+        ];
+
+        return Response::json($data, 200);
+    }
+
     public function trashData()
     {
 
