@@ -11,7 +11,7 @@ trait ForceDelete
     use ForceDeleteHooks;
 
 
-    public function fullDestroy($id)
+    public function forceDelete($id)
     {
 
         // Define the default behavior as a closure
