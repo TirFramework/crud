@@ -77,6 +77,7 @@ trait ProcessRequest
             }
 
             $rules = $this->scaffolder()->getUpdateRules();
+
             $validator = Validator::make($request->all(), $rules);
             $validator->validate();
 
