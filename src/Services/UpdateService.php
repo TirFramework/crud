@@ -39,10 +39,13 @@ class UpdateService
         return $this->model;
     }
 
-    public function update($request, $id)
+    public function update($request, $id, $item = null)
     {
         $model = $this->model;
-        $item = $this->getModelById($id, $request, $model );
+
+        if ($item === null) {
+            $item = $this->getModelById($id, $request, $model);
+        }
 
         $item = $this->updateTransaction($request, $item);
         return $item;

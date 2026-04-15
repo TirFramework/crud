@@ -2,7 +2,6 @@
 
 namespace Tir\Crud\Controllers\Traits;
 
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Tir\Crud\Services\StoreService;
@@ -17,7 +16,8 @@ trait Store
 
     public function store(Request $request)
     {
-        // Access check is now handled automatically in callAction()
+
+        $this->scaffolder = $this->scaffolder()->scaffold('create');
 
         // First process the request
         $processedRequest = $this->processRequest($request);

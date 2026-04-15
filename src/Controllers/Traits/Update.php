@@ -20,12 +20,14 @@ trait Update
     {
 
         // First process the request data
+        $item = $this->model()->findOrFail($id);
+        $this->scaffolder = $this->scaffolder()->scaffold('edit', $item);
         $processedRequest = $this->processRequest($request);
 
         // Then validate the request
         $this->validateUpdateRequest($processedRequest, $id);
 
-        $item = $this->updateCrud($processedRequest, $id);
+        $item = $this->updateCrud($processedRequest, $id, $item);
 
         return $this->updateResponse($item);
 
@@ -35,28 +37,32 @@ trait Update
     public function inlineUpdate(Request $request, int|string $id)
     {
         // First process the request data
+        $item = $this->model()->findOrFail($id);
+        $this->scaffolder = $this->scaffolder()->scaffold('edit', $item);
         $processedRequest = $this->processRequest($request);
 
         // Then validate the request
         $this->validateInlineUpdateRequest($processedRequest, $id);
 
         // Update the item
-        $item = $this->updateCrud($processedRequest, $id);
+        $item = $this->updateCrud($processedRequest, $id, $item);
 
         // Return the response
         return $this->updateResponse($item);
     }
 
-    private function updateCrud($request, $id)
+    private function updateCrud($request, $id, $item = null)
     {
-        $defaultUpdate = function ($req = null, $modelId = null) use ($request, $id) {
+        $defaultUpdate = function ($req = null, $modelId = null, $mdl = null) use ($request, $id, $item) {
             if ($req !== null) {
                 $request = $req;
             }
             if ($modelId !== null) {
                 $id = $modelId;
             }
-
+            if ($mdl !== null) {
+                $item = $mdl;
+            }
 
             $updateService = new UpdateService($this->scaffolder());
 
@@ -65,11 +71,11 @@ trait Update
                 $updateService->setHooks($this->crudHookCallbacks);
             }
 
-            return $updateService->update($request, $id);
+            return $updateService->update($request, $id, $item);
 
         };
 
-        return $this->executeWithHook('onUpdate', $defaultUpdate, $request, $id);
+        return $this->executeWithHook('onUpdate', $defaultUpdate, $request, $id, $item);
 
     }
 
