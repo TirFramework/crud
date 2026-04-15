@@ -9,7 +9,7 @@ trait UpdateHooks
     /**
      * Set custom hook for updating model data
      *
-     * @param callable(callable $defaultUpdate, \Illuminate\Http\Request $request, string|int $id): mixed $callback
+     * @param callable(callable $defaultUpdate, \Illuminate\Http\Request $request, string|int $id, mixed $item): mixed $callback
      */
     protected function onUpdate(callable $callback): self
     {
@@ -20,7 +20,10 @@ trait UpdateHooks
     /**
      * Set custom hook for getting model for update
      *
-     * @param callable(callable $defaultGet, \Illuminate\Http\Request $request, string|int $id): mixed $callback
+     * Note: This hook is only executed when the item has not been pre-fetched by the controller
+     * (i.e. when UpdateService::update() is called directly without an $item argument).
+     *
+     * @param callable(callable $defaultGet, mixed $model, string|int $id, \Illuminate\Http\Request $request): mixed $callback
      */
     protected function onGetModelForUpdate(callable $callback): self
     {

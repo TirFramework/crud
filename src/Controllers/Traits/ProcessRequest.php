@@ -24,7 +24,7 @@ trait ProcessRequest
 
             // Use database adapter for request processing
             $adapter = DatabaseAdapterFactory::create($this->model->getConnection());
-            $scaffolderFields = $this->scaffolder()->scaffold('edit')->fieldsHandler()->getAllDataFields();
+            $scaffolderFields = $this->scaffolder()->fieldsHandler()->getAllDataFields();
 
             // Let adapter handle field filtering and format conversion
             $processedData = $adapter->processRequestData($request->all(), $scaffolderFields);

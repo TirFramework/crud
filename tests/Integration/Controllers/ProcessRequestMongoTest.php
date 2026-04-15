@@ -87,6 +87,7 @@ class ProcessRequestMongoTestController extends \Illuminate\Routing\Controller
     // Expose private methods for testing
     public function testProcessRequest(Request $request)
     {
+        $this->scaffolder = $this->scaffolder()->scaffold('edit');
         return $this->processRequest($request);
     }
 }
