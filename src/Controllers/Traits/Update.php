@@ -19,25 +19,38 @@ trait Update
     public function update(Request $request, int|string $id)
     {
 
-        // First process the request data
-        $item = $this->model()->findOrFail($id);
-        $this->scaffolder = $this->scaffolder()->scaffold('edit', $item);
-        $processedRequest = $this->processRequest($request);
+        $defaultUpdate = function ($req = null, $modelId = null, $mdl = null) use ($request, $id) {
+            if ($req !== null) {
+                $request = $req;
+            }
+            if ($modelId !== null) {
+                $id = $modelId;
+            }
+            if ($mdl !== null) {
+                $item = $mdl;
+            }
+            // First process the request data
+            $item = $this->model()->find($id);
+            $this->scaffolder = $this->scaffolder()->scaffold('edit', $item);
+            $processedRequest = $this->processRequest($request);
 
-        // Then validate the request
-        $this->validateUpdateRequest($processedRequest, $id);
+            // Then validate the request
+            $this->validateUpdateRequest($processedRequest, $id);
 
-        $item = $this->updateCrud($processedRequest, $id, $item);
+            $item = $this->updateCrud($processedRequest, $id, $item);
 
-        return $this->updateResponse($item);
+            return $this->updateResponse($item);
+        };
 
+        return $this->executeWithHook('onUpdate', $defaultUpdate, $request, $id);
 
     }
+
 
     public function inlineUpdate(Request $request, int|string $id)
     {
         // First process the request data
-        $item = $this->model()->findOrFail($id);
+        $item = $this->model()->find($id);
         $this->scaffolder = $this->scaffolder()->scaffold('edit', $item);
         $processedRequest = $this->processRequest($request);
 
@@ -53,29 +66,14 @@ trait Update
 
     private function updateCrud($request, $id, $item = null)
     {
-        $defaultUpdate = function ($req = null, $modelId = null, $mdl = null) use ($request, $id, $item) {
-            if ($req !== null) {
-                $request = $req;
-            }
-            if ($modelId !== null) {
-                $id = $modelId;
-            }
-            if ($mdl !== null) {
-                $item = $mdl;
-            }
+        $updateService = new UpdateService($this->scaffolder());
 
-            $updateService = new UpdateService($this->scaffolder());
+        // Pass hooks to service
+        if (isset($this->crudHookCallbacks)) {
+            $updateService->setHooks($this->crudHookCallbacks);
+        }
 
-            // Pass hooks to service
-            if (isset($this->crudHookCallbacks)) {
-                $updateService->setHooks($this->crudHookCallbacks);
-            }
-
-            return $updateService->update($request, $id, $item);
-
-        };
-
-        return $this->executeWithHook('onUpdate', $defaultUpdate, $request, $id, $item);
+        return $updateService->update($request, $id, $item);
 
     }
 

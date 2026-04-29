@@ -17,43 +17,45 @@ trait Store
     public function store(Request $request)
     {
 
-        $this->scaffolder = $this->scaffolder()->scaffold('create');
-
-        // First process the request
-        $processedRequest = $this->processRequest($request);
-
-        // Then validate the processed request
-        $this->validateCreateRequest($processedRequest);
-
-        // Finally store the data
-        return $this->storeCrud($processedRequest);
-    }
-
-    private function storeCrud($request): mixed
-    {
         // Define the default behavior as a closure
         $defaultStore = function ($req = null) use ($request) {
             if ($req !== null) {
                 $request = $req;
             }
 
-            // Create and configure service
-            $service = new StoreService($this->scaffolder(), $this->model());
+            $this->scaffolder = $this->scaffolder()->scaffold('create');
 
-            // Pass hooks to service
-            if (isset($this->crudHookCallbacks)) {
-                $service->setHooks($this->crudHookCallbacks);
-            }
+            // First process the request
+            $processedRequest = $this->processRequest($request);
 
-            // Execute store logic in service
-            return $service->store($request);
+            // Then validate the processed request
+            $this->validateCreateRequest($processedRequest);
+
+            // Store the data and return the full response
+            $model = $this->storeCrud($processedRequest);
+
+            return $this->storeResponse($model);
         };
 
         // Pass the closure to the hook
-        $model = $this->executeWithHook('onStore', $defaultStore, $request);
+        return $this->executeWithHook('onStore', $defaultStore, $request);
 
-        // Handle response with hooks
-        return $this->storeResponse($model);
+    }
+
+    private function storeCrud($request): mixed
+    {
+
+        // Create and configure service
+        $service = new StoreService($this->scaffolder(), $this->model());
+
+        // Pass hooks to service
+        if (isset($this->crudHookCallbacks)) {
+            $service->setHooks($this->crudHookCallbacks);
+        }
+
+        // Execute store logic in service
+        return $service->store($request);
+
     }
 
     private function storeResponse($model): mixed
