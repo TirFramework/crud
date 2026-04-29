@@ -129,16 +129,14 @@ class StoreActionTestController extends \Illuminate\Routing\Controller
     // Track hook calls for testing
     private bool $onStoreCalled = false;
     private bool $onStoreResponseCalled = false;
-    private mixed $storeData = null;
     private mixed $storeResponseData = null;
 
     protected function setup(): void
     {
-        // Test the onStore hook
+        // onStore wraps the entire store operation (including response), just like onUpdate
         $this->onStore(function ($defaultStore) {
             $this->onStoreCalled = true;
-            $this->storeData = $defaultStore();
-            return $this->storeData;
+            return $defaultStore();
         });
 
         // Test the onStoreResponse hook
@@ -160,11 +158,6 @@ class StoreActionTestController extends \Illuminate\Routing\Controller
         return $this->onStoreResponseCalled;
     }
 
-    public function getStoreData(): mixed
-    {
-        return $this->storeData;
-    }
-
     public function getStoreResponseData(): mixed
     {
         return $this->storeResponseData;
@@ -174,7 +167,6 @@ class StoreActionTestController extends \Illuminate\Routing\Controller
     {
         $this->onStoreCalled = false;
         $this->onStoreResponseCalled = false;
-        $this->storeData = null;
         $this->storeResponseData = null;
     }
 }
@@ -266,12 +258,12 @@ class StoreActionTest extends \Tir\Crud\Tests\TestCase
         $this->assertTrue($this->controller->wasOnStoreCalled());
         $this->assertTrue($this->controller->wasOnStoreResponseCalled());
 
-        // Assert hook data
-        $storeData = $this->controller->getStoreData();
-        $this->assertInstanceOf(StoreActionTestModel::class, $storeData);
-        $this->assertEquals('John Doe', $storeData->name);
-        $this->assertEquals('john@example.com', $storeData->email);
-        $this->assertEquals(25, $storeData->age);
+        // Assert onStoreResponse received the model
+        $storeResponseData = $this->controller->getStoreResponseData();
+        $this->assertInstanceOf(StoreActionTestModel::class, $storeResponseData);
+        $this->assertEquals('John Doe', $storeResponseData->name);
+        $this->assertEquals('john@example.com', $storeResponseData->email);
+        $this->assertEquals(25, $storeResponseData->age);
     }
 
     public function test_store_action_validates_request_data()

@@ -28,6 +28,7 @@ abstract class BaseScaffolder
 
     private $scaffoldedModel;
     private $scaffoldedPage;
+    private $scaffoldedModelAttributes;
 
     protected abstract function setModuleName(): string;
 
@@ -90,8 +91,14 @@ abstract class BaseScaffolder
 
         if (isset($this->scaffoldedModel) && isset($this->scaffoldedPage)) {
             if ($this->scaffoldedModel === $model && $this->scaffoldedPage === $page) {
-                // If the model and page are the same, return the current instance
-                return $this;
+                // Guard against same-reference models whose attributes changed in-place
+                // (e.g. after Eloquent refresh() which returns $this with updated data)
+                $currentAttributes = ($model instanceof \Illuminate\Database\Eloquent\Model)
+                    ? $model->getAttributes()
+                    : null;
+                if ($currentAttributes === $this->scaffoldedModelAttributes) {
+                    return $this;
+                }
             }
         }
         if(config('crud.enable_logging ')){
@@ -100,6 +107,9 @@ abstract class BaseScaffolder
 
         $this->scaffoldedModel = $model;
         $this->scaffoldedPage = $page;
+        $this->scaffoldedModelAttributes = ($model instanceof \Illuminate\Database\Eloquent\Model)
+            ? $model->getAttributes()
+            : null;
         $this->moduleTitle = $this->setModuleTitle();
 
         // CRITICAL FIX: Set currentModel BEFORE creating FieldsHandler

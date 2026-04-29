@@ -449,6 +449,53 @@ class UpdateActionTest extends \Tir\Crud\Tests\TestCase
     }
 
     /**
+     * Test that the scaffolder in the update response reflects the NEW (post-update) values,
+     * not the original (pre-update) values.
+     *
+     * Bug: updateResponse() calls scaffold('edit', $item->refresh()), but refresh() returns
+     * the same PHP object reference. The scaffold() early-return optimization sees
+     * ($this->scaffoldedModel === $model) as true and skips rebuilding the FieldsHandler,
+     * so the response scaffolder fields still carry the pre-update values.
+     */
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function test_update_response_scaffolder_contains_new_values_not_old_values()
+    {
+        $model = UpdateActionTestModel::create([
+            'name' => 'Original Name',
+            'email' => 'original@example.com',
+            'age' => 30,
+        ]);
+
+        $request = Request::create('/', 'PUT', [
+            'name'  => 'Updated Name',
+            'email' => 'updated@example.com',
+            'age'   => 99,
+        ]);
+
+        $response = $this->controller->callAction('update', [$request, $model->id]);
+        $data = $response->getData(true);
+
+        $this->assertTrue($data['updated']);
+
+        // Extract the field values from the scaffolder in the response
+        $fields = collect($data['scaffolder']['fields']);
+
+        $nameValue  = $fields->firstWhere('name', 'name')['value']  ?? null;
+        $emailValue = $fields->firstWhere('name', 'email')['value'] ?? null;
+        $ageValue   = $fields->firstWhere('name', 'age')['value']   ?? null;
+
+        // Assert the scaffolder carries the NEW values (post-update)
+        $this->assertEquals('Updated Name',          $nameValue,  'Scaffolder name field should reflect the updated value, not the original.');
+        $this->assertEquals('updated@example.com',   $emailValue, 'Scaffolder email field should reflect the updated value, not the original.');
+        $this->assertEquals(99,                      $ageValue,   'Scaffolder age field should reflect the updated value, not the original.');
+
+        // Explicitly assert the OLD values are NOT present in the scaffolder
+        $this->assertNotEquals('Original Name',       $nameValue,  'Scaffolder must not return stale pre-update values.');
+        $this->assertNotEquals('original@example.com',$emailValue, 'Scaffolder must not return stale pre-update values.');
+        $this->assertNotEquals(30,                    $ageValue,   'Scaffolder must not return stale pre-update values.');
+    }
+
+    /**
      * Test that update action handles HasMany relations correctly
      */
     #[\PHPUnit\Framework\Attributes\Test]
