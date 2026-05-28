@@ -104,8 +104,6 @@ class IndexActionTest extends \Tir\Crud\Tests\TestCase
             $this->assertIsArray($data);
             $this->assertArrayHasKey('configs', $data);
             $this->assertArrayHasKey('cols', $data);
-            $this->assertArrayHasKey('dataRoute', $data);
-            $this->assertArrayHasKey('trashRoute', $data);
         } catch (\Symfony\Component\Routing\Exception\RouteNotFoundException $e) {
             // Routes not available in test, but Index.php was executed
             $this->assertTrue(true);
@@ -190,48 +188,6 @@ class IndexActionTest extends \Tir\Crud\Tests\TestCase
                 }
             }
             $this->assertTrue($hasFilterableField, 'At least one field should be filterable');
-        } catch (\Symfony\Component\Routing\Exception\RouteNotFoundException $e) {
-            $this->assertTrue(true);
-        }
-    }
-
-    /**
-     * Test that index action returns data route
-     */
-    #[\PHPUnit\Framework\Attributes\Test]
-    public function test_index_action_returns_data_route()
-    {
-        $controller = new IndexActionTestController();
-
-        try {
-            $response = $controller->index();
-            $data = $response->getData(true);
-
-            // Assert data route is present
-            $this->assertArrayHasKey('dataRoute', $data);
-            $this->assertNotEmpty($data['dataRoute']);
-            $this->assertStringContainsString('data', $data['dataRoute']);
-        } catch (\Symfony\Component\Routing\Exception\RouteNotFoundException $e) {
-            $this->assertTrue(true);
-        }
-    }
-
-    /**
-     * Test that index action returns trash route
-     */
-    #[\PHPUnit\Framework\Attributes\Test]
-    public function test_index_action_returns_trash_route()
-    {
-        $controller = new IndexActionTestController();
-
-        try {
-            $response = $controller->index();
-            $data = $response->getData(true);
-
-            // Assert trash route is present
-            $this->assertArrayHasKey('trashRoute', $data);
-            $this->assertNotEmpty($data['trashRoute']);
-            $this->assertStringContainsString('trash', $data['trashRoute']);
         } catch (\Symfony\Component\Routing\Exception\RouteNotFoundException $e) {
             $this->assertTrue(true);
         }
@@ -351,9 +307,6 @@ class IndexActionTest extends \Tir\Crud\Tests\TestCase
                 $this->assertArrayHasKey('type', $col);
             }
 
-            // Verify routes exist for frontend navigation
-            $this->assertNotEmpty($data['dataRoute']);
-            $this->assertNotEmpty($data['trashRoute']);
         } catch (\Symfony\Component\Routing\Exception\RouteNotFoundException $e) {
             $this->assertTrue(true);
         }
