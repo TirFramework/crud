@@ -41,8 +41,8 @@ trait Index
         $data = [
             'configs' => $scaffold['configs'],
             'cols' => $cols,
-            'dataRoute' => route('admin.' . $this->scaffolder()->moduleName() . '.data'),
-            'trashRoute' => route('admin.' . $this->scaffolder()->moduleName() . '.trashData'),
+            // 'dataRoute' => route('admin.' . $this->scaffolder()->moduleName() . '.data'),
+            // 'trashRoute' => route('admin.' . $this->scaffolder()->moduleName() . '.trashData'),
         ];
 
         return Response::json($data, '200');

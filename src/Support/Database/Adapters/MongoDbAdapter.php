@@ -18,6 +18,12 @@ use Tir\Crud\Support\Database\DatabaseAdapterInterface;
  */
 class MongoDbAdapter implements DatabaseAdapterInterface
 {
+    /**
+     * Tracks accumulated display fields per relation name across multiple configureRelations() calls.
+     * Ensures that when multiple scaffolder fields reference the same relation (e.g. first_name + last_name
+     * both on 'candidate'), we select ALL needed fields instead of only the last one registered.
+     */
+    private array $pendingRelationFields = [];
     // ========================================
     // ADAPTER IDENTIFICATION & CONFIGURATION
     // ========================================
@@ -98,8 +104,7 @@ class MongoDbAdapter implements DatabaseAdapterInterface
         // metadata to display only the correct values (e.g., name instead of ID for display, ID for forms).
         if (isset($field->relation)) {
             $relationName = $field->relation->name;
-            $fieldKey = $field->relation->field ?? null;
-            $primaryKey = $field->relation->key ?? '_id';
+            $primaryKey   = $field->relation->key ?? '_id';
 
             if ($field->multiple) {
                 // MongoDB BelongsToMany: Skip eager loading to avoid buildDictionary null issues
@@ -107,22 +112,35 @@ class MongoDbAdapter implements DatabaseAdapterInterface
                 // The relation will be lazy loaded when accessed, which handles null safely
                 // Note: If you need eager loading, ensure all documents have [] not null for the sync field
             } else {
-                // Standard relation (BelongsTo, HasOne)
-                $query->with([$relationName => function ($q) use ($fieldKey, $primaryKey, $field) {
-                    $selectFields = [$primaryKey];
-
-                    // Approach 1: Data only - return ID for form selects
-                    if ($field->data) {
-                        // Just select the primary key
-                        $q->select([$primaryKey]);
-                    } else {
-                        // Approach 2: Display values - return the display field
-                        if ($fieldKey) {
-                            $selectFields[] = $fieldKey;
-                        }
-                        $q->select($selectFields);
+                if ($field->data) {
+                    // Data mode (editable select): only the primary key is needed for form values.
+                    // Register once — if already registered in data mode, skip.
+                    if (!isset($query->getEagerLoads()[$relationName])) {
+                        $query->with([$relationName => function ($q) use ($primaryKey) {
+                            $q->select([$primaryKey]);
+                        }]);
                     }
-                }]);
+                } else {
+                    // Display mode: accumulate all fields from every scaffolder field that references
+                    // this relation, then re-register ->with() with the full accumulated select list.
+                    // Calling ->with() again overwrites the previous constraint, so the LAST call wins
+                    // and includes every field collected so far — safe because DataService iterates all
+                    // fields before executing the query.
+                    $fieldKey = $field->relation->field ?? null;
+
+                    if (!isset($this->pendingRelationFields[$relationName])) {
+                        $this->pendingRelationFields[$relationName] = [$primaryKey];
+                    }
+
+                    if ($fieldKey && !in_array($fieldKey, $this->pendingRelationFields[$relationName])) {
+                        $this->pendingRelationFields[$relationName][] = $fieldKey;
+                    }
+
+                    $selectFields = $this->pendingRelationFields[$relationName];
+                    $query->with([$relationName => function ($q) use ($selectFields) {
+                        $q->select($selectFields);
+                    }]);
+                }
             }
         }
 
@@ -186,7 +204,18 @@ class MongoDbAdapter implements DatabaseAdapterInterface
     public function getSelectColumns($model, array $indexFields): array
     {
         // MongoDB specific: Just get field names without table prefixes
-        return collect($indexFields)->pluck('name')->toArray();
+        $columns = collect($indexFields)->pluck('name')->toArray();
+
+        // For BelongsTo relation fields, automatically include the FK column
+        // so eager loading can resolve the relation.
+        // e.g. ->relation('candidate', 'first_name') needs candidate_id in the SELECT.
+        $fkColumns = collect($indexFields)
+            ->filter(fn($f) => isset($f->relation) && !($f->multiple ?? false))
+            ->map(fn($f) => $f->relation->name . '_id')
+            ->unique()
+            ->toArray();
+
+        return array_unique(array_merge($columns, $fkColumns));
     }
 
     public function getSql($query): array

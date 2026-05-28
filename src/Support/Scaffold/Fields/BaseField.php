@@ -364,8 +364,14 @@ abstract class BaseField
         return $this;
     }
 
-    public function relation(string $name, string $field, string $type = '', string $primaryKey = 'id'): static
+    public function relation(string $name, string $field = '', string $type = '', string $primaryKey = 'id'): static
     {
+        // When field is omitted, infer from dot notation in the field name.
+        // e.g. Text::make('candidate.first_name')->relation('candidate') → field = 'first_name'
+        if ($field === '') {
+            $parts = explode('.', $this->name);
+            $field = count($parts) > 1 ? end($parts) : '';
+        }
         $this->relation = (object) ['name' => $name, 'field' => $field, 'key' => $primaryKey, 'type' => $type,];
         return $this;
     }
