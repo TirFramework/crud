@@ -53,9 +53,12 @@ class CrudServiceProvider extends ServiceProvider
             __DIR__ . '/config/crud.php' => config_path('crud.php'),
         ]);
 
-
-
-
+        // Register commands
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \Tir\Crud\Commands\MakeCrudCommand::class,
+            ]);
+        }
     }
 
 
