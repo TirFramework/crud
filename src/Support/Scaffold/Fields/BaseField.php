@@ -20,7 +20,7 @@ abstract class BaseField
     protected string $display;
     protected string $placeholder = '';
     protected string $class = '';
-    protected int $col = 24;
+    protected int | string $col = 24;
     protected bool $disable = false;
     protected bool $readonly = false;
     protected mixed $defaultValue;
@@ -92,7 +92,7 @@ abstract class BaseField
         return $this;
     }
 
-    public function col(string $number): static
+    public function col(int | string $number): static
     {
         $this->col = $number;
         return $this;
