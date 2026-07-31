@@ -174,6 +174,11 @@ abstract class BaseScaffolder
         return $this->moduleName;
     }
 
+    final function getScaffoldedPage(): string
+    {
+        return $this->scaffoldedPage;
+    }
+
     final function fieldsHandler(): FieldsHandler
     {
 
