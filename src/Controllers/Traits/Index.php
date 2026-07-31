@@ -41,6 +41,7 @@ trait Index
         $data = [
             'configs' => $scaffold['configs'],
             'cols' => $cols,
+            'buttons' => $this->getIndexButtons(),
             // 'dataRoute' => route('admin.' . $this->scaffolder()->moduleName() . '.data'),
             // 'trashRoute' => route('admin.' . $this->scaffolder()->moduleName() . '.trashData'),
         ];
